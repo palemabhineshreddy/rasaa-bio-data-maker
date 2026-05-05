@@ -1,0 +1,178 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: #0a0a12;
+  color: #f8fafc;
+}
+
+/* Animated hero gradient */
+.hero-gradient {
+  background: linear-gradient(-45deg, #0f0620, #1a0040, #0d1b4b, #2d0a5c, #1a0533, #0f1066);
+  background-size: 400% 400%;
+  animation: gradient 14s ease infinite;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Floating orbs */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+/* Glass card */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #e879f9, #a855f7, #818cf8, #fb7185);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-gold {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b, #d97706);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Input styling */
+.form-input {
+  @apply w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/60 focus:bg-white/[0.08] transition-all duration-200;
+  font-family: 'Inter', sans-serif;
+}
+
+.form-input:focus {
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+}
+
+.form-label {
+  @apply block text-sm font-medium text-white/60 mb-1.5;
+}
+
+.form-select {
+  @apply w-full px-4 py-3 rounded-xl border text-white focus:outline-none transition-all duration-200;
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.1);
+  font-family: 'Inter', sans-serif;
+}
+
+.form-select:focus {
+  border-color: rgba(168, 85, 247, 0.6);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+}
+
+.form-select option {
+  background: #1a0040;
+  color: white;
+}
+
+/* Step progress */
+.step-dot {
+  @apply w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300;
+}
+
+.step-dot.active {
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  color: white;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+}
+
+.step-dot.done {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.step-dot.pending {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.3);
+}
+
+/* Primary button */
+.btn-primary {
+  @apply inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white transition-all duration-200;
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  box-shadow: 0 4px 24px rgba(168, 85, 247, 0.35);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(168, 85, 247, 0.5);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Ghost button */
+.btn-ghost {
+  @apply inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.8);
+}
+
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.25);
+}
+
+/* Template card hover */
+.template-card {
+  @apply cursor-pointer rounded-2xl overflow-hidden transition-all duration-300;
+  border: 2px solid transparent;
+}
+
+.template-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(168, 85, 247, 0.3);
+}
+
+.template-card.selected {
+  border-color: #a855f7;
+  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.2), 0 20px 60px rgba(168, 85, 247, 0.3);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.4);
+  border-radius: 3px;
+}
+
+/* Print / PDF preview area */
+.pdf-area {
+  font-family: 'Inter', sans-serif;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
