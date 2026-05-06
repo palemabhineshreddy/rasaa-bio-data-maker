@@ -6,7 +6,7 @@ const LS_KEY = 'rasaa_biodata_v1'
 
 const EMPTY_FORM = {
   // Personal
-  fullName: '', dateOfBirth: '', age: '', gender: 'Male',
+  fullName: '', dateOfBirth: '', age: '', gender: '',
   height: '', weight: '', bloodGroup: '',
   religion: '', caste: '', subCaste: '', motherTongue: '',
   // Education & Career
@@ -16,16 +16,16 @@ const EMPTY_FORM = {
   fatherName: '', fatherOccupation: '',
   motherName: '', motherOccupation: '',
   brothers: '', sisters: '',
-  familyType: 'Nuclear', familyStatus: 'Middle Class', nativePlace: '',
+  familyType: '', familyStatus: '', nativePlace: '',
   // About & Horoscope
   hobbies: '', about: '',
-  rashi: '', nakshatra: '', gotra: '', manglik: 'No',
+  rashi: '', nakshatra: '', gotra: '', manglik: '',
   // Contact
   address: '', city: '', state: '', phone: '', email: '',
   // Photo & Template
   photo: null,
   photoPosition: { x: 50, y: 20 },
-  template: 'modern',
+  template: 'panIndia',
   // User-defined rows
   customFields: [],
 }

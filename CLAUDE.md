@@ -29,8 +29,8 @@ Builder steps (0-indexed):
 |------|-----------------|
 | `src/App.jsx` | `EMPTY_FORM` schema — add/remove form fields here first |
 | `src/pages/BuilderPage.jsx` | Step components (Step1–Step5), `FIELD_JUMPS` config, nav logic, `canNext` validation |
-| `src/components/ModernTemplate.jsx` | Telugu Wedding PDF template layout |
-| `src/components/ClassicTemplate.jsx` | Royal Biodata PDF template layout |
+| `src/components/PanIndiaTemplate.jsx` | Shubh Vivah PDF template — the only active template |
+| `src/utils/formatters.js` | Date formatting utility used by the template |
 
 ### MEDIUM PRIORITY
 | File | What it controls |
@@ -67,9 +67,12 @@ Sections: `'personal'`, `'career'`, `'family'`, `'horoscope'`, `'contact'`, `'cu
 ## Known Issues / Watch Out
 - `weight` field was added to `EMPTY_FORM` and Step1, and now renders in both templates (fixed)
 
-## Template Color Themes
-- **ModernTemplate** (Telugu Wedding): warm saffron/red palette — `red-900`, `amber-500`, `stone-800`, bg `#fffaf0`
-- **ClassicTemplate** (Royal Biodata): rose/slate palette — `rose-950`, `rose-700`, `slate-800`, bg `#fff7f8`
+## Template Color Theme — Shubh Vivah (PanIndiaTemplate)
+- Background: `#FDFAF4` (warm parchment)
+- Outer border: `#6B0F1A` (deep maroon), inner border: `#C9A035` (gold)
+- Label text: `#7B2D2D`, body text: `#1C0808`
+- InfoCard bg: `rgba(255,248,238,0.8)`, left border: `rgba(201,160,53,0.45)`
+- Corner ornaments: SVG lotus with mango-leaf tendrils in gold
 
 ## Dev Commands
 ```bash

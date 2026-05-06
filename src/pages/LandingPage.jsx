@@ -21,80 +21,6 @@ const STEPS = [
   { num: '03', title: 'Download & Share', desc: 'Get your PDF instantly. Share on WhatsApp in seconds.' },
 ]
 
-/* ── Mini biodata preview card ── */
-function MiniCard({ style, className, delay = 0 }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.85 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={`absolute rounded-2xl overflow-hidden shadow-2xl ${className}`}
-      style={style}
-    >
-      <div className="w-48 bg-white text-gray-800" style={{ fontSize: 7, lineHeight: 1.4 }}>
-        {/* Header */}
-        <div className="bg-gradient-to-r from-violet-600 to-purple-500 p-3 flex items-center gap-2">
-          <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center text-white text-base">👤</div>
-          <div>
-            <div className="text-white font-bold text-xs">Priya Sharma</div>
-            <div className="text-purple-200 text-[8px]">Software Engineer · Bengaluru</div>
-          </div>
-        </div>
-        {/* Body */}
-        <div className="p-3 space-y-1.5">
-          {[
-            ['Age', '26 Years'], ['Height', "5'4\""],
-            ['Religion', 'Hindu'], ['Education', 'B.Tech'],
-            ['Family', 'Nuclear, Middle Class'],
-          ].map(([k, v]) => (
-            <div key={k} className="flex gap-1.5">
-              <span className="text-gray-400 w-14 shrink-0">{k}</span>
-              <span className="text-gray-700 font-medium">{v}</span>
-            </div>
-          ))}
-        </div>
-        <div className="px-3 pb-3 pt-1 border-t border-gray-100">
-          <div className="text-[7px] text-purple-600 font-semibold uppercase tracking-wider mb-1">Hobbies</div>
-          <div className="text-gray-600">Classical dance, Reading, Cooking</div>
-        </div>
-      </div>
-    </motion.div>
-  )
-}
-
-function MiniCardModern({ className, delay = 0 }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.85 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={`absolute rounded-2xl overflow-hidden shadow-2xl ${className}`}
-    >
-      <div className="w-44 bg-white text-gray-800 flex" style={{ fontSize: 7, lineHeight: 1.4 }}>
-        {/* Sidebar */}
-        <div className="w-14 bg-gradient-to-b from-rose-500 to-pink-600 p-2 flex flex-col items-center gap-2">
-          <div className="w-10 h-10 rounded-full bg-white/25 flex items-center justify-center text-base">👤</div>
-          <div className="text-white text-center text-[6px] space-y-0.5">
-            <div className="font-bold text-[7px]">Arjun</div>
-            <div className="text-pink-200">26 yrs</div>
-            <div className="text-pink-200">5'11"</div>
-            <div className="mt-2 text-[6px] text-pink-200">📍 Mumbai</div>
-            <div className="text-pink-200">📞 +91 ...</div>
-          </div>
-        </div>
-        {/* Content */}
-        <div className="flex-1 p-2 space-y-1.5">
-          <div className="text-[6px] text-rose-500 font-bold uppercase tracking-wider">Education</div>
-          <div className="text-gray-700">MBA, IIM Ahmedabad</div>
-          <div className="text-[6px] text-rose-500 font-bold uppercase tracking-wider mt-1">Family</div>
-          <div className="text-gray-700">2 Brothers · Joint</div>
-          <div className="text-[6px] text-rose-500 font-bold uppercase tracking-wider mt-1">Interests</div>
-          <div className="text-gray-700">Cricket, Travel, Music</div>
-        </div>
-      </div>
-    </motion.div>
-  )
-}
 
 export default function LandingPage({ onStart, onContinue, savedName }) {
   return (
@@ -222,27 +148,37 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             </motion.div>
           </div>
 
-          {/* Right — floating biodata preview cards */}
-          <div className="flex-1 hidden lg:block relative h-[500px]">
-            {/* Classic card — back */}
+          {/* Right — Shubh Vivah floating preview */}
+          <div className="flex-1 hidden lg:flex items-center justify-center relative h-[500px]">
             <motion.div
-              animate={{ y: [0, -14, 0] }}
-              transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute top-8 right-16"
+              animate={{ y: [0, -12, 0] }}
+              transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+              className="relative"
             >
-              <MiniCard delay={0.4} className="shadow-[0_20px_80px_rgba(168,85,247,0.4)]" />
+              <div style={{ background: '#FDFAF4', width: 200, padding: 10, position: 'relative', boxShadow: '0 20px 80px rgba(201,160,53,0.3)', borderRadius: 2 }}>
+                <div style={{ position: 'absolute', inset: 4, border: '1.5px solid #6B0F1A', pointerEvents: 'none', zIndex: 2 }} />
+                <div style={{ position: 'absolute', inset: 7, border: '0.5px solid #C9A035', pointerEvents: 'none', zIndex: 2 }} />
+                <div style={{ textAlign: 'center', padding: '20px 10px 8px', fontFamily: 'serif' }}>
+                  <div style={{ fontSize: 16, color: '#C9A035' }}>ॐ</div>
+                  <div style={{ fontSize: 6, color: '#9B7320', letterSpacing: '0.3em', textTransform: 'uppercase', fontFamily: 'sans-serif', marginBottom: 6 }}>Shubh Vivah</div>
+                  <div style={{ height: '0.5px', background: '#C9A035', opacity: 0.5, margin: '0 auto 6px', width: 80 }} />
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#3D0505', marginBottom: 2 }}>Priya Sharma</div>
+                  <div style={{ fontSize: 6, color: '#7B2D2D', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: 'sans-serif' }}>Marriage Biodata</div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center', margin: '6px 0' }}>
+                  <div style={{ width: 40, height: 48, border: '1px solid #C9A035', background: 'linear-gradient(135deg,#FFF0DC,#FFE4B5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>👤</div>
+                </div>
+                <div style={{ padding: '0 10px 12px', fontFamily: 'sans-serif' }}>
+                  {[['Age','26 Yrs'],['Religion','Hindu'],['Occ.','Engineer']].map(([k,v]) => (
+                    <div key={k} style={{ display: 'flex', gap: 4, marginBottom: 3, borderLeft: '1.5px solid rgba(201,160,53,0.4)', background: 'rgba(255,248,238,0.8)', padding: '2px 5px' }}>
+                      <span style={{ fontSize: 5.5, fontWeight: 700, textTransform: 'uppercase', color: '#7B2D2D', width: 30, flexShrink: 0 }}>{k}</span>
+                      <span style={{ fontSize: 7, color: '#1C0808', fontWeight: 500 }}>{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </motion.div>
-            {/* Modern card — front */}
-            <motion.div
-              animate={{ y: [0, 16, 0] }}
-              transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-              className="absolute top-32 right-0"
-            >
-              <MiniCardModern delay={0.6} className="shadow-[0_20px_80px_rgba(244,63,94,0.4)]" />
-            </motion.div>
-            {/* Glow behind cards */}
-            <div className="absolute top-20 right-10 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute top-40 right-4 w-48 h-48 bg-pink-500/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute inset-0 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
           </div>
         </div>
 
@@ -315,110 +251,62 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
         </div>
       </section>
 
-      {/* ── TEMPLATES ── */}
+      {/* ── TEMPLATE ── */}
       <section id="templates" className="bg-[#0a0a12] py-24 px-8">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            className="text-center mb-14"
           >
-            <p className="text-purple-400 text-sm font-semibold tracking-widest uppercase mb-3">Templates</p>
-            <h2 className="font-serif text-4xl font-bold text-white mb-4">Marriage biodata templates</h2>
-            <p className="text-white/50 max-w-md mx-auto">Pick a layout made for family sharing, horoscope details and wedding conversations.</p>
+            <p className="text-amber-400 text-sm font-semibold tracking-widest uppercase mb-3">🪷 Shubh Vivah Template</p>
+            <h2 className="font-serif text-4xl font-bold text-white mb-4">A biodata that feels like a wedding invitation</h2>
+            <p className="text-white/50 max-w-lg mx-auto">Lotus corner borders, gold accents, parchment background — designed for Indian families across every region.</p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-10">
-            {/* Modern template preview */}
-            <motion.div
-              initial={{ opacity: 0, x: -32 }} whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }} transition={{ duration: 0.7 }}
-              className="group"
-            >
-              <div className="rounded-3xl overflow-hidden shadow-2xl shadow-pink-500/20 border border-white/5 group-hover:border-pink-500/30 transition-colors duration-500 group-hover:-translate-y-2 transition-transform duration-500">
-                {/* Modern template mockup */}
-                <div className="bg-white flex" style={{ minHeight: 340 }}>
-                  <div className="w-2/5 bg-gradient-to-b from-rose-500 to-pink-700 p-6 flex flex-col items-center text-white">
-                    <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-4xl mb-4 ring-4 ring-white/30">👤</div>
-                    <h3 className="font-serif text-xl font-bold text-center mb-1">Arjun Mehta</h3>
-                    <p className="text-pink-200 text-sm text-center mb-6">Software Engineer</p>
-                    <div className="space-y-2 text-sm text-pink-100 w-full">
-                      {['📍 Mumbai', '📞 +91 98765...', '✉ arjun@...'].map(t => (
-                        <div key={t} className="text-xs">{t}</div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex-1 p-6 bg-white">
-                    <div className="space-y-5">
-                      {[
-                        { title: 'Personal', rows: [['Age', '26 Years'], ['Height', "5'11\""]] },
-                        { title: 'Education', rows: [['Degree', 'B.Tech CSE'], ['College', 'IIT Delhi']] },
-                        { title: 'Family', rows: [['Father', 'Businessman'], ['Siblings', '1 Brother']] },
-                      ].map(({ title, rows }) => (
-                        <div key={title}>
-                          <div className="text-xs font-bold text-rose-500 uppercase tracking-widest mb-2">{title}</div>
-                          {rows.map(([k, v]) => (
-                            <div key={k} className="flex gap-3 text-sm text-gray-700 mb-1">
-                              <span className="text-gray-400 w-20 shrink-0">{k}</span>
-                              <span className="font-medium">{v}</span>
-                            </div>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+          <motion.div
+            initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} transition={{ duration: 0.7 }}
+            className="rounded-3xl overflow-hidden shadow-2xl shadow-amber-500/20 border border-amber-500/20 mx-auto max-w-sm"
+          >
+            {/* Shubh Vivah mockup */}
+            <div style={{ background: '#FDFAF4', padding: 16, position: 'relative', fontFamily: 'serif' }}>
+              {/* Border */}
+              <div style={{ position: 'absolute', inset: 6, border: '2px solid #6B0F1A', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', inset: 10, border: '1px solid #C9A035', pointerEvents: 'none' }} />
+              {/* Header */}
+              <div style={{ textAlign: 'center', padding: '24px 16px 10px' }}>
+                <div style={{ fontSize: 20, color: '#C9A035', marginBottom: 2 }}>ॐ</div>
+                <div style={{ fontSize: 7, color: '#9B7320', letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: 6 }}>Shubh Vivah</div>
+                <div style={{ height: '0.5px', background: '#C9A035', opacity: 0.6, margin: '0 auto 8px', width: 120 }} />
+                <div style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 700, color: '#3D0505', marginBottom: 3 }}>Priya Sharma</div>
+                <div style={{ fontSize: 7, letterSpacing: '0.2em', color: '#7B2D2D', textTransform: 'uppercase', fontFamily: 'sans-serif' }}>Marriage Biodata</div>
               </div>
-              <div className="mt-5 text-center">
-                <span className="text-white font-semibold text-lg">Telugu Wedding</span>
-                <p className="text-white/40 text-sm mt-1">Sacred header · Family sections · Horoscope friendly</p>
+              {/* Mini photo */}
+              <div style={{ display: 'flex', justifyContent: 'center', margin: '8px 0' }}>
+                <div style={{ width: 52, height: 62, border: '1.5px solid #C9A035', background: 'linear-gradient(135deg,#FFF0DC,#FFE4B5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>👤</div>
               </div>
-            </motion.div>
+              {/* Info cards */}
+              <div style={{ padding: '0 16px 16px', fontFamily: 'sans-serif' }}>
+                {[['Age','26 Years'],['Height',"5'4\""],['Religion','Hindu · Brahmin'],['Occupation','Software Engineer']].map(([k,v]) => (
+                  <div key={k} style={{ display: 'flex', gap: 6, marginBottom: 5, paddingLeft: 6, borderLeft: '2px solid rgba(201,160,53,0.4)', background: 'rgba(255,248,238,0.8)', padding: '4px 8px' }}>
+                    <span style={{ fontSize: 7, fontWeight: 700, textTransform: 'uppercase', color: '#7B2D2D', width: 56, flexShrink: 0 }}>{k}</span>
+                    <span style={{ fontSize: 9, color: '#1C0808', fontWeight: 500 }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
 
-            {/* Classic template preview */}
-            <motion.div
-              initial={{ opacity: 0, x: 32 }} whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }} transition={{ duration: 0.7 }}
-              className="group"
-            >
-              <div className="rounded-3xl overflow-hidden shadow-2xl shadow-purple-500/20 border border-white/5 group-hover:border-purple-500/30 transition-colors duration-500 group-hover:-translate-y-2 transition-transform duration-500">
-                {/* Classic template mockup */}
-                <div className="bg-white" style={{ minHeight: 340 }}>
-                  <div className="bg-gradient-to-r from-purple-800 to-violet-700 p-6 flex items-center gap-6">
-                    <div className="flex-1">
-                      <div className="text-purple-300 text-xs font-semibold tracking-widest uppercase mb-1">Matrimonial Biodata</div>
-                      <h3 className="font-serif text-2xl font-bold text-white mb-1">Priya Sharma</h3>
-                      <p className="text-purple-200 text-sm">Software Engineer · Bengaluru</p>
-                    </div>
-                    <div className="w-20 h-20 rounded-xl bg-white/20 flex items-center justify-center text-3xl ring-2 ring-white/30">👤</div>
-                  </div>
-                  <div className="p-6 grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
-                    {[
-                      ['Date of Birth', '12 March 1998'], ['Height', "5'4\""],
-                      ['Religion', 'Hindu · Brahmin'], ['Blood Group', 'B+'],
-                      ['Education', 'B.Tech IT'], ['Company', 'Infosys'],
-                      ['Father', 'Ramesh Sharma (Retired)'], ['Mother', 'Sunita Sharma (Homemaker)'],
-                    ].map(([k, v]) => (
-                      <div key={k}>
-                        <div className="text-purple-700 text-xs font-semibold uppercase tracking-wide">{k}</div>
-                        <div className="text-gray-800 font-medium">{v}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="px-6 pb-6">
-                    <div className="border-t border-purple-100 pt-4">
-                      <div className="text-purple-700 text-xs font-semibold uppercase tracking-wide mb-1">Hobbies</div>
-                      <div className="text-gray-700 text-sm">Classical dance · Reading · Cooking · Badminton</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-5 text-center">
-                <span className="text-white font-semibold text-lg">Royal Biodata</span>
-                <p className="text-white/40 text-sm mt-1">Formal layout · Marriage-ready · Print friendly</p>
-              </div>
-            </motion.div>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex flex-wrap justify-center gap-3 mt-8"
+          >
+            {['Lotus corner borders','Gold & maroon palette','Parchment background','Pan-India auspicious design','All sections included'].map(f => (
+              <span key={f} className="px-4 py-1.5 rounded-full border border-amber-500/30 text-amber-300/80 text-sm">{f}</span>
+            ))}
+          </motion.div>
         </div>
       </section>
 

@@ -1,8 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Check, Download, Heart, RotateCcw, Search, Plus, Trash2, MessageCircle } from 'lucide-react'
-import ModernTemplate from '../components/ModernTemplate'
-import ClassicTemplate from '../components/ClassicTemplate'
 import PanIndiaTemplate from '../components/PanIndiaTemplate'
 import { exportPDF } from '../utils/pdfExport'
 
@@ -17,7 +15,7 @@ const Field = ({ label, name, formData, updateForm, type = 'text', placeholder, 
         value={formData[name]}
         onChange={e => updateForm({ [name]: e.target.value })}
       >
-        {options.map(o => <option key={o} value={o}>{o}</option>)}
+        {options.map(o => <option key={o} value={o}>{o === '' ? '— Select —' : o}</option>)}
       </select>
     ) : (
       <input
@@ -170,7 +168,7 @@ function Step1({ formData, updateForm }) {
         <div className="md:col-span-2">
           <Field label="Full Name *" name="fullName" formData={formData} updateForm={updateForm} placeholder="e.g. Priya Sharma" />
         </div>
-        <Field label="Gender" name="gender" formData={formData} updateForm={updateForm} options={['Male', 'Female']} />
+        <Field label="Gender" name="gender" formData={formData} updateForm={updateForm} options={['', 'Male', 'Female']} />
         <Field label="Date of Birth" name="dateOfBirth" formData={formData} updateForm={updateForm} type="date" />
         <Field label="Age (Years)" name="age" formData={formData} updateForm={updateForm} placeholder="e.g. 26" />
         <Field label="Height" name="height" formData={formData} updateForm={updateForm} placeholder={`e.g. 5'6"`} />
@@ -232,8 +230,8 @@ function Step3({ formData, updateForm }) {
         <Field label="Mother's Occupation" name="motherOccupation" formData={formData} updateForm={updateForm} placeholder="e.g. Homemaker, Teacher" />
         <Field label="Brothers" name="brothers" formData={formData} updateForm={updateForm} placeholder="e.g. 1 Elder (Married)" />
         <Field label="Sisters" name="sisters" formData={formData} updateForm={updateForm} placeholder="e.g. 1 Younger (Unmarried)" />
-        <Field label="Family Type" name="familyType" formData={formData} updateForm={updateForm} options={['Nuclear', 'Joint', 'Extended']} />
-        <Field label="Family Status" name="familyStatus" formData={formData} updateForm={updateForm} options={['Middle Class', 'Upper Middle Class', 'Business Family', 'Affluent']} />
+        <Field label="Family Type" name="familyType" formData={formData} updateForm={updateForm} options={['', 'Nuclear', 'Joint', 'Extended']} />
+        <Field label="Family Status" name="familyStatus" formData={formData} updateForm={updateForm} options={['', 'Middle Class', 'Upper Middle Class', 'Business Family', 'Affluent']} />
         <div className="md:col-span-2">
           <Field label="Native Place" name="nativePlace" formData={formData} updateForm={updateForm} placeholder="e.g. Tirupati, Andhra Pradesh" />
         </div>
@@ -295,7 +293,7 @@ function Step4({ formData, updateForm }) {
           <Field label="Rashi (Moon Sign)" name="rashi" formData={formData} updateForm={updateForm} placeholder="e.g. Vrishabha, Mesha" />
           <Field label="Nakshatra / Star" name="nakshatra" formData={formData} updateForm={updateForm} placeholder="e.g. Rohini, Ashwini" />
           <Field label="Gotra" name="gotra" formData={formData} updateForm={updateForm} placeholder="e.g. Kashyapa, Bharadvaja" />
-          <Field label="Manglik" name="manglik" formData={formData} updateForm={updateForm} options={['No', 'Yes', 'Partial']} />
+          <Field label="Manglik" name="manglik" formData={formData} updateForm={updateForm} options={['', 'No', 'Yes', 'Partial']} />
         </div>
         <InlineCustomFields
           section="horoscope"
@@ -404,7 +402,7 @@ function Step5({ formData, updateForm }) {
 
   return (
     <div className="space-y-8">
-      <StepHeading title="Photo & Template" sub="Upload your photo and choose your biodata style." />
+      <StepHeading title="Your Photo" sub="Upload a clear, front-facing photo for your biodata." />
 
       {/* Photo upload */}
       <div>
@@ -439,36 +437,6 @@ function Step5({ formData, updateForm }) {
         </div>
       </div>
 
-      {/* Template selector */}
-      <div>
-        <SectionTitle>Choose Your Template</SectionTitle>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-          {[
-            { id: 'modern', label: 'Telugu Wedding', sub: 'Sacred · Family · Traditional', emoji: '🪔' },
-            { id: 'classic', label: 'Royal Biodata', sub: 'Elegant · Formal · Marriage-ready', emoji: '💍' },
-            { id: 'panIndia', label: 'Shubh Vivah', sub: 'Lotus border · Gold · Pan-India', emoji: '🪷' },
-          ].map(t => (
-            <button
-              key={t.id}
-              onClick={() => updateForm({ template: t.id })}
-              className={`rounded-2xl p-6 border-2 text-left transition-all duration-200 ${
-                formData.template === t.id
-                  ? 'border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-500/20'
-                  : 'border-white/10 bg-white/3 hover:border-white/20'
-              }`}
-            >
-              <div className="text-2xl mb-3">{t.emoji}</div>
-              <div className="text-white font-semibold">{t.label}</div>
-              <div className="text-white/40 text-sm mt-1">{t.sub}</div>
-              {formData.template === t.id && (
-                <div className="mt-3 inline-flex items-center gap-1 text-xs text-purple-400 font-semibold">
-                  <Check className="w-3 h-3" /> Selected
-                </div>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   )
 }
@@ -498,7 +466,7 @@ const STEPS = [
   { label: 'Career' },
   { label: 'Family' },
   { label: 'About' },
-  { label: 'Design' },
+  { label: 'Photo' },
 ]
 
 /* ── Preview + Download ── */
@@ -570,9 +538,7 @@ function PreviewStep({ formData, onBack, onEditStep }) {
 
       {/* Biodata preview */}
       <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/10" ref={previewRef}>
-        {formData.template === 'modern' && <ModernTemplate data={formData} />}
-        {formData.template === 'classic' && <ClassicTemplate data={formData} />}
-        {formData.template === 'panIndia' && <PanIndiaTemplate data={formData} />}
+        <PanIndiaTemplate data={formData} />
       </div>
 
       <div className="flex gap-4 flex-wrap">
