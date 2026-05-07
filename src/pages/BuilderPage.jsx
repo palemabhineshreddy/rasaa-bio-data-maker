@@ -456,7 +456,7 @@ const SAMPLE_DATA = {
   about: 'Family-oriented, Calm & composed, Love to travel, Value traditions',
   rashi: 'Vrishabha', nakshatra: 'Rohini', gotra: 'Kashyapa', manglik: 'No',
   address: '12, MG Road, Koramangala', city: 'Bengaluru', state: 'Karnataka',
-  phone: '+91 98765 43210', email: 'priya.sharma@email.com',
+  phone: '+91 90000 00000', email: 'priya.sharma@email.com',
   photo: null, photoPosition: { x: 50, y: 20 }, template: 'panIndia', customFields: [],
 }
 
