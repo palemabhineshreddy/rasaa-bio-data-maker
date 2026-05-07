@@ -95,7 +95,7 @@ export default function PanIndiaTemplate({ data }) {
       <div style={{ position: 'absolute', bottom: 0, left: 0, transform: 'scaleY(-1)', zIndex: 3 }}><CornerLotus /></div>
       <div style={{ position: 'absolute', bottom: 0, right: 0, transform: 'rotate(180deg)', zIndex: 3 }}><CornerLotus /></div>
 
-      <div style={{ padding: '48px 28px 28px', position: 'relative', zIndex: 1 }}>
+      <div style={{ padding: '48px 52px 28px 52px', position: 'relative', zIndex: 1 }}>
 
         {/* ── Header: slogan centred ── */}
         <header style={{ textAlign: 'center', marginBottom: 16 }}>
