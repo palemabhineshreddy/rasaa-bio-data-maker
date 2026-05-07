@@ -95,7 +95,7 @@ export default function PanIndiaTemplate({ data }) {
       <div style={{ position: 'absolute', bottom: 0, left: 0, transform: 'scaleY(-1)', zIndex: 3 }}><CornerLotus /></div>
       <div style={{ position: 'absolute', bottom: 0, right: 0, transform: 'rotate(180deg)', zIndex: 3 }}><CornerLotus /></div>
 
-      <div style={{ padding: '48px 36px 28px', position: 'relative', zIndex: 1 }}>
+      <div style={{ padding: '48px 28px 28px', position: 'relative', zIndex: 1 }}>
 
         {/* ── Header: slogan centred ── */}
         <header style={{ textAlign: 'center', marginBottom: 16 }}>
@@ -106,7 +106,7 @@ export default function PanIndiaTemplate({ data }) {
 
         {/* ── Section 1: Personal Details ── */}
         <Divider title="Personal Details" />
-        <div style={{ display: 'grid', gridTemplateColumns: photo ? '1fr 172px' : '1fr', gap: 20, alignItems: 'flex-start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: photo ? '1fr 160px' : '1fr', gap: 12, alignItems: 'flex-start' }}>
 
           {/* Left: personal + career rows */}
           <div>
@@ -132,9 +132,14 @@ export default function PanIndiaTemplate({ data }) {
 
           {/* Right: photo — only rendered when a photo is uploaded */}
           {photo && (
-            <div style={{ width: 152, height: 192, overflow: 'hidden' }}>
-              <img src={photo} alt="profile" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: `${photoPosition.x}% ${photoPosition.y}%`, display: 'block' }} />
-            </div>
+            <div style={{
+              width: 152,
+              height: 192,
+              backgroundImage: `url(${photo})`,
+              backgroundSize: 'cover',
+              backgroundPosition: `${photoPosition.x}% ${photoPosition.y}%`,
+              backgroundRepeat: 'no-repeat',
+            }} />
           )}
         </div>
 
