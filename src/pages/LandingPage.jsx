@@ -1,5 +1,6 @@
-import { motion } from 'framer-motion'
-import { Sparkles, Shield, Download, ChevronRight, Heart, Lock, Zap } from 'lucide-react'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Sparkles, Shield, Download, ChevronRight, Heart, Lock, Zap, X } from 'lucide-react'
 import PanIndiaTemplate from '../components/PanIndiaTemplate'
 import priyaPhoto from '../../Images/AI_Female/Gemini_Generated_Image_y0v7nsy0v7nsy0v7.png'
 
@@ -42,128 +43,175 @@ const fadeUp = {
 
 
 /* ── Template preview cards ── */
-const TEMPLATES = [
+const RELIGIONS = [
   {
-    id: 'pan-india',
-    live: true,
-    label: 'Pan-India',
-    tag: 'Available now',
-    tagColor: '#22c55e',
-    theme: { bg: '#FDFDF9', outer: '#6B0F1A', gold: '#C9A035', accent: '#7B2D2D' },
-    slogan: '॥ श्री गणेशाय नमः ॥',
-    desc: 'Lotus borders · Gold & maroon · Works across all Hindu communities',
-    rows: [['Name','Priya Sharma'],['Religion','Hindu · Brahmin'],['Occupation','Software Engineer']],
+    id: 'hindu', live: true, name: 'Hindu', symbol: 'ॐ',
+    gradient: 'linear-gradient(135deg, #b45309, #C9A035, #92400e)',
+    glow: 'rgba(201,160,53,0.5)', size: 148,
+    desc: 'Pan-India · All communities · Horoscope ready',
+    features: ['Lotus corner ornaments', 'Gold & maroon palette', 'Full horoscope section', 'Photo upload & crop'],
   },
   {
-    id: 'telugu',
-    live: false,
-    label: 'Telugu',
-    tag: 'Coming soon',
-    tagColor: '#f59e0b',
-    theme: { bg: '#FFF8F0', outer: '#7C2D12', gold: '#EA580C', accent: '#92400E' },
-    slogan: '॥ శ్రీ గణేశాయ నమః ॥',
-    desc: 'Saffron & deep red · Traditional family-first layout · Horoscope ready',
-    rows: [['పేరు','ప్రియా శర్మ'],['వృత్తి','సాఫ్ట్‌వేర్ ఇంజనీర్'],['రాశి','వృషభం']],
+    id: 'muslim', live: false, name: 'Muslim', symbol: '☪',
+    gradient: 'linear-gradient(135deg, #14532d, #16a34a)',
+    glow: 'rgba(22,163,74,0.35)', size: 116,
+    desc: 'Nikah Biodata · Urdu-ready · Green & ivory',
   },
   {
-    id: 'punjabi',
-    live: false,
-    label: 'Punjabi',
-    tag: 'Coming soon',
-    tagColor: '#f59e0b',
-    theme: { bg: '#F8F8FF', outer: '#1e3a5f', gold: '#c9a84c', accent: '#2d5282' },
-    slogan: 'ੴ ਸਤਿ ਨਾਮੁ',
-    desc: 'Navy & gold · Sikh-friendly · Clean modern format',
-    rows: [['Name','Priya Sharma'],['Religion','Sikh'],['Occupation','Engineer']],
+    id: 'sikh', live: false, name: 'Sikh', symbol: '☬',
+    gradient: 'linear-gradient(135deg, #1e3a5f, #2563eb)',
+    glow: 'rgba(37,99,235,0.35)', size: 116,
+    desc: 'Punjabi style · Navy & gold · Gurmukhi fields',
   },
   {
-    id: 'muslim',
-    live: false,
-    label: 'Muslim',
-    tag: 'Coming soon',
-    tagColor: '#f59e0b',
-    theme: { bg: '#F0FFF4', outer: '#14532d', gold: '#16a34a', accent: '#166534' },
-    slogan: 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم',
-    desc: 'Green & white · Nikah Biodata format · Urdu-ready',
-    rows: [['Name','Priya Khan'],['Religion','Muslim'],['Location','Hyderabad']],
+    id: 'christian', live: false, name: 'Christian', symbol: '✝',
+    gradient: 'linear-gradient(135deg, #312e81, #6366f1)',
+    glow: 'rgba(99,102,241,0.35)', size: 116,
+    desc: 'Church style · Denomination fields · Ivory & indigo',
   },
   {
-    id: 'christian',
-    live: false,
-    label: 'Christian',
-    tag: 'Coming soon',
-    tagColor: '#f59e0b',
-    theme: { bg: '#F0F4FF', outer: '#1e3a5f', gold: '#6366f1', accent: '#3730a3' },
-    slogan: '✝ To God Be The Glory',
-    desc: 'Ivory & indigo · Church-style · Denomination fields included',
-    rows: [['Name','Priya Thomas'],['Religion','Christian'],['Denomination','Catholic']],
+    id: 'jain', live: false, name: 'Jain', symbol: '🕉',
+    gradient: 'linear-gradient(135deg, #78350f, #d97706)',
+    glow: 'rgba(217,119,6,0.35)', size: 116,
+    desc: 'Sect-specific fields · Amber & brown · Minimalist',
   },
   {
-    id: 'jain',
-    live: false,
-    label: 'Jain',
-    tag: 'Coming soon',
-    tagColor: '#f59e0b',
-    theme: { bg: '#FFFBF0', outer: '#78350f', gold: '#d97706', accent: '#92400e' },
-    slogan: '॥ जय जिनेन्द्र ॥',
-    desc: 'Amber & brown · Sect-specific fields · Minimalist elegance',
-    rows: [['Name','Priya Jain'],['Sect','Digambar'],['Gotra','Kasyapa']],
+    id: 'buddhist', live: false, name: 'Buddhist', symbol: '☸',
+    gradient: 'linear-gradient(135deg, #7c3aed, #a78bfa)',
+    glow: 'rgba(124,58,237,0.35)', size: 116,
+    desc: 'Dhamma-inspired · Saffron & violet · Clean layout',
   },
 ]
 
-function TemplateCard({ t, i }) {
-  const { theme } = t
+function ReligionBubble({ r, i, selected, onSelect }) {
+  const isSelected = selected?.id === r.id
   return (
     <motion.div
-      initial={{ opacity: 0, y: 28 }}
+      className="flex flex-col items-center gap-3 cursor-pointer"
+      initial={{ opacity: 0, y: 32 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: i * 0.08 }}
-      className="relative group"
+      transition={{ duration: 0.5, delay: i * 0.1 }}
+      animate={{ y: [0, i % 2 === 0 ? -10 : -6, 0] }}
+      // @ts-ignore
+      transition2={{ y: { duration: 3 + i * 0.7, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 } }}
+      onClick={() => onSelect(isSelected ? null : r)}
     >
-      {/* Live / coming-soon badge */}
-      <div className="absolute -top-3 left-4 z-10">
-        <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: t.tagColor + '22', color: t.tagColor, border: `1px solid ${t.tagColor}44` }}>
-          {t.tag}
-        </span>
-      </div>
-
-      <div className="rounded-2xl overflow-hidden border transition-all duration-300"
-        style={{ borderColor: t.live ? 'rgba(201,160,53,0.4)' : 'rgba(255,255,255,0.08)', background: t.live ? 'rgba(201,160,53,0.05)' : 'rgba(255,255,255,0.02)' }}>
-
-        {/* Template preview */}
-        <div style={{ position: 'relative', overflow: 'hidden', height: 160 }}>
-          {t.live ? (
-            <LivePreview scale={0.205} visibleH={160} />
-          ) : (
-            <div style={{ background: theme.bg, height: 160, padding: 10, position: 'relative' }}>
-              <div style={{ position: 'absolute', top: 4, right: 4, bottom: 4, left: 4, border: `1px solid ${theme.outer}`, pointerEvents: 'none', opacity: 0.5 }} />
-              <div style={{ textAlign: 'center', fontFamily: 'serif', fontSize: 6.5, color: theme.gold, marginBottom: 5, paddingTop: 4, letterSpacing: '0.08em' }}>{t.slogan}</div>
-              <div style={{ fontFamily: 'sans-serif' }}>
-                {t.rows.map(([k, v]) => (
-                  <div key={k} style={{ display: 'flex', gap: 3, marginBottom: 3, alignItems: 'baseline' }}>
-                    <span style={{ width: 48, flexShrink: 0, fontSize: 5, fontWeight: 700, color: theme.accent, textTransform: 'uppercase' }}>{k}</span>
-                    <span style={{ fontSize: 5, color: theme.gold, marginRight: 2, fontWeight: 700 }}>:</span>
-                    <span style={{ fontSize: 6, color: '#333', fontWeight: 500 }}>{v}</span>
-                  </div>
-                ))}
-              </div>
-              <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 8, fontWeight: 700, color: '#888', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Coming Soon</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Card info */}
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-white font-semibold text-sm">{t.label}</span>
-          </div>
-          <p className="text-white/40 text-xs leading-relaxed">{t.desc}</p>
-        </div>
-      </div>
+      <motion.div
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.94 }}
+        style={{
+          width: r.size, height: r.size, borderRadius: '50%',
+          background: r.gradient,
+          boxShadow: isSelected
+            ? `0 0 0 4px white, 0 12px 48px ${r.glow}`
+            : `0 8px 32px ${r.glow}`,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', gap: 4,
+          position: 'relative', transition: 'box-shadow 0.3s',
+          opacity: !r.live && !isSelected ? 0.65 : 1,
+        }}
+      >
+        <span style={{ fontSize: r.size * 0.28, lineHeight: 1 }}>{r.symbol}</span>
+        {!r.live && (
+          <span style={{ fontSize: 7, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Soon</span>
+        )}
+      </motion.div>
+      <span style={{ fontSize: 12, fontWeight: 600, color: isSelected ? 'white' : 'rgba(255,255,255,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', transition: 'color 0.2s' }}>
+        {r.name}
+      </span>
     </motion.div>
+  )
+}
+
+function TemplatesSection({ onStart }) {
+  const [selected, setSelected] = useState(null)
+
+  return (
+    <section id="templates" className="bg-[#0a0a12] py-28 px-8">
+      <div className="max-w-5xl mx-auto">
+
+        <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-16">
+          <p className="text-amber-400 text-sm font-semibold tracking-widest uppercase mb-4">Templates</p>
+          <h2 className="font-serif text-4xl lg:text-5xl font-bold text-white mb-5">
+            Every faith.<br />Every family.
+          </h2>
+          <p className="text-white/45 max-w-lg mx-auto text-lg leading-relaxed">
+            Your biodata should feel like it belongs to your tradition.
+            Tap your faith to see the design crafted for you.
+          </p>
+        </motion.div>
+
+        {/* Floating religion bubbles */}
+        <div className="flex flex-wrap justify-center items-end gap-8 mb-12">
+          {RELIGIONS.map((r, i) => (
+            <ReligionBubble key={r.id} r={r} i={i} selected={selected} onSelect={setSelected} />
+          ))}
+        </div>
+
+        {/* Expanded panel */}
+        <AnimatePresence>
+          {selected && (
+            <motion.div
+              key={selected.id}
+              initial={{ opacity: 0, y: 24, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.97 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="relative rounded-3xl border overflow-hidden"
+              style={{ borderColor: selected.live ? 'rgba(201,160,53,0.3)' : 'rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}
+            >
+              {/* Close */}
+              <button onClick={() => setSelected(null)}
+                className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full glass flex items-center justify-center text-white/50 hover:text-white transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+
+              {selected.live ? (
+                <div className="flex flex-col lg:flex-row gap-0">
+                  {/* Live preview */}
+                  <div className="flex items-center justify-center p-10 lg:border-r border-white/8"
+                    style={{ background: 'rgba(201,160,53,0.04)' }}>
+                    <LivePreview scale={0.32} visibleH={400} />
+                  </div>
+                  {/* Info */}
+                  <div className="flex-1 p-10 flex flex-col justify-center">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-3xl">{selected.symbol}</span>
+                      <h3 className="font-serif text-3xl font-bold text-white">{selected.name}</h3>
+                    </div>
+                    <p className="text-amber-300/70 text-sm font-semibold tracking-widest uppercase mb-4">Available now</p>
+                    <p className="text-white/50 leading-relaxed mb-8">{selected.desc}</p>
+                    <ul className="space-y-2 mb-10">
+                      {selected.features?.map(f => (
+                        <li key={f} className="flex items-center gap-3 text-white/70 text-sm">
+                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#C9A035' }} />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                    <button onClick={onStart} className="btn-primary self-start px-8 py-4 text-base">
+                      Create with this template <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-20 px-8 text-center">
+                  <span className="text-6xl mb-6">{selected.symbol}</span>
+                  <h3 className="font-serif text-3xl font-bold text-white mb-3">{selected.name} Template</h3>
+                  <p className="text-white/40 max-w-md leading-relaxed mb-6">{selected.desc}</p>
+                  <span className="px-5 py-2 rounded-full text-sm font-semibold" style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)' }}>
+                    In the works — coming soon
+                  </span>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+      </div>
+    </section>
   )
 }
 
@@ -277,33 +325,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
       </section>
 
       {/* ── TEMPLATES ── */}
-      <section id="templates" className="bg-[#0a0a12] py-28 px-8">
-        <div className="max-w-6xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-6">
-            <p className="text-amber-400 text-sm font-semibold tracking-widest uppercase mb-4">Templates</p>
-            <h2 className="font-serif text-4xl lg:text-5xl font-bold text-white mb-5">
-              Every faith.<br />Every language. Every family.
-            </h2>
-            <p className="text-white/45 max-w-xl mx-auto text-lg leading-relaxed">
-              A biodata should feel like it belongs to your culture — not a generic form.
-              We're building dedicated templates for every Indian tradition.
-            </p>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
-            viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex justify-center mb-14">
-            <span className="px-5 py-2 rounded-full glass text-sm text-amber-300/70 border border-amber-500/20">
-              1 live · 5 more on the way
-            </span>
-          </motion.div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-            {TEMPLATES.map((t, i) => <TemplateCard key={t.id} t={t} i={i} />)}
-          </div>
-        </div>
-      </section>
+      <TemplatesSection onStart={onStart} />
 
       {/* ── FEATURES ── */}
       <section className="bg-[#080810] py-28 px-8">
