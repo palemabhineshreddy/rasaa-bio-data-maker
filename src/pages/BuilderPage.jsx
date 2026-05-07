@@ -471,7 +471,7 @@ const STEPS = [
 
 /* ── Preview + Download ── */
 const WA_TEXT = encodeURIComponent(
-  'I just created my marriage biodata on Rasaa — free, no sign-up, takes 5 minutes! Try it: https://rasaa.app'
+  'I just created my marriage biodata on Bandhan — free, no sign-up, takes 5 minutes! Try it: https://bandhan.app'
 )
 
 function PreviewStep({ formData, onBack, onEditStep }) {
@@ -658,7 +658,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
           </button>
           <div className="flex items-center gap-2">
             <Heart className="w-4 h-4 text-pink-400 fill-pink-400" />
-            <span className="font-serif text-white font-semibold">Rasaa Bio Data Maker</span>
+            <span className="font-serif text-white font-semibold">Bandhan</span>
           </div>
           <div className="ml-auto flex items-center gap-4">
             <button

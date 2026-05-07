@@ -41,7 +41,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             className="flex items-center gap-2"
           >
             <Heart className="w-5 h-5 text-pink-400 fill-pink-400" />
-            <span className="font-serif text-xl font-semibold text-white">Rasaa Bio Data Maker</span>
+            <span className="font-serif text-xl font-semibold text-white">Bandhan</span>
           </motion.div>
           <div className="flex items-center gap-3">
             {savedName && (
@@ -90,7 +90,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
               custom={2} variants={fadeUp} initial="hidden" animate="show"
               className="text-lg text-white/60 leading-relaxed mb-10"
             >
-              Rasaa helps families create a clean, traditional Indian marriage biodata in minutes.
+              Bandhan helps families create a clean, traditional Indian marriage biodata in minutes.
               Add personal, family, education and horoscope details, then download a polished PDF.
             </motion.p>
 
@@ -194,7 +194,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             viewport={{ once: true }} transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <p className="text-purple-400 text-sm font-semibold tracking-widest uppercase mb-3">Why Rasaa</p>
+            <p className="text-purple-400 text-sm font-semibold tracking-widest uppercase mb-3">Why Bandhan</p>
             <h2 className="font-serif text-4xl font-bold text-white">Built for Indian families</h2>
           </motion.div>
 
@@ -322,7 +322,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             <p className="text-white/55 leading-relaxed">
               A strong marriage biodata should be easy for families to scan. Start with name, age, height,
               education, profession and location. Add family background, native place, community, horoscope
-              details and contact information. Rasaa keeps these sections organized so the final PDF feels
+              details and contact information. Bandhan keeps these sections organized so the final PDF feels
               like a marriage biodata, not a job resume.
             </p>
           </motion.div>
@@ -332,11 +332,11 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             className="grid gap-4"
           >
             {[
-              ['What details should I include?', 'Personal details, education, profession, family background, horoscope details, photo and contact information. Rasaa has dedicated sections for each.'],
+              ['What details should I include?', 'Personal details, education, profession, family background, horoscope details, photo and contact information. Bandhan has dedicated sections for each.'],
               ['Can I edit after preview?', 'Yes. Use the quick-jump bar at the top to go directly to any field, make your changes, and return to preview instantly.'],
               ['Is it free?', 'Yes, the core builder is completely free — no sign-up, no payment, no hidden steps.'],
               ['How do I share the biodata on WhatsApp?', 'Download the PDF, then use the Share on WhatsApp button that appears. The PDF attaches directly in WhatsApp for families to view.'],
-              ['Will my data be saved if I close the tab?', 'Yes. Rasaa auto-saves your progress in your browser. When you return, your details are waiting — just click Continue.'],
+              ['Will my data be saved if I close the tab?', 'Yes. Bandhan auto-saves your progress in your browser. When you return, your details are waiting — just click Continue.'],
               ['Which format is best for Telugu families?', 'The Telugu Wedding template uses a traditional saffron-and-red layout with a sacred header, family-first sections, and space for full horoscope details including Rashi, Nakshatra, Gotra and Manglik status.'],
             ].map(([q, a]) => (
               <div key={q} className="border border-white/10 bg-white/5 p-5 rounded-lg">
@@ -359,7 +359,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
         >
           <h2 className="font-serif text-4xl lg:text-5xl font-bold text-white mb-6">
             Ready to create your{' '}
-            <span className="gradient-text italic">Rasaa biodata?</span>
+            <span className="gradient-text italic">Bandhan biodata?</span>
           </h2>
           <p className="text-white/60 text-lg mb-10">
             Start free today. Add premium templates and paid tools later as your audience grows.
@@ -375,7 +375,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-white/60">
             <Heart className="w-4 h-4 text-pink-400 fill-pink-400" />
-            <span className="font-serif">Rasaa Bio Data Maker</span>
+            <span className="font-serif">Bandhan</span>
           </div>
           <p className="text-white/30 text-sm">Your data never leaves your browser · 100% Private · Free</p>
         </div>

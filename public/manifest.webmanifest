@@ -1,6 +1,6 @@
 {
-  "name": "Rasaa Bio Data Maker",
-  "short_name": "Rasaa",
+  "name": "Bandhan",
+  "short_name": "Bandhan",
   "description": "Free Indian marriage biodata maker for creating printable PDF biodata.",
   "start_url": "/",
   "display": "standalone",
@@ -8,7 +8,7 @@
   "theme_color": "#5b1230",
   "icons": [
     {
-      "src": "/rasaa-icon.svg",
+      "src": "/bandhan-icon.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"

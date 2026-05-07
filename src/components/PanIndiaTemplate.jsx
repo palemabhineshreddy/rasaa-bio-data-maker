@@ -10,7 +10,7 @@ const COLOR_OUTER     = '#6B0F1A'   // maroon border
 const COLOR_GOLD      = '#C9A035'   // gold accent
 const COLOR_LABEL     = '#7B2D2D'   // row label color
 const COLOR_VALUE     = '#1C0808'   // row value color
-const COLOR_BG        = '#FDFAF4'   // parchment background
+const COLOR_BG        = '#FDFDF9'   // premium near-white (barely-warm ivory)
 
 function CornerLotus() {
   return (
@@ -38,26 +38,10 @@ function CornerLotus() {
 
 function Divider({ title }) {
   return (
-    <div data-pdf-divider="true" style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '14px 0 6px' }}>
-      <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, transparent, ${COLOR_GOLD} 80%)` }} />
-      <svg width="18" height="18" viewBox="0 0 18 18">
-        <rect x="5" y="5" width="8" height="8" transform="rotate(45 9 9)" fill={COLOR_GOLD} />
-        <circle cx="9" cy="1.5" r="1.5" fill={COLOR_GOLD} />
-        <circle cx="9" cy="16.5" r="1.5" fill={COLOR_GOLD} />
-        <circle cx="1.5" cy="9" r="1.5" fill={COLOR_GOLD} />
-        <circle cx="16.5" cy="9" r="1.5" fill={COLOR_GOLD} />
-      </svg>
-      <span style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.22em', color: COLOR_OUTER, whiteSpace: 'nowrap' }}>
+    <div data-pdf-divider="true" style={{ margin: '20px 0 6px' }}>
+      <span style={{ fontSize: 12, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', color: COLOR_OUTER }}>
         {title}
       </span>
-      <svg width="18" height="18" viewBox="0 0 18 18">
-        <rect x="5" y="5" width="8" height="8" transform="rotate(45 9 9)" fill={COLOR_GOLD} />
-        <circle cx="9" cy="1.5" r="1.5" fill={COLOR_GOLD} />
-        <circle cx="9" cy="16.5" r="1.5" fill={COLOR_GOLD} />
-        <circle cx="1.5" cy="9" r="1.5" fill={COLOR_GOLD} />
-        <circle cx="16.5" cy="9" r="1.5" fill={COLOR_GOLD} />
-      </svg>
-      <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${COLOR_GOLD} 80%)` }} />
     </div>
   )
 }
@@ -122,7 +106,7 @@ export default function PanIndiaTemplate({ data }) {
 
         {/* ── Section 1: Personal Details ── */}
         <Divider title="Personal Details" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 134px', gap: 16, alignItems: 'flex-start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: photo ? '1fr 172px' : '1fr', gap: 20, alignItems: 'flex-start' }}>
 
           {/* Left: personal + career rows */}
           <div>
@@ -146,20 +130,12 @@ export default function PanIndiaTemplate({ data }) {
             {bySection('career').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
           </div>
 
-          {/* Right: photo */}
-          <div style={{ position: 'relative' }}>
-            <div style={{ width: 126, height: 152, border: `2px solid ${COLOR_GOLD}`, background: '#FFF5E0', overflow: 'hidden' }}>
-              {photo ? (
-                <img src={photo} alt="profile" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: `${photoPosition.x}% ${photoPosition.y}%`, display: 'block' }} />
-              ) : (
-                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 44, background: 'linear-gradient(135deg,#FFF0DC,#FFE4B5)' }}>👤</div>
-              )}
+          {/* Right: photo — only rendered when a photo is uploaded */}
+          {photo && (
+            <div style={{ width: 152, height: 192, overflow: 'hidden' }}>
+              <img src={photo} alt="profile" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: `${photoPosition.x}% ${photoPosition.y}%`, display: 'block' }} />
             </div>
-            <div style={{ position: 'absolute', top: -4, left: -4, width: 12, height: 12, borderTop: `2.5px solid ${COLOR_OUTER}`, borderLeft: `2.5px solid ${COLOR_OUTER}` }} />
-            <div style={{ position: 'absolute', top: -4, right: -4, width: 12, height: 12, borderTop: `2.5px solid ${COLOR_OUTER}`, borderRight: `2.5px solid ${COLOR_OUTER}` }} />
-            <div style={{ position: 'absolute', bottom: -4, left: -4, width: 12, height: 12, borderBottom: `2.5px solid ${COLOR_OUTER}`, borderLeft: `2.5px solid ${COLOR_OUTER}` }} />
-            <div style={{ position: 'absolute', bottom: -4, right: -4, width: 12, height: 12, borderBottom: `2.5px solid ${COLOR_OUTER}`, borderRight: `2.5px solid ${COLOR_OUTER}` }} />
-          </div>
+          )}
         </div>
 
         {/* ── Section 2: Family Details ── */}
@@ -211,7 +187,7 @@ export default function PanIndiaTemplate({ data }) {
             <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${COLOR_GOLD})` }} />
           </div>
           <div style={{ fontSize: 8, color: '#9B7320', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
-            Created with Rasaa · rasaa.app
+            Created with Bandhan · bandhan.app
           </div>
         </div>
 

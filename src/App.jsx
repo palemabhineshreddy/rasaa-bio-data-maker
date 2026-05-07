@@ -2,7 +2,7 @@ import { useState } from 'react'
 import LandingPage from './pages/LandingPage'
 import BuilderPage from './pages/BuilderPage'
 
-const LS_KEY = 'rasaa_biodata_v1'
+const LS_KEY = 'bandhan_biodata_v1'
 
 const EMPTY_FORM = {
   // Personal

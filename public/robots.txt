@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://rasaa.app/sitemap.xml
+Sitemap: https://bandhan.app/sitemap.xml
