@@ -1,5 +1,36 @@
 import { motion } from 'framer-motion'
 import { Sparkles, Shield, Download, ChevronRight, Heart, Lock, Zap } from 'lucide-react'
+import PanIndiaTemplate from '../components/PanIndiaTemplate'
+import priyaPhoto from '../../Images/AI_Female/Gemini_Generated_Image_y0v7nsy0v7nsy0v7.png'
+
+const PRIYA_DATA = {
+  fullName: 'Priya Sharma', dateOfBirth: '1998-03-12', age: '26', gender: 'Female',
+  height: "5'4\"", weight: '55 kg', bloodGroup: 'B+',
+  religion: 'Hindu', caste: 'Brahmin', subCaste: 'Iyer', motherTongue: 'Telugu',
+  education: 'B.Tech (Computer Science)', college: 'JNTU Hyderabad',
+  occupation: 'Software Engineer', company: 'Infosys', income: '8 LPA', workLocation: 'Bengaluru',
+  fatherName: 'Ramesh Sharma', fatherOccupation: 'Retired Government Officer',
+  motherName: 'Sunita Sharma', motherOccupation: 'Homemaker',
+  brothers: '1 Elder Brother (Married)', sisters: 'None',
+  familyType: 'Nuclear', familyStatus: 'Middle Class', nativePlace: 'Tirupati, Andhra Pradesh',
+  hobbies: 'Classical Dance, Reading, Cooking', about: 'Family-oriented, calm & composed, loves to travel',
+  rashi: 'Vrishabha', nakshatra: 'Rohini', gotra: 'Kashyapa', manglik: 'No',
+  address: '12, MG Road, Koramangala', city: 'Bengaluru', state: 'Karnataka',
+  phone: '+91 90000 00000', email: 'priya.sharma@email.com',
+  photo: priyaPhoto, photoPosition: { x: 50, y: 20 }, customFields: [],
+}
+
+/* Renders the actual PanIndiaTemplate scaled down — pixel-perfect preview */
+function LivePreview({ scale = 0.28, visibleH = 320 }) {
+  const naturalW = 760
+  return (
+    <div style={{ width: Math.round(naturalW * scale), height: visibleH, overflow: 'hidden', borderRadius: 4, boxShadow: '0 32px 80px rgba(201,160,53,0.22), 0 8px 24px rgba(0,0,0,0.35)', flexShrink: 0 }}>
+      <div style={{ width: naturalW, transform: `scale(${scale})`, transformOrigin: 'top left', pointerEvents: 'none' }}>
+        <PanIndiaTemplate data={PRIYA_DATA} />
+      </div>
+    </div>
+  )
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
@@ -9,56 +40,6 @@ const fadeUp = {
   })
 }
 
-/* ── Mini biodata card used in hero ── */
-function BiodataCard() {
-  return (
-    <div style={{
-      background: '#FDFDF9', width: 220, position: 'relative',
-      boxShadow: '0 32px 80px rgba(201,160,53,0.25), 0 8px 24px rgba(0,0,0,0.3)',
-      borderRadius: 3, overflow: 'hidden',
-    }}>
-      <div style={{ position: 'absolute', top: 5, right: 5, bottom: 5, left: 5, border: '1.5px solid #6B0F1A', pointerEvents: 'none', zIndex: 2 }} />
-      <div style={{ position: 'absolute', top: 9, right: 9, bottom: 9, left: 9, border: '0.5px solid #C9A035', pointerEvents: 'none', zIndex: 2 }} />
-
-      <div style={{ padding: '28px 18px 6px', textAlign: 'center', fontFamily: 'serif', position: 'relative', zIndex: 1 }}>
-        <div style={{ fontSize: 11, color: '#C9A035', letterSpacing: '0.1em', marginBottom: 10 }}>॥ श्री गणेशाय नमः ॥</div>
-      </div>
-
-      {/* Personal details + photo grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 58px', gap: 6, padding: '0 14px 10px', position: 'relative', zIndex: 1 }}>
-        <div>
-          {[['Name','Priya Sharma'],['Date of Birth','12th March, 1998'],['Height',"5'4\""],['Religion','Hindu'],['Community','Brahmin / Iyer'],['Occupation','Software Engineer']].map(([k, v]) => (
-            <div key={k} style={{ display: 'flex', alignItems: 'baseline', padding: '2px 0' }}>
-              <span style={{ width: 64, flexShrink: 0, fontSize: 5.5, fontWeight: 700, color: '#7B2D2D', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{k}</span>
-              <span style={{ fontSize: 5.5, fontWeight: 700, color: '#C9A035', marginRight: 3 }}>:</span>
-              <span style={{ fontSize: 6, color: '#1C0808', fontWeight: 500 }}>{v}</span>
-            </div>
-          ))}
-        </div>
-        <div style={{ width: 58, height: 74, background: 'linear-gradient(135deg,#e8d5c4,#d4b896)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 }}>👤</div>
-      </div>
-
-      {/* Section heading */}
-      <div style={{ padding: '4px 14px 2px', position: 'relative', zIndex: 1 }}>
-        <span style={{ fontSize: 6, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#6B0F1A' }}>Family Details</span>
-      </div>
-      <div style={{ padding: '0 14px 10px', position: 'relative', zIndex: 1 }}>
-        {[['Father','Ramesh Sharma (Retd. Govt. Officer)'],['Mother','Sunita Sharma (Homemaker)'],['Native Place','Tirupati, Andhra Pradesh']].map(([k, v]) => (
-          <div key={k} style={{ display: 'flex', alignItems: 'baseline', padding: '2px 0' }}>
-            <span style={{ width: 64, flexShrink: 0, fontSize: 5.5, fontWeight: 700, color: '#7B2D2D', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{k}</span>
-            <span style={{ fontSize: 5.5, fontWeight: 700, color: '#C9A035', marginRight: 3 }}>:</span>
-            <span style={{ fontSize: 6, color: '#1C0808', fontWeight: 500 }}>{v}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Footer */}
-      <div style={{ padding: '6px 14px 16px', textAlign: 'center', borderTop: '0.5px solid rgba(201,160,53,0.3)', position: 'relative', zIndex: 1 }}>
-        <span style={{ fontSize: 5, color: '#9B7320', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Created with Bandhan · bandhan.app</span>
-      </div>
-    </div>
-  )
-}
 
 /* ── Template preview cards ── */
 const TEMPLATES = [
@@ -150,22 +131,26 @@ function TemplateCard({ t, i }) {
       <div className="rounded-2xl overflow-hidden border transition-all duration-300"
         style={{ borderColor: t.live ? 'rgba(201,160,53,0.4)' : 'rgba(255,255,255,0.08)', background: t.live ? 'rgba(201,160,53,0.05)' : 'rgba(255,255,255,0.02)' }}>
 
-        {/* Mini template preview */}
-        <div style={{ background: theme.bg, padding: 12, position: 'relative', minHeight: 140 }}>
-          <div style={{ position: 'absolute', top: 4, right: 4, bottom: 4, left: 4, border: `1px solid ${theme.outer}`, pointerEvents: 'none', opacity: 0.6 }} />
-          <div style={{ textAlign: 'center', fontFamily: 'serif', fontSize: 7, color: theme.gold, marginBottom: 6, paddingTop: 6, letterSpacing: '0.08em' }}>{t.slogan}</div>
-          <div style={{ fontFamily: 'sans-serif' }}>
-            {t.rows.map(([k, v]) => (
-              <div key={k} style={{ display: 'flex', gap: 4, marginBottom: 3, alignItems: 'baseline' }}>
-                <span style={{ width: 52, flexShrink: 0, fontSize: 5.5, fontWeight: 700, color: theme.accent, textTransform: 'uppercase' }}>{k}</span>
-                <span style={{ fontSize: 5.5, color: theme.gold, marginRight: 3, fontWeight: 700 }}>:</span>
-                <span style={{ fontSize: 6.5, color: '#333', fontWeight: 500 }}>{v}</span>
+        {/* Template preview */}
+        <div style={{ position: 'relative', overflow: 'hidden', height: 160 }}>
+          {t.live ? (
+            <LivePreview scale={0.205} visibleH={160} />
+          ) : (
+            <div style={{ background: theme.bg, height: 160, padding: 10, position: 'relative' }}>
+              <div style={{ position: 'absolute', top: 4, right: 4, bottom: 4, left: 4, border: `1px solid ${theme.outer}`, pointerEvents: 'none', opacity: 0.5 }} />
+              <div style={{ textAlign: 'center', fontFamily: 'serif', fontSize: 6.5, color: theme.gold, marginBottom: 5, paddingTop: 4, letterSpacing: '0.08em' }}>{t.slogan}</div>
+              <div style={{ fontFamily: 'sans-serif' }}>
+                {t.rows.map(([k, v]) => (
+                  <div key={k} style={{ display: 'flex', gap: 3, marginBottom: 3, alignItems: 'baseline' }}>
+                    <span style={{ width: 48, flexShrink: 0, fontSize: 5, fontWeight: 700, color: theme.accent, textTransform: 'uppercase' }}>{k}</span>
+                    <span style={{ fontSize: 5, color: theme.gold, marginRight: 2, fontWeight: 700 }}>:</span>
+                    <span style={{ fontSize: 6, color: '#333', fontWeight: 500 }}>{v}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          {!t.live && (
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 9, fontWeight: 700, color: '#666', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Coming Soon</span>
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: 8, fontWeight: 700, color: '#888', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Coming Soon</span>
+              </div>
             </div>
           )}
         </div>
@@ -275,16 +260,14 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             </motion.div>
           </div>
 
-          {/* Floating biodata card */}
+          {/* Floating live biodata preview */}
           <div className="flex-1 hidden lg:flex items-center justify-center relative h-[520px]">
             <motion.div
               animate={{ y: [0, -14, 0] }}
               transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative"
             >
-              <BiodataCard />
+              <LivePreview scale={0.29} visibleH={340} />
             </motion.div>
-            {/* Glow */}
             <div className="absolute inset-0 rounded-full blur-3xl pointer-events-none"
               style={{ background: 'radial-gradient(ellipse at center, rgba(201,160,53,0.15) 0%, transparent 70%)' }} />
           </div>
