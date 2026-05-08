@@ -4,22 +4,124 @@ import { Sparkles, Shield, Download, ChevronRight, Heart, Lock, Zap, X } from 'l
 import PanIndiaTemplate from '../components/PanIndiaTemplate'
 import priyaPhoto from '../../Images/AI_Female/Gemini_Generated_Image_y0v7nsy0v7nsy0v7.png'
 
-const PRIYA_DATA = {
-  fullName: 'Priya Sharma', dateOfBirth: '1998-03-12', age: '26', gender: 'Female',
-  height: "5'4\"", weight: '55 kg', bloodGroup: 'B+',
-  religion: 'Hindu', caste: 'Brahmin', subCaste: 'Iyer', motherTongue: 'Telugu',
-  education: 'B.Tech (Computer Science)', college: 'JNTU Hyderabad',
-  occupation: 'Software Engineer', company: 'Infosys', income: '8 LPA', workLocation: 'Bengaluru',
-  fatherName: 'Ramesh Sharma', fatherOccupation: 'Retired Government Officer',
-  motherName: 'Sunita Sharma', motherOccupation: 'Homemaker',
-  brothers: '1 Elder Brother (Married)', sisters: 'None',
-  familyType: 'Nuclear', familyStatus: 'Middle Class', nativePlace: 'Tirupati, Andhra Pradesh',
-  hobbies: 'Classical Dance, Reading, Cooking', about: 'Family-oriented, calm & composed, loves to travel',
-  rashi: 'Vrishabha', nakshatra: 'Rohini', gotra: 'Kashyapa', manglik: 'No',
-  address: '12, MG Road, Koramangala', city: 'Bengaluru', state: 'Karnataka',
-  phone: '+91 90000 00000', email: 'priya.sharma@email.com',
-  photo: priyaPhoto, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'hide', customFields: [],
+/* One rich sample persona per template — covers Hindu (multi-region), Muslim, Sikh, Christian */
+const SAMPLE_BY_TEMPLATE = {
+  panIndia: {
+    fullName: 'Priya Sharma', dateOfBirth: '1998-03-12', age: '26', gender: 'Female',
+    height: "5'4\"", weight: '55 kg', bloodGroup: 'B+',
+    religion: 'Hindu', caste: 'Brahmin', subCaste: 'Iyer', motherTongue: 'Telugu',
+    education: 'B.Tech (Computer Science)', college: 'JNTU Hyderabad',
+    occupation: 'Software Engineer', company: 'Infosys', income: '8 LPA', workLocation: 'Bengaluru',
+    fatherName: 'Ramesh Sharma', fatherOccupation: 'Retired Government Officer',
+    motherName: 'Sunita Sharma', motherOccupation: 'Homemaker',
+    brothers: '1 Elder Brother (Married)', sisters: 'None',
+    familyType: 'Nuclear', familyStatus: 'Middle Class', nativePlace: 'Tirupati, Andhra Pradesh',
+    hobbies: 'Classical Dance, Reading, Cooking', about: 'Family-oriented, calm & composed, loves to travel',
+    rashi: 'Vrishabha', nakshatra: 'Rohini', gotra: 'Kashyapa', manglik: 'No',
+    address: '12, MG Road, Koramangala', city: 'Bengaluru', state: 'Karnataka',
+    phone: '+91 90000 00000', email: 'priya.sharma@email.com',
+    photo: priyaPhoto, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'telugu', customFields: [],
+  },
+  artDeco: {
+    fullName: 'Kavya Nair', dateOfBirth: '1997-07-22', age: '27', gender: 'Female',
+    height: "5'5\"", weight: '58 kg', bloodGroup: 'O+',
+    religion: 'Hindu', caste: 'Nair', subCaste: '', motherTongue: 'Malayalam',
+    education: 'MBBS', college: 'Govt. Medical College, Kozhikode',
+    occupation: 'Doctor', company: 'Amrita Institute of Medical Sciences', income: '14 LPA', workLocation: 'Kochi',
+    fatherName: 'Suresh Nair', fatherOccupation: 'Chartered Accountant',
+    motherName: 'Lekha Nair', motherOccupation: 'School Teacher',
+    brothers: 'None', sisters: '1 Younger Sister (Student)',
+    familyType: 'Nuclear', familyStatus: 'Upper Middle Class', nativePlace: 'Thrissur, Kerala',
+    hobbies: 'Carnatic Music, Swimming, Sketching', about: 'Disciplined and compassionate — values family traditions deeply',
+    rashi: 'Karka', nakshatra: 'Pushya', gotra: 'Bharadvaja', manglik: 'No',
+    address: '45, Panampilly Nagar', city: 'Kochi', state: 'Kerala',
+    phone: '+91 90000 00000', email: 'kavya.nair@email.com',
+    photo: priyaPhoto, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'malayalam', customFields: [],
+  },
+  floralVine: {
+    fullName: 'Ananya Chatterjee', dateOfBirth: '1999-01-15', age: '25', gender: 'Female',
+    height: "5'3\"", weight: '52 kg', bloodGroup: 'A+',
+    religion: 'Hindu', caste: 'Brahmin', subCaste: 'Kulin', motherTongue: 'Bengali',
+    education: 'M.A. (Literature)', college: 'Jadavpur University, Kolkata',
+    occupation: 'Content Strategist', company: 'Times Internet', income: '9 LPA', workLocation: 'Kolkata',
+    fatherName: 'Debashis Chatterjee', fatherOccupation: 'Professor',
+    motherName: 'Mala Chatterjee', motherOccupation: 'Artist',
+    brothers: '1 Elder Brother (Married)', sisters: 'None',
+    familyType: 'Joint', familyStatus: 'Middle Class', nativePlace: 'Kolkata, West Bengal',
+    hobbies: 'Rabindra Sangeet, Painting, Poetry', about: 'Creative soul — deeply rooted in Bengali culture and the arts',
+    rashi: 'Mithuna', nakshatra: 'Ardra', gotra: 'Sandilya', manglik: 'No',
+    address: '7B, Lake Gardens', city: 'Kolkata', state: 'West Bengal',
+    phone: '+91 90000 00000', email: 'ananya.c@email.com',
+    photo: priyaPhoto, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'bengali', customFields: [],
+  },
+  peacock: {
+    fullName: 'Zara Khan', dateOfBirth: '1998-05-10', age: '26', gender: 'Female',
+    height: "5'5\"", weight: '57 kg', bloodGroup: 'B+',
+    religion: 'Muslim', caste: 'Sunni', subCaste: '', motherTongue: 'Urdu',
+    education: 'B.Arch', college: 'School of Planning & Architecture, Delhi',
+    occupation: 'Architect', company: 'Morphogenesis Design Studio', income: '10 LPA', workLocation: 'New Delhi',
+    fatherName: 'Imran Khan', fatherOccupation: 'IAS Officer',
+    motherName: 'Nadia Khan', motherOccupation: 'Homemaker',
+    brothers: '1 Elder Brother (Lawyer)', sisters: '1 Younger Sister (Student)',
+    familyType: 'Nuclear', familyStatus: 'Affluent', nativePlace: 'Lucknow, Uttar Pradesh',
+    hobbies: 'Calligraphy, Travel, Classical Poetry', about: 'Artistic and grounded in faith — passionate about sustainable architecture',
+    rashi: '', nakshatra: '', gotra: '', manglik: '',
+    address: '22, Nizamuddin East', city: 'New Delhi', state: 'Delhi',
+    phone: '+91 90000 00000', email: 'zara.khan@email.com',
+    photo: priyaPhoto, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'hide', customFields: [],
+  },
+  mandala: {
+    fullName: 'Simran Kaur', dateOfBirth: '1997-11-03', age: '27', gender: 'Female',
+    height: "5'6\"", weight: '60 kg', bloodGroup: 'O+',
+    religion: 'Sikh', caste: 'Jatt', subCaste: '', motherTongue: 'Punjabi',
+    education: 'MBA (Finance)', college: 'IIM Lucknow',
+    occupation: 'Investment Banker', company: 'ICICI Securities', income: '22 LPA', workLocation: 'Mumbai',
+    fatherName: 'Gurjeet Singh', fatherOccupation: 'Businessman',
+    motherName: 'Harpreet Kaur', motherOccupation: 'Homemaker',
+    brothers: 'None', sisters: '1 Elder Sister (Married)',
+    familyType: 'Nuclear', familyStatus: 'Affluent', nativePlace: 'Amritsar, Punjab',
+    hobbies: 'Bhangra, Trekking, Finance & Markets', about: 'Ambitious and warm-hearted — deeply devoted to Waheguru and family',
+    rashi: '', nakshatra: '', gotra: '', manglik: '',
+    address: '14, Pali Hill', city: 'Mumbai', state: 'Maharashtra',
+    phone: '+91 90000 00000', email: 'simran.kaur@email.com',
+    photo: priyaPhoto, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'hide', customFields: [],
+  },
+  celestial: {
+    fullName: "Grace D'Souza", dateOfBirth: '1999-03-25', age: '25', gender: 'Female',
+    height: "5'4\"", weight: '54 kg', bloodGroup: 'A-',
+    religion: 'Christian', caste: 'Catholic', subCaste: '', motherTongue: 'Konkani',
+    education: 'B.E. (Electronics)', college: 'NITK Surathkal',
+    occupation: 'Product Manager', company: 'Google India', income: '28 LPA', workLocation: 'Bengaluru',
+    fatherName: "Anthony D'Souza", fatherOccupation: 'Merchant Navy Officer',
+    motherName: "Maria D'Souza", motherOccupation: 'School Principal',
+    brothers: '1 Elder Brother (Canada)', sisters: 'None',
+    familyType: 'Nuclear', familyStatus: 'Upper Middle Class', nativePlace: 'Mangaluru, Karnataka',
+    hobbies: 'Western Vocals, Badminton, Baking', about: 'Faith-driven and outgoing — loves community service and good food',
+    rashi: '', nakshatra: '', gotra: '', manglik: '',
+    address: '8, Koramangala 4th Block', city: 'Bengaluru', state: 'Karnataka',
+    phone: '+91 90000 00000', email: 'grace.dsouza@email.com',
+    photo: priyaPhoto, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'hide', customFields: [],
+  },
+  bridal: {
+    fullName: 'Meera Joshi', dateOfBirth: '1998-09-08', age: '26', gender: 'Female',
+    height: "5'3\"", weight: '53 kg', bloodGroup: 'B+',
+    religion: 'Hindu', caste: 'Brahmin', subCaste: 'Deshastha', motherTongue: 'Marathi',
+    education: 'B.Com + CA', college: 'Symbiosis College of Arts & Commerce, Pune',
+    occupation: 'Chartered Accountant', company: 'Deloitte India', income: '15 LPA', workLocation: 'Pune',
+    fatherName: 'Sudhir Joshi', fatherOccupation: 'Retired Bank Manager',
+    motherName: 'Vaishali Joshi', motherOccupation: 'Homemaker',
+    brothers: '1 Younger Brother (Student)', sisters: 'None',
+    familyType: 'Joint', familyStatus: 'Middle Class', nativePlace: 'Nashik, Maharashtra',
+    hobbies: 'Bharatnatyam, Marathi Literature, Cooking', about: 'Traditional yet progressive — deeply values family and culture',
+    rashi: 'Kanya', nakshatra: 'Hasta', gotra: 'Kaundinya', manglik: 'No',
+    address: '23, Aundh', city: 'Pune', state: 'Maharashtra',
+    phone: '+91 90000 00000', email: 'meera.joshi@email.com',
+    photo: priyaPhoto, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'marathi', customFields: [],
+  },
 }
+
+/* Fallback for hero cards that don't have a specific persona */
+const PRIYA_DATA = SAMPLE_BY_TEMPLATE.panIndia
 
 /* Renders PanIndiaTemplate scaled to exactly containerW wide.
    Pass template to override which theme is shown (defaults to PRIYA_DATA's template).
@@ -29,7 +131,8 @@ function LivePreview({ containerW, visibleH, shadow = true, template }) {
   const scale = containerW / naturalW
   const innerRef = useRef(null)
   const [naturalH, setNaturalH] = useState(0)
-  const previewData = template ? { ...PRIYA_DATA, template } : PRIYA_DATA
+  const base = template ? (SAMPLE_BY_TEMPLATE[template] || PRIYA_DATA) : PRIYA_DATA
+  const previewData = { ...base, template: template || base.template }
 
   useLayoutEffect(() => {
     if (innerRef.current) setNaturalH(innerRef.current.scrollHeight)
