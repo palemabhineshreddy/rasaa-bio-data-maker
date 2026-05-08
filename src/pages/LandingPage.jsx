@@ -18,21 +18,22 @@ const PRIYA_DATA = {
   rashi: 'Vrishabha', nakshatra: 'Rohini', gotra: 'Kashyapa', manglik: 'No',
   address: '12, MG Road, Koramangala', city: 'Bengaluru', state: 'Karnataka',
   phone: '+91 90000 00000', email: 'priya.sharma@email.com',
-  photo: priyaPhoto, photoPosition: { x: 50, y: 20 }, customFields: [],
+  photo: priyaPhoto, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'hide', customFields: [],
 }
 
-/* Renders the actual PanIndiaTemplate scaled to exactly containerW wide.
-   When visibleH is set, clips to that height (thumbnail/hero).
-   When omitted, auto-measures and shows the full template. */
-function LivePreview({ containerW, visibleH, shadow = true }) {
+/* Renders PanIndiaTemplate scaled to exactly containerW wide.
+   Pass template to override which theme is shown (defaults to PRIYA_DATA's template).
+   When visibleH is set, clips to that height. When omitted, auto-measures full height. */
+function LivePreview({ containerW, visibleH, shadow = true, template }) {
   const naturalW = 760
   const scale = containerW / naturalW
   const innerRef = useRef(null)
   const [naturalH, setNaturalH] = useState(0)
+  const previewData = template ? { ...PRIYA_DATA, template } : PRIYA_DATA
 
   useLayoutEffect(() => {
     if (innerRef.current) setNaturalH(innerRef.current.scrollHeight)
-  }, [containerW])
+  }, [containerW, template])
 
   const outerH = visibleH ?? (naturalH ? naturalH * scale : 'auto')
 
@@ -45,7 +46,7 @@ function LivePreview({ containerW, visibleH, shadow = true }) {
       boxShadow: shadow ? '0 24px 60px rgba(201,160,53,0.2), 0 8px 24px rgba(0,0,0,0.3)' : 'none',
     }}>
       <div ref={innerRef} style={{ width: naturalW, transform: `scale(${scale})`, transformOrigin: 'top left', pointerEvents: 'none' }}>
-        <PanIndiaTemplate data={PRIYA_DATA} />
+        <PanIndiaTemplate data={previewData} />
       </div>
     </div>
   )
@@ -60,75 +61,64 @@ const fadeUp = {
 }
 
 
-/* ── Template preview cards ── */
+/* ── Template catalogue ── */
 const STYLES = [
-  {
-    id: 'classic', live: true, name: 'Classic', symbol: '✦',
-    gradient: 'linear-gradient(135deg, #b45309, #C9A035, #92400e)',
-    glow: 'rgba(201,160,53,0.5)', size: 148,
-    desc: 'Gold & maroon · Lotus borders · Timeless Indian elegance',
-    features: ['Lotus corner ornaments', 'Gold & maroon palette', 'Full horoscope section', 'Photo upload & crop'],
-  },
-  {
-    id: 'minimal', live: false, name: 'Minimal', symbol: '○',
-    gradient: 'linear-gradient(135deg, #374151, #6b7280)',
-    glow: 'rgba(107,114,128,0.35)', size: 116,
-    desc: 'No borders · Clean typography · Let the words speak',
-  },
-  {
-    id: 'royal', live: false, name: 'Royal', symbol: '♛',
-    gradient: 'linear-gradient(135deg, #1e1b4b, #4338ca)',
-    glow: 'rgba(67,56,202,0.4)', size: 116,
-    desc: 'Deep navy · Gold filigree · Grand & ornate',
-  },
-  {
-    id: 'modern', live: false, name: 'Modern', symbol: '◈',
-    gradient: 'linear-gradient(135deg, #0f766e, #14b8a6)',
-    glow: 'rgba(20,184,166,0.35)', size: 116,
-    desc: 'Light palette · Contemporary layout · Fresh feel',
-  },
+  { id: 'panIndia',   live: true,  name: 'Lotus',     symbol: '✦', gradient: 'linear-gradient(135deg, #6B0F1A, #C9A035)', desc: 'Gold & maroon · Timeless classic'       },
+  { id: 'artDeco',    live: true,  name: 'Art Deco',   symbol: '◇', gradient: 'linear-gradient(135deg, #1B2A4A, #BFA060)', desc: 'Navy & gold · Geometric precision'      },
+  { id: 'floralVine', live: true,  name: 'Floral',     symbol: '✿', gradient: 'linear-gradient(135deg, #2A4A1C, #C8A020)', desc: 'Forest green · Botanical charm'         },
+  { id: 'peacock',    live: true,  name: 'Peacock',    symbol: '☯', gradient: 'linear-gradient(135deg, #0D4A5E, #F0B840)', desc: 'Teal & bright gold · Royal elegance'   },
+  { id: 'mandala',    live: true,  name: 'Mandala',    symbol: '◉', gradient: 'linear-gradient(135deg, #7A1A10, #E07830)', desc: 'Rust & orange · Festive warmth'         },
+  { id: 'celestial',  live: true,  name: 'Celestial',  symbol: '★', gradient: 'linear-gradient(135deg, #1E0850, #A888E0)', desc: 'Indigo & lavender · Mystical beauty'   },
+  { id: 'bridal',     live: true,  name: 'Bridal',     symbol: '❋', gradient: 'linear-gradient(135deg, #720A20, #D4BC90)', desc: 'Crimson & pearl · Ornate opulence'     },
+  { id: 'minimal',    live: false, name: 'Minimal',    symbol: '○', gradient: 'linear-gradient(135deg, #374151, #6b7280)', desc: 'No borders · Clean typography'         },
+  { id: 'royal',      live: false, name: 'Royal',      symbol: '♛', gradient: 'linear-gradient(135deg, #1e1b4b, #4338ca)', desc: 'Deep navy · Gold filigree'             },
+  { id: 'modern',     live: false, name: 'Modern',     symbol: '◈', gradient: 'linear-gradient(135deg, #0f766e, #14b8a6)', desc: 'Light palette · Contemporary layout'   },
 ]
 
-/* Mini card in the horizontal scroll row */
+/* Portrait template card — matches PDF aspect ratio */
 function StyleCard({ s, i, onClick }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.4, delay: i * 0.07 }}
-      whileHover={{ y: -6 }}
-      whileTap={{ scale: 0.96 }}
+      transition={{ duration: 0.4, delay: i * 0.06 }}
+      whileHover={{ y: -8, scale: 1.02 }}
+      whileTap={{ scale: 0.97 }}
       onClick={onClick}
-      style={{ width: 168, flexShrink: 0, cursor: 'pointer' }}
+      style={{ width: 160, flexShrink: 0, cursor: 'pointer' }}
     >
-      {/* Thumbnail */}
       <div style={{
-        height: 132, borderRadius: 14, overflow: 'hidden',
-        border: s.live ? '1.5px solid rgba(201,160,53,0.45)' : '1.5px solid rgba(255,255,255,0.1)',
-        position: 'relative',
-        boxShadow: s.live ? '0 8px 28px rgba(201,160,53,0.18)' : '0 4px 16px rgba(0,0,0,0.3)',
+        height: 224, borderRadius: 16, overflow: 'hidden', position: 'relative',
+        border: s.live ? '1.5px solid rgba(201,160,53,0.4)' : '1.5px solid rgba(255,255,255,0.08)',
+        boxShadow: s.live ? '0 10px 32px rgba(0,0,0,0.35)' : '0 4px 16px rgba(0,0,0,0.25)',
+        transition: 'box-shadow 0.2s',
       }}>
         {s.live ? (
-          <LivePreview containerW={168} visibleH={132} shadow={false} />
+          <LivePreview containerW={160} visibleH={224} shadow={false} template={s.id} />
         ) : (
-          <div style={{ width: '100%', height: '100%', background: s.gradient, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: 0.75 }}>
-            <span style={{ fontSize: 32 }}>{s.symbol}</span>
-            <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Coming Soon</span>
+          <div style={{ width: '100%', height: '100%', background: s.gradient, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: 0.6 }}>
+            <span style={{ fontSize: 36 }}>{s.symbol}</span>
+            <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Coming Soon</span>
           </div>
         )}
       </div>
-
-      {/* Name + badge */}
       <div style={{ padding: '10px 2px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>{s.name}</span>
-        {s.live && (
-          <span style={{ fontSize: 9, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', padding: '2px 7px', borderRadius: 20, letterSpacing: '0.06em' }}>Live</span>
-        )}
+        {s.live
+          ? <span style={{ fontSize: 9, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', padding: '2px 7px', borderRadius: 20 }}>Live</span>
+          : <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.25)', padding: '2px 7px' }}>Soon</span>
+        }
       </div>
     </motion.div>
   )
 }
+
+/* Group templates: live collection vs coming soon */
+const STYLE_GROUPS = [
+  { label: 'Classic Collection', sub: '7 designs · Available now', ids: ['panIndia', 'artDeco', 'floralVine', 'peacock', 'mandala', 'celestial', 'bridal'] },
+  { label: 'Coming Soon',        sub: 'More styles in the works',   ids: ['minimal', 'royal', 'modern'] },
+]
 
 /* Full-screen modal */
 function TemplateModal({ s, onClose, onStart }) {
@@ -169,7 +159,7 @@ function TemplateModal({ s, onClose, onStart }) {
         {/* Modal body */}
         {s.live ? (
           <div style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '28px 28px 32px', gap: 24, background: 'rgba(201,160,53,0.03)' }}>
-            <LivePreview containerW={400} shadow={false} />
+            <LivePreview containerW={400} shadow={false} template={s.id} />
             <button onClick={() => onStart(s.id)} className="btn-primary" style={{ padding: '14px 40px', fontSize: 15 }}>
               Create with this style <ChevronRight size={18} />
             </button>
@@ -195,29 +185,41 @@ function TemplatesSection({ onStart }) {
       <div className="max-w-6xl mx-auto">
 
         <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-12 px-8">
+          viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-16 px-8">
           <p className="text-amber-400 text-sm font-semibold tracking-widest uppercase mb-4">Templates</p>
           <h2 className="font-serif text-4xl lg:text-5xl font-bold text-white mb-5">
             Your story,<br />your style.
           </h2>
           <p className="text-white/45 max-w-lg mx-auto text-lg leading-relaxed">
-            Choose a design that feels like you. Click any card to preview.
+            Every design is a print-ready PDF. Click any card to preview in full.
           </p>
         </motion.div>
 
-        {/* Horizontal scroll row — no scrollbar visible */}
-        <div style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          className="[&::-webkit-scrollbar]:hidden">
-          <div style={{ display: 'flex', gap: 16, padding: '8px 32px 24px' }}>
-            {STYLES.map((s, i) => (
-              <StyleCard key={s.id} s={s} i={i} onClick={() => setSelected(s)} />
-            ))}
-          </div>
-        </div>
+        {STYLE_GROUPS.map((group, gi) => {
+          const groupStyles = STYLES.filter(s => group.ids.includes(s.id))
+          return (
+            <motion.div key={group.label}
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ duration: 0.5, delay: gi * 0.1 }}
+              className="mb-10">
+              <div className="px-8 mb-5 flex items-baseline gap-3">
+                <span className="text-sm font-bold text-white/80 tracking-wide">{group.label}</span>
+                <span className="text-xs text-white/30">{group.sub}</span>
+              </div>
+              <div style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                className="[&::-webkit-scrollbar]:hidden">
+                <div style={{ display: 'flex', gap: 14, padding: '4px 32px 16px' }}>
+                  {groupStyles.map((s, i) => (
+                    <StyleCard key={s.id} s={s} i={i} onClick={() => setSelected(s)} />
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )
+        })}
 
       </div>
 
-      {/* Modal — outside max-w container so it can go full screen */}
       <AnimatePresence>
         {selected && <TemplateModal s={selected} onClose={() => setSelected(null)} onStart={onStart} />}
       </AnimatePresence>
@@ -318,16 +320,52 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             </motion.div>
           </div>
 
-          {/* Floating live biodata preview */}
-          <div className="flex-1 hidden lg:flex items-center justify-center relative h-[520px]">
-            <motion.div
-              animate={{ y: [0, -14, 0] }}
-              transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              <LivePreview containerW={220} visibleH={340} />
-            </motion.div>
-            <div className="absolute inset-0 rounded-full blur-3xl pointer-events-none"
-              style={{ background: 'radial-gradient(ellipse at center, rgba(201,160,53,0.15) 0%, transparent 70%)' }} />
+          {/* Floating portrait template previews — 5 cards, staggered depth */}
+          <div className="flex-1 hidden lg:flex items-center justify-center relative h-[540px] overflow-visible">
+
+            {/* Ambient glow pool */}
+            <div className="absolute pointer-events-none" style={{ width: 480, height: 300, top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'radial-gradient(ellipse at center, rgba(168,136,224,0.1) 0%, transparent 70%)', filter: 'blur(8px)' }} />
+
+            {[
+              { template: 'panIndia',   x: -234, scl: 0.80, op: 0.50, rot: -6,  y: [0,   -10, 0],   delay: 0,   z: 1, glow: 'rgba(201,160,53,0.5)'  },
+              { template: 'floralVine', x: -118, scl: 0.91, op: 0.75, rot: -2,  y: [-6,  -18, -6],  delay: 0.5, z: 2, glow: 'rgba(200,160,32,0.5)'  },
+              { template: 'peacock',    x: 0,    scl: 1.06, op: 1,    rot: 0,   y: [-14, -28, -14], delay: 1.0, z: 5, glow: 'rgba(240,184,64,0.6)'  },
+              { template: 'mandala',    x: 118,  scl: 0.91, op: 0.75, rot: 2,   y: [-4,  -16, -4],  delay: 0.7, z: 2, glow: 'rgba(224,120,48,0.5)'  },
+              { template: 'celestial',  x: 234,  scl: 0.80, op: 0.50, rot: 6,   y: [-2,  -12, -2],  delay: 1.4, z: 1, glow: 'rgba(168,136,224,0.5)' },
+            ].map(({ template, x, scl, op, rot, y, delay, z, glow }) => (
+              <motion.div key={template}
+                style={{ position: 'absolute', x, scale: scl, opacity: op, rotate: rot, zIndex: z }}
+                animate={{ y }}
+                transition={{ duration: 8 + z * 0.4, repeat: Infinity, ease: 'easeInOut', delay }}
+              >
+                {/* Per-card coloured glow pool */}
+                <div style={{ position: 'absolute', bottom: -18, left: '50%', transform: 'translateX(-50%)', width: 100, height: 44, background: glow, filter: 'blur(22px)', borderRadius: '50%', zIndex: -1 }} />
+
+                <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: z === 5 ? '0 32px 72px rgba(0,0,0,0.55), 0 8px 24px rgba(0,0,0,0.4)' : '0 12px 36px rgba(0,0,0,0.35)' }}>
+                  <LivePreview containerW={130} visibleH={182} shadow={false} template={template} />
+                </div>
+              </motion.div>
+            ))}
+
+            {/* Twinkling sparkle dots */}
+            {[
+              { x: -195, y: -105, s: 5, d: 0    },
+              { x:   85, y: -130, s: 3, d: 1.2  },
+              { x: -55,  y:  95,  s: 4, d: 0.6  },
+              { x:  210, y:  -55, s: 5, d: 1.8  },
+              { x: -240, y:   50, s: 3, d: 0.3  },
+              { x:  155, y:  110, s: 4, d: 2.2  },
+              { x:   30, y: -160, s: 3, d: 0.9  },
+            ].map((sp, i) => (
+              <motion.div key={i} style={{ position: 'absolute', x: sp.x, y: sp.y, zIndex: 10 }}
+                animate={{ opacity: [0, 1, 0], scale: [0.4, 1, 0.4] }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut', delay: sp.d, repeatDelay: 1.5 }}>
+                <svg width={sp.s} height={sp.s} viewBox="0 0 10 10">
+                  <circle cx="5" cy="5" r="4" fill="rgba(255,255,255,0.85)" />
+                </svg>
+              </motion.div>
+            ))}
+
           </div>
         </div>
 

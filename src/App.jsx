@@ -26,6 +26,7 @@ const EMPTY_FORM = {
   photo: null,
   photoPosition: { x: 50, y: 20 },
   template: 'panIndia',
+  sloganLanguage: 'auto',
   // User-defined rows
   customFields: [],
 }

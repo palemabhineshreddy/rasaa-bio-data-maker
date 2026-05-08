@@ -327,32 +327,61 @@ function Step4({ formData, updateForm }) {
   )
 }
 
-/* ── Template styles catalogue ── */
-const TEMPLATE_STYLES = [
-  {
-    id: 'panIndia', live: true, name: 'Classic', symbol: '✦',
-    gradient: 'linear-gradient(135deg, #b45309, #C9A035, #92400e)',
-    desc: 'Gold & maroon · Lotus borders · Timeless',
-  },
-  {
-    id: 'minimal', live: false, name: 'Minimal', symbol: '○',
-    gradient: 'linear-gradient(135deg, #374151, #6b7280)',
-    desc: 'Clean typography · No borders',
-  },
-  {
-    id: 'royal', live: false, name: 'Royal', symbol: '♛',
-    gradient: 'linear-gradient(135deg, #1e1b4b, #4338ca)',
-    desc: 'Deep navy · Gold filigree',
-  },
-  {
-    id: 'modern', live: false, name: 'Modern', symbol: '◈',
-    gradient: 'linear-gradient(135deg, #0f766e, #14b8a6)',
-    desc: 'Contemporary · Fresh feel',
-  },
+/* ── Slogan language picker ── */
+const SLOGAN_MAP = {
+  hindi:      '॥ श्री गणेशाय नमः ॥',
+  telugu:     '॥ శ్రీ గణేశాయ నమః ॥',
+  tamil:      '॥ ஸ்ரீ கணேசாய நமஃ ॥',
+  kannada:    '॥ ಶ್ರೀ ಗಣೇಶಾಯ ನಮಃ ॥',
+  malayalam:  '॥ ശ്രീ ഗണേശായ നമഃ ॥',
+  bengali:    '॥ শ্রী গণেশায় নমঃ ॥',
+  gujarati:   '॥ શ્રી ગણેশાય નમઃ ॥',
+  marathi:    '॥ श्री गणेशाय नमः ॥',
+  odia:       '॥ ଶ୍ରୀ ଗଣେଶାୟ ନମଃ ॥',
+  punjabi:    '॥ ਸ਼੍ਰੀ ਗਣੇਸ਼ਾਯ ਨਮਃ ॥',
+}
+const DEFAULT_SLOGAN_TEXT = '॥ श्री गणेशाय नमः ॥'
+
+const SLOGAN_OPTIONS = [
+  { value: 'auto', label: 'Auto — matches mother tongue' },
+  { value: 'hide', label: 'None — hide slogan' },
+  { value: 'hindi',     label: 'Sanskrit / Hindi  ·  ॥ श्री गणेशाय नमः ॥' },
+  { value: 'telugu',    label: 'Telugu  ·  ॥ శ్రీ గణేశాయ నమః ॥' },
+  { value: 'tamil',     label: 'Tamil  ·  ॥ ஸ்ரீ கணேசாய நமஃ ॥' },
+  { value: 'kannada',   label: 'Kannada  ·  ॥ ಶ್ರೀ ಗಣೇಶಾಯ ನಮಃ ॥' },
+  { value: 'malayalam', label: 'Malayalam  ·  ॥ ശ്രീ ഗണേശായ നമഃ ॥' },
+  { value: 'bengali',   label: 'Bengali  ·  ॥ শ্রী গণেশায় নমঃ ॥' },
+  { value: 'gujarati',  label: 'Gujarati  ·  ॥ શ્રી ગણેશાય નમઃ ॥' },
+  { value: 'marathi',   label: 'Marathi  ·  ॥ श्री गणेशाय नमः ॥' },
+  { value: 'odia',      label: 'Odia  ·  ॥ ଶ୍ରୀ ଗଣେଶାୟ ନମଃ ॥' },
+  { value: 'punjabi',   label: 'Punjabi  ·  ॥ ਸ਼੍ਰੀ ਗਣੇਸ਼ਾਯ ਨਮਃ ॥' },
 ]
 
-/* Scaled-down preview of the actual template using user's own data */
-function TemplateMiniPreview({ formData, containerW = 168, visibleH = 132 }) {
+function resolveSlogan(formData) {
+  const lang = formData.sloganLanguage ?? 'auto'
+  if (lang === 'hide') return null
+  if (lang !== 'auto') return SLOGAN_MAP[lang] || DEFAULT_SLOGAN_TEXT
+  if ((formData.religion || '').toLowerCase() !== 'hindu') return null
+  const key = (formData.motherTongue || '').toLowerCase().trim()
+  return SLOGAN_MAP[key] || DEFAULT_SLOGAN_TEXT
+}
+
+/* ── Template styles catalogue ── */
+const TEMPLATE_STYLES = [
+  { id: 'panIndia',   live: true,  name: 'Lotus',     symbol: '✦', gradient: 'linear-gradient(135deg, #6B0F1A, #C9A035)', desc: 'Gold & maroon · Lotus corners'       },
+  { id: 'artDeco',    live: true,  name: 'Art Deco',   symbol: '◇', gradient: 'linear-gradient(135deg, #1B2A4A, #BFA060)', desc: 'Navy & gold · Geometric corners'     },
+  { id: 'floralVine', live: true,  name: 'Floral',     symbol: '✿', gradient: 'linear-gradient(135deg, #2A4A1C, #C8A020)', desc: 'Forest green · Petal corners'        },
+  { id: 'peacock',    live: true,  name: 'Peacock',    symbol: '☯', gradient: 'linear-gradient(135deg, #0D4A5E, #F0B840)', desc: 'Teal & gold · Feather-eye corners'   },
+  { id: 'mandala',    live: true,  name: 'Mandala',    symbol: '◉', gradient: 'linear-gradient(135deg, #7A1A10, #E07830)', desc: 'Rust & orange · Mandala corners'     },
+  { id: 'celestial',  live: true,  name: 'Celestial',  symbol: '★', gradient: 'linear-gradient(135deg, #1E0850, #A888E0)', desc: 'Indigo & lavender · Star corners'    },
+  { id: 'bridal',     live: true,  name: 'Bridal',     symbol: '❋', gradient: 'linear-gradient(135deg, #720A20, #D4BC90)', desc: 'Crimson & pearl · Ornate corners'    },
+  { id: 'minimal',    live: false, name: 'Minimal',    symbol: '○', gradient: 'linear-gradient(135deg, #374151, #6b7280)', desc: 'Clean typography · No borders'       },
+  { id: 'royal',      live: false, name: 'Royal',      symbol: '♛', gradient: 'linear-gradient(135deg, #1e1b4b, #4338ca)', desc: 'Deep navy · Gold filigree'           },
+  { id: 'modern',     live: false, name: 'Modern',     symbol: '◈', gradient: 'linear-gradient(135deg, #0f766e, #14b8a6)', desc: 'Contemporary · Fresh feel'           },
+]
+
+/* Portrait thumbnail — matches PDF aspect ratio (760 : ~1060 ≈ 0.72) */
+function TemplateMiniPreview({ formData, containerW = 144, visibleH = 200 }) {
   const naturalW = 760
   const scale = containerW / naturalW
   return (
@@ -365,23 +394,24 @@ function TemplateMiniPreview({ formData, containerW = 168, visibleH = 132 }) {
 }
 
 function TemplateCard({ style, isSelected, formData, onSelect }) {
+  const previewData = { ...formData, template: style.id }
   return (
     <div
       onClick={() => style.live && onSelect(style.id)}
-      style={{ width: 168, flexShrink: 0, cursor: style.live ? 'pointer' : 'default' }}
+      style={{ width: 144, flexShrink: 0, cursor: style.live ? 'pointer' : 'default' }}
     >
       <div style={{
-        height: 132, borderRadius: 14, overflow: 'hidden', position: 'relative',
+        height: 200, borderRadius: 14, overflow: 'hidden', position: 'relative',
         border: isSelected ? '2px solid #a855f7' : '1.5px solid rgba(255,255,255,0.1)',
-        boxShadow: isSelected ? '0 0 0 3px rgba(168,85,247,0.2)' : '0 4px 16px rgba(0,0,0,0.3)',
+        boxShadow: isSelected ? '0 0 0 3px rgba(168,85,247,0.2), 0 8px 24px rgba(0,0,0,0.35)' : '0 4px 16px rgba(0,0,0,0.3)',
         transition: 'border 0.2s, box-shadow 0.2s',
       }}>
         {style.live ? (
-          <TemplateMiniPreview formData={formData} containerW={168} visibleH={132} />
+          <TemplateMiniPreview formData={previewData} containerW={144} visibleH={200} />
         ) : (
-          <div style={{ width: '100%', height: '100%', background: style.gradient, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: 0.7 }}>
-            <span style={{ fontSize: 32 }}>{style.symbol}</span>
-            <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Coming Soon</span>
+          <div style={{ width: '100%', height: '100%', background: style.gradient, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: 0.6 }}>
+            <span style={{ fontSize: 36 }}>{style.symbol}</span>
+            <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.75)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Coming Soon</span>
           </div>
         )}
         {isSelected && (
@@ -391,15 +421,21 @@ function TemplateCard({ style, isSelected, formData, onSelect }) {
         )}
       </div>
       <div style={{ padding: '8px 2px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: isSelected ? 'white' : 'rgba(255,255,255,0.65)' }}>{style.name}</span>
+        <span style={{ fontSize: 12, fontWeight: 600, color: isSelected ? 'white' : 'rgba(255,255,255,0.65)' }}>{style.name}</span>
         {style.live
           ? <span style={{ fontSize: 9, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', padding: '2px 7px', borderRadius: 20 }}>Live</span>
-          : <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.25)', background: 'rgba(255,255,255,0.05)', padding: '2px 7px', borderRadius: 20 }}>Soon</span>
+          : <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.22)', padding: '2px 4px', borderRadius: 20 }}>Soon</span>
         }
       </div>
     </div>
   )
 }
+
+/* Groups for the Step 5 picker */
+const TEMPLATE_GROUPS = [
+  { label: 'Classic Collection', ids: ['panIndia', 'artDeco', 'floralVine', 'peacock', 'mandala', 'celestial', 'bridal'] },
+  { label: 'More Styles · Coming Soon', ids: ['minimal', 'royal', 'modern'] },
+]
 
 /* ── Photo drag-to-reposition adjuster ── */
 function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace }) {
@@ -478,26 +514,65 @@ function Step5({ formData, updateForm }) {
     <div className="space-y-10">
       <StepHeading title="Style & Photo" sub="Pick a template style and add your photo. You can switch style anytime." />
 
-      {/* Template style picker */}
-      <div className="space-y-4">
+      {/* Template style picker — grouped */}
+      <div className="space-y-6">
         <SectionTitle>Choose Style</SectionTitle>
-        <div
-          style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          className="[&::-webkit-scrollbar]:hidden -mx-2"
-        >
-          <div style={{ display: 'flex', gap: 14, padding: '4px 8px 12px' }}>
-            {TEMPLATE_STYLES.map(s => (
-              <TemplateCard
-                key={s.id}
-                style={s}
-                isSelected={formData.template === s.id}
-                formData={formData}
-                onSelect={id => updateForm({ template: id })}
-              />
-            ))}
+        {TEMPLATE_GROUPS.map(group => (
+          <div key={group.label}>
+            <p className="text-white/35 text-xs font-semibold uppercase tracking-widest mb-3">{group.label}</p>
+            <div
+              style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              className="[&::-webkit-scrollbar]:hidden -mx-2"
+            >
+              <div style={{ display: 'flex', gap: 12, padding: '4px 8px 12px' }}>
+                {TEMPLATE_STYLES.filter(s => group.ids.includes(s.id)).map(s => (
+                  <TemplateCard
+                    key={s.id}
+                    style={s}
+                    isSelected={formData.template === s.id}
+                    formData={formData}
+                    onSelect={id => updateForm({ template: id })}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        ))}
       </div>
+
+      {/* Slogan override — only shown when religion is filled */}
+      {formData.religion?.trim() && (
+        <div className="space-y-3">
+          <SectionTitle>Invocation Slogan</SectionTitle>
+          <div className="flex flex-wrap items-center gap-4">
+            <select
+              name="sloganLanguage"
+              className="form-select text-sm max-w-xs"
+              style={{ paddingLeft: '1rem' }}
+              value={formData.sloganLanguage ?? 'auto'}
+              onChange={e => updateForm({ sloganLanguage: e.target.value })}
+            >
+              {SLOGAN_OPTIONS.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+            {resolveSlogan(formData) && (
+              <span style={{ fontFamily: 'serif', fontSize: 14, color: '#C9A035', letterSpacing: '0.12em' }}>
+                {resolveSlogan(formData)}
+              </span>
+            )}
+            {(formData.sloganLanguage ?? 'auto') === 'hide' && (
+              <span className="text-white/30 text-sm">No slogan will appear</span>
+            )}
+            {(formData.sloganLanguage ?? 'auto') === 'auto' && !resolveSlogan(formData) && (
+              <span className="text-white/30 text-sm">No slogan for this religion yet — pick one manually above</span>
+            )}
+          </div>
+          <p className="text-white/25 text-xs">
+            Auto picks from your religion and mother tongue. Override anytime — works across all templates.
+          </p>
+        </div>
+      )}
 
       {/* Photo upload */}
       <div className="space-y-4">
@@ -689,6 +764,7 @@ const FIELD_JUMPS = [
   { label: 'About: Horoscope', name: 'rashi', step: 3 },
   { label: 'Contact: Phone', name: 'phone', step: 3 },
   { label: 'Design: Photo and template', name: 'template', step: 4 },
+  { label: 'Design: Slogan language', name: 'sloganLanguage', step: 4 },
 ]
 
 /* ── Main BuilderPage ── */
@@ -798,7 +874,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
               <label className="relative block md:w-72">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
                 <select
-                  className="form-select pl-10 text-sm"
+                  className="form-select text-sm" style={{ paddingLeft: '2.5rem' }}
                   value=""
                   onChange={event => jumpToField(event.target.value)}
                   aria-label="Jump to a specific biodata field"
