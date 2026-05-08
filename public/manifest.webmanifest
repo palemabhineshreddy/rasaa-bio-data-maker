@@ -1,17 +1,26 @@
 {
-  "name": "Bandhan",
+  "name": "Bandhan — Free Marriage Biodata Maker",
   "short_name": "Bandhan",
-  "description": "Free Indian marriage biodata maker for creating printable PDF biodata.",
+  "description": "Create a beautiful Indian marriage biodata PDF in minutes — free, private, no sign-up. 14 designs for Hindu, Muslim, Sikh, Christian, and Jain families.",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0a0a12",
   "theme_color": "#5b1230",
+  "categories": ["productivity", "utilities", "lifestyle"],
+  "lang": "en-IN",
   "icons": [
     {
       "src": "/bandhan-icon.svg",
-      "sizes": "512x512",
+      "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/bandhan-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ]
 }

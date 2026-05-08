@@ -2,7 +2,7 @@ import { useState, useRef, useLayoutEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, Shield, Download, ChevronRight, Heart, Lock, Zap, X } from 'lucide-react'
 import PanIndiaTemplate from '../components/PanIndiaTemplate'
-import priyaPhoto from '../../Images/AI_Female/Gemini_Generated_Image_y0v7nsy0v7nsy0v7.png'
+import priyaPhoto from '../../Images/AI_Female/sample-photo.jpg'
 
 /* One rich sample persona per template — covers Hindu (multi-region), Muslim, Sikh, Christian */
 const SAMPLE_BY_TEMPLATE = {
@@ -431,10 +431,10 @@ function TemplatesSection({ onStart }) {
           viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-16 px-8">
           <p className="text-amber-400 text-sm font-semibold tracking-widest uppercase mb-4">Templates</p>
           <h2 className="font-serif text-4xl lg:text-5xl font-bold text-white mb-5">
-            Your story,<br />your style.
+            14 designs,<br />one for every tradition.
           </h2>
           <p className="text-white/45 max-w-lg mx-auto text-lg leading-relaxed">
-            Every design is a print-ready PDF. Click any card to preview in full.
+            Classic ornate or clean modern — every design is a print-ready PDF. Click any card to preview in full.
           </p>
         </motion.div>
 
@@ -652,15 +652,15 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-16">
             <p className="text-pink-400 text-sm font-semibold tracking-widest uppercase mb-4">How it works</p>
-            <h2 className="font-serif text-4xl font-bold text-white">Three steps.<br />One beautiful biodata.</h2>
+            <h2 className="font-serif text-4xl font-bold text-white">Six simple steps.<br />One beautiful biodata.</h2>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8 relative">
             <div className="hidden md:block absolute top-8 left-[16%] right-[16%] h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
             {[
-              { num: '01', title: 'Fill your details', desc: 'Personal, family, career, horoscope, contact — guided step by step.' },
-              { num: '02', title: 'Choose your template', desc: 'Select the design that matches your culture and tradition.' },
-              { num: '03', title: 'Download and share', desc: 'Your PDF is ready instantly. Share on WhatsApp or print.' },
+              { num: '01', title: 'Fill your details', desc: 'Personal, family, career, horoscope, contact — guided across 6 short steps.' },
+              { num: '02', title: 'Add photo & pick a design', desc: 'Upload your photo, choose from 14 templates, and see the live preview update instantly.' },
+              { num: '03', title: 'Download and share', desc: 'Your PDF is ready in one click. Share the actual file on WhatsApp or print it.' },
             ].map(({ num, title, desc }, i) => (
               <motion.div key={num}
                 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
@@ -730,14 +730,19 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="bg-[#080810] py-8 px-8 border-t border-white/5">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-white/60">
+      <footer className="bg-[#080810] py-10 px-8 border-t border-white/5">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-2">
             <Heart className="w-4 h-4 text-pink-400 fill-pink-400" />
-            <span className="font-serif text-white/80">Bandhan</span>
+            <span className="font-serif text-white/80 font-semibold">Bandhan</span>
             <span className="text-white/30 text-sm ml-1">· bandhan.app</span>
           </div>
-          <p className="text-white/25 text-sm">Your data never leaves your browser · 100% Private · Free forever</p>
+          <p className="text-white/25 text-xs text-center">Your data never leaves your browser · 100% Private · Free forever</p>
+          <div className="flex items-center gap-5 text-xs text-white/35">
+            <a href="mailto:hello@bandhan.app" className="hover:text-white/60 transition-colors">Contact</a>
+            <span className="text-white/15">·</span>
+            <span className="text-white/25">© 2026 Bandhan</span>
+          </div>
         </div>
       </footer>
     </div>
