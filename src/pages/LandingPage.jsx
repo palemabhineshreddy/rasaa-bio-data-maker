@@ -2,10 +2,25 @@ import { useState, useRef, useLayoutEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, Shield, Download, ChevronRight, Heart, Lock, Zap, X } from 'lucide-react'
 import PanIndiaTemplate from '../components/PanIndiaTemplate'
-/* One rich sample persona per template — 7 female · 7 male · photos pending */
+import photoLotus      from '../../Images/AI_Female/sample-lotus.jpg'
+import photoArtDeco    from '../../Images/AI_Female/sample-art-deco.jpg'
+import photoFloralVine from '../../Images/AI_Female/sample-floral-vine.jpg'
+import photoPeacock    from '../../Images/AI_Female/sample-peacock.jpg'
+import photoMandala    from '../../Images/AI_Female/sample-mandala.jpg'
+import photoCelestial  from '../../Images/AI_Female/sample-celestial.jpg'
+import photoBridal     from '../../Images/AI_Female/sample-bridal.jpg'
+import photoMinimal    from '../../Images/AI_Female/sample-minimal.jpg'
+import photoRoyal      from '../../Images/AI_Female/sample-royal.jpg'
+import photoModern     from '../../Images/AI_Female/sample-modern.jpg'
+import photoAmethyst   from '../../Images/AI_Female/sample-amethyst.jpg'
+import photoEmber      from '../../Images/AI_Female/sample-ember.jpg'
+import photoRose       from '../../Images/AI_Female/sample-rose.jpg'
+import photoMidnight   from '../../Images/AI_Female/sample-midnight.jpg'
+
+/* One rich sample persona per template — 7 female · 7 male */
 const SAMPLE_BY_TEMPLATE = {
   // ── FEMALE ──────────────────────────────────────────────────────────────
-  panIndia: {
+  lotus: {
     fullName: 'Priya Sharma', dateOfBirth: '1998-03-12', age: '26', gender: 'Female',
     height: "5'4\"", weight: '55 kg', bloodGroup: 'B+',
     religion: 'Hindu', caste: 'Brahmin', subCaste: 'Iyer', motherTongue: 'Telugu',
@@ -19,7 +34,7 @@ const SAMPLE_BY_TEMPLATE = {
     rashi: 'Vrishabha', nakshatra: 'Rohini', gotra: 'Kashyapa', manglik: 'No',
     address: '12, MG Road, Koramangala', city: 'Bengaluru', state: 'Karnataka',
     phone: '+91 90000 00000', email: 'priya.sharma@email.com',
-    photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'telugu', customFields: [],
+    photo: photoLotus, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'telugu', customFields: [],
   },
   artDeco: {
     fullName: 'Kavya Nair', dateOfBirth: '1997-07-22', age: '27', gender: 'Female',
@@ -35,7 +50,7 @@ const SAMPLE_BY_TEMPLATE = {
     rashi: 'Karka', nakshatra: 'Pushya', gotra: 'Bharadvaja', manglik: 'No',
     address: '45, Panampilly Nagar', city: 'Kochi', state: 'Kerala',
     phone: '+91 90000 00000', email: 'kavya.nair@email.com',
-    photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'malayalam', customFields: [],
+    photo: photoArtDeco, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'malayalam', customFields: [],
   },
   floralVine: {
     fullName: 'Ananya Chatterjee', dateOfBirth: '1999-01-15', age: '25', gender: 'Female',
@@ -51,7 +66,7 @@ const SAMPLE_BY_TEMPLATE = {
     rashi: 'Mithuna', nakshatra: 'Ardra', gotra: 'Sandilya', manglik: 'No',
     address: '7B, Lake Gardens', city: 'Kolkata', state: 'West Bengal',
     phone: '+91 90000 00000', email: 'ananya.c@email.com',
-    photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'bengali', customFields: [],
+    photo: photoFloralVine, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'bengali', customFields: [],
   },
   peacock: {
     fullName: 'Zara Khan', dateOfBirth: '1998-05-10', age: '26', gender: 'Female',
@@ -67,7 +82,7 @@ const SAMPLE_BY_TEMPLATE = {
     rashi: '', nakshatra: '', gotra: '', manglik: '',
     address: '22, Nizamuddin East', city: 'New Delhi', state: 'Delhi',
     phone: '+91 90000 00000', email: 'zara.khan@email.com',
-    photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'auto',
+    photo: photoPeacock, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'auto',
     customFields: [
       { id: 'z1', section: 'personal', customTitle: '', label: 'Languages Known', value: 'Urdu, Hindi, English, Arabic' },
       { id: 'z2', section: 'personal', customTitle: '', label: 'Religious Practice', value: 'Observant Sunni Muslim, daily Namaz' },
@@ -91,7 +106,7 @@ const SAMPLE_BY_TEMPLATE = {
     rashi: '', nakshatra: '', gotra: '', manglik: '',
     address: '8, Koramangala 4th Block', city: 'Bengaluru', state: 'Karnataka',
     phone: '+91 90000 00000', email: 'grace.dsouza@email.com',
-    photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'auto',
+    photo: photoCelestial, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'auto',
     customFields: [
       { id: 'g1', section: 'personal', customTitle: '', label: 'Languages Known', value: 'Konkani, Kannada, English, Hindi' },
       { id: 'g2', section: 'personal', customTitle: '', label: 'Parish', value: "St. Francis Xavier Church, Mangaluru" },
@@ -115,7 +130,7 @@ const SAMPLE_BY_TEMPLATE = {
     rashi: 'Kanya', nakshatra: 'Hasta', gotra: 'Kaundinya', manglik: 'No',
     address: '23, Aundh', city: 'Pune', state: 'Maharashtra',
     phone: '+91 90000 00000', email: 'meera.joshi@email.com',
-    photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'marathi', customFields: [],
+    photo: photoBridal, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'marathi', customFields: [],
   },
   rose: {
     fullName: 'Devika Pattnaik', dateOfBirth: '1999-02-14', age: '25', gender: 'Female',
@@ -131,7 +146,7 @@ const SAMPLE_BY_TEMPLATE = {
     rashi: 'Kumbha', nakshatra: 'Shatabhisha', gotra: 'Vasishtha', manglik: 'No',
     address: '34, Defence Colony', city: 'New Delhi', state: 'Delhi',
     phone: '+91 90000 00000', email: 'devika.p@email.com',
-    photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'odia', customFields: [],
+    photo: photoRose, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'odia', customFields: [],
   },
 
   // ── MALE ────────────────────────────────────────────────────────────────
@@ -149,7 +164,7 @@ const SAMPLE_BY_TEMPLATE = {
     rashi: '', nakshatra: '', gotra: '', manglik: '',
     address: '14, Pali Hill', city: 'Mumbai', state: 'Maharashtra',
     phone: '+91 90000 00000', email: 'gurpreet.singh@email.com',
-    photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'auto',
+    photo: photoMandala, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'auto',
     customFields: [
       { id: 'm1', section: 'personal', customTitle: '', label: 'Languages Known', value: 'Punjabi, Hindi, English' },
       { id: 'm2', section: 'personal', customTitle: '', label: 'Religious Practice', value: 'Amritdhari Sikh, regular Gurdwara visits' },
@@ -172,7 +187,7 @@ const SAMPLE_BY_TEMPLATE = {
     rashi: 'Mithuna', nakshatra: 'Punarvasu', gotra: '', manglik: 'No',
     address: '34, Walkeshwar Road', city: 'Mumbai', state: 'Maharashtra',
     phone: '+91 90000 00000', email: 'mihir.shah@email.com',
-    photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'auto', customFields: [],
+    photo: photoMinimal, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'auto', customFields: [],
   },
   royal: {
     fullName: 'Vikram Singh Rathore', dateOfBirth: '1996-08-14', age: '28', gender: 'Male',
@@ -188,7 +203,7 @@ const SAMPLE_BY_TEMPLATE = {
     rashi: 'Simha', nakshatra: 'Purva Phalguni', gotra: 'Kashyapa', manglik: 'No',
     address: '7, Friends Colony East', city: 'New Delhi', state: 'Delhi',
     phone: '+91 90000 00000', email: 'vikram.rathore@email.com',
-    photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'hindi', customFields: [],
+    photo: photoRoyal, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'hindi', customFields: [],
   },
   modern: {
     fullName: 'Karthik Krishnan', dateOfBirth: '1998-04-05', age: '26', gender: 'Male',
@@ -204,7 +219,7 @@ const SAMPLE_BY_TEMPLATE = {
     rashi: 'Mesha', nakshatra: 'Ashwini', gotra: 'Atreya', manglik: 'No',
     address: '15, Indiranagar 12th Main', city: 'Bengaluru', state: 'Karnataka',
     phone: '+91 90000 00000', email: 'karthik.k@email.com',
-    photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'tamil', customFields: [],
+    photo: photoModern, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'tamil', customFields: [],
   },
   amethyst: {
     fullName: 'Rohith Rao', dateOfBirth: '1996-09-18', age: '28', gender: 'Male',
@@ -220,7 +235,7 @@ const SAMPLE_BY_TEMPLATE = {
     rashi: 'Vrishchika', nakshatra: 'Anuradha', gotra: 'Vatsa', manglik: 'No',
     address: '56, Jayanagar 4th Block', city: 'Bengaluru', state: 'Karnataka',
     phone: '+91 90000 00000', email: 'rohith.rao@email.com',
-    photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'kannada', customFields: [],
+    photo: photoAmethyst, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'kannada', customFields: [],
   },
   ember: {
     fullName: 'Dhruv Desai', dateOfBirth: '1997-12-05', age: '27', gender: 'Male',
@@ -236,7 +251,7 @@ const SAMPLE_BY_TEMPLATE = {
     rashi: 'Dhanu', nakshatra: 'Purva Ashadha', gotra: 'Kashyapa', manglik: 'No',
     address: '18, Bodakdev', city: 'Ahmedabad', state: 'Gujarat',
     phone: '+91 90000 00000', email: 'dhruv.desai@email.com',
-    photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'gujarati', customFields: [],
+    photo: photoEmber, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'gujarati', customFields: [],
   },
   midnight: {
     fullName: 'Kabir Bedi', dateOfBirth: '1997-07-19', age: '27', gender: 'Male',
@@ -252,12 +267,12 @@ const SAMPLE_BY_TEMPLATE = {
     rashi: 'Karka', nakshatra: 'Ashlesha', gotra: 'Atreya', manglik: 'No',
     address: '12, Bandra West', city: 'Mumbai', state: 'Maharashtra',
     phone: '+91 90000 00000', email: 'kabir.bedi@email.com',
-    photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'hindi', customFields: [],
+    photo: photoMidnight, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'hindi', customFields: [],
   },
 }
 
 /* Fallback alias */
-const PRIYA_DATA = SAMPLE_BY_TEMPLATE.panIndia
+const PRIYA_DATA = SAMPLE_BY_TEMPLATE.lotus
 
 /* Renders PanIndiaTemplate scaled to exactly containerW wide.
    Pass template to override which theme is shown (defaults to PRIYA_DATA's template).
@@ -302,7 +317,7 @@ const fadeUp = {
 
 /* ── Template catalogue ── */
 const STYLES = [
-  { id: 'panIndia',   live: true,  name: 'Lotus',     symbol: '✦', gradient: 'linear-gradient(135deg, #6B0F1A, #C9A035)', desc: 'Gold & maroon · Timeless classic'       },
+  { id: 'lotus',      live: true,  name: 'Lotus',     symbol: '✦', gradient: 'linear-gradient(135deg, #6B0F1A, #C9A035)', desc: 'Gold & maroon · Timeless classic'       },
   { id: 'artDeco',    live: true,  name: 'Art Deco',   symbol: '◇', gradient: 'linear-gradient(135deg, #1B2A4A, #BFA060)', desc: 'Navy & gold · Geometric precision'      },
   { id: 'floralVine', live: true,  name: 'Floral',     symbol: '✿', gradient: 'linear-gradient(135deg, #2A4A1C, #C8A020)', desc: 'Forest green · Botanical charm'         },
   { id: 'peacock',    live: true,  name: 'Peacock',    symbol: '☯', gradient: 'linear-gradient(135deg, #0D4A5E, #F0B840)', desc: 'Teal & bright gold · Royal elegance'   },
@@ -359,7 +374,7 @@ function StyleCard({ s, i, onClick }) {
 
 /* Group templates: live collection vs coming soon */
 const STYLE_GROUPS = [
-  { label: 'Classic Collection', sub: '7 designs · ornate & traditional', ids: ['panIndia', 'artDeco', 'floralVine', 'peacock', 'mandala', 'celestial', 'bridal'] },
+  { label: 'Classic Collection', sub: '7 designs · ornate & traditional', ids: ['lotus', 'artDeco', 'floralVine', 'peacock', 'mandala', 'celestial', 'bridal'] },
   { label: 'Modern & Minimal',   sub: '7 designs · clean & contemporary', ids: ['minimal', 'royal', 'modern', 'amethyst', 'ember', 'rose', 'midnight'] },
 ]
 
@@ -570,7 +585,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             <div className="absolute pointer-events-none" style={{ width: 480, height: 300, top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'radial-gradient(ellipse at center, rgba(168,136,224,0.1) 0%, transparent 70%)', filter: 'blur(8px)' }} />
 
             {[
-              { template: 'panIndia',   x: -234, scl: 0.80, op: 0.50, rot: -6,  y: [0,   -10, 0],   delay: 0,   z: 1, glow: 'rgba(201,160,53,0.5)'  },
+              { template: 'lotus',      x: -234, scl: 0.80, op: 0.50, rot: -6,  y: [0,   -10, 0],   delay: 0,   z: 1, glow: 'rgba(201,160,53,0.5)'  },
               { template: 'floralVine', x: -118, scl: 0.91, op: 0.75, rot: -2,  y: [-6,  -18, -6],  delay: 0.5, z: 2, glow: 'rgba(200,160,32,0.5)'  },
               { template: 'peacock',    x: 0,    scl: 1.06, op: 1,    rot: 0,   y: [-14, -28, -14], delay: 1.0, z: 5, glow: 'rgba(240,184,64,0.6)'  },
               { template: 'mandala',    x: 118,  scl: 0.91, op: 0.75, rot: 2,   y: [-4,  -16, -4],  delay: 0.7, z: 2, glow: 'rgba(224,120,48,0.5)'  },

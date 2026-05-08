@@ -452,7 +452,7 @@ function SloganPicker({ formData, updateForm }) {
 
 /* ── Template styles catalogue ── */
 const TEMPLATE_STYLES = [
-  { id: 'panIndia',   live: true,  name: 'Lotus',     symbol: '✦', gradient: 'linear-gradient(135deg, #6B0F1A, #C9A035)', desc: 'Gold & maroon · Lotus corners'       },
+  { id: 'lotus',      live: true,  name: 'Lotus',     symbol: '✦', gradient: 'linear-gradient(135deg, #6B0F1A, #C9A035)', desc: 'Gold & maroon · Lotus corners'       },
   { id: 'artDeco',    live: true,  name: 'Art Deco',   symbol: '◇', gradient: 'linear-gradient(135deg, #1B2A4A, #BFA060)', desc: 'Navy & gold · Geometric corners'     },
   { id: 'floralVine', live: true,  name: 'Floral',     symbol: '✿', gradient: 'linear-gradient(135deg, #2A4A1C, #C8A020)', desc: 'Forest green · Petal corners'        },
   { id: 'peacock',    live: true,  name: 'Peacock',    symbol: '☯', gradient: 'linear-gradient(135deg, #0D4A5E, #F0B840)', desc: 'Teal & gold · Feather-eye corners'   },
@@ -521,7 +521,7 @@ function TemplateCard({ style, isSelected, formData, onSelect }) {
 
 /* Groups for the Step 5 picker */
 const TEMPLATE_GROUPS = [
-  { label: 'Classic Collection', ids: ['panIndia', 'artDeco', 'floralVine', 'peacock', 'mandala', 'celestial', 'bridal'] },
+  { label: 'Classic Collection', ids: ['lotus', 'artDeco', 'floralVine', 'peacock', 'mandala', 'celestial', 'bridal'] },
   { label: 'Modern & Minimal',   ids: ['minimal', 'royal', 'modern', 'amethyst', 'ember', 'rose', 'midnight'] },
 ]
 
@@ -655,7 +655,7 @@ function DesignLivePreview({ formData }) {
     if (h > 0) setContainerH(h)
   })
 
-  const selectedStyle = TEMPLATE_STYLES.find(s => s.id === (formData.template || 'panIndia'))
+  const selectedStyle = TEMPLATE_STYLES.find(s => s.id === (formData.template || 'lotus'))
   const displayH = containerH ? Math.round(containerH * scale) : Math.round(previewW * 1.39)
 
   return (
@@ -696,7 +696,7 @@ function DesignLivePreview({ formData }) {
 }
 
 function Step6({ formData, updateForm }) {
-  const selectedStyle = TEMPLATE_STYLES.find(s => s.id === (formData.template || 'panIndia'))
+  const selectedStyle = TEMPLATE_STYLES.find(s => s.id === (formData.template || 'lotus'))
 
   return (
     <div className="space-y-6">
@@ -772,7 +772,7 @@ const SAMPLE_DATA = {
   rashi: 'Vrishabha', nakshatra: 'Rohini', gotra: 'Kashyapa', manglik: 'No',
   address: '12, MG Road, Koramangala', city: 'Bengaluru', state: 'Karnataka',
   phone: '+91 90000 00000', email: 'priya.sharma@email.com',
-  photo: null, photoPosition: { x: 50, y: 20 }, template: 'panIndia', customFields: [],
+  photo: null, photoPosition: { x: 50, y: 20 }, template: 'lotus', customFields: [],
 }
 
 /* ── Steps config ── */
@@ -803,7 +803,7 @@ function PreviewStep({ formData, onBack, onEditStep }) {
       const { blob } = await exportPDF(previewRef.current, formData.fullName || 'biodata')
       pdfBlobRef.current = blob
       setDownloaded(true)
-      track.pdfDownloaded(formData.template || 'panIndia')
+      track.pdfDownloaded(formData.template || 'lotus')
     } finally {
       setLoading(false)
     }

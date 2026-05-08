@@ -15,7 +15,7 @@ export function trackEvent(name, params = {}) {
 
 export const track = {
   // Landing page → builder hand-off
-  builderStarted: (template = 'panIndia') =>
+  builderStarted: (template = 'lotus') =>
     trackEvent('builder_started', { template }),
 
   // Each step displayed

@@ -26,7 +26,7 @@ const EMPTY_FORM = {
   // Photo & Template
   photo: null,
   photoPosition: { x: 50, y: 20 },
-  template: 'panIndia',
+  template: 'lotus',
   sloganLanguage: 'auto',
   // User-defined rows
   customFields: [],
@@ -57,8 +57,8 @@ export default function App() {
   })
 
   const startBuilder = (styleId) => {
-    track.builderStarted(styleId || 'panIndia')
-    setFormData({ ...EMPTY_FORM, template: styleId || 'panIndia' })
+    track.builderStarted(styleId || 'lotus')
+    setFormData({ ...EMPTY_FORM, template: styleId || 'lotus' })
     try { localStorage.removeItem(LS_KEY) } catch {}
     setView('builder')
   }

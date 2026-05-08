@@ -571,7 +571,7 @@ function MidnightBorder({ outer, gold }) {
    Maps data.template → colors + border style
 ═══════════════════════════════════════════ */
 export const THEMES = {
-  panIndia:   { outer: '#6B0F1A', gold: '#C9A035', label: '#7B2D2D', value: '#1C0808', bg: '#FDFDF9', Border: LotusBorder    },
+  lotus:      { outer: '#6B0F1A', gold: '#C9A035', label: '#7B2D2D', value: '#1C0808', bg: '#FDFDF9', Border: LotusBorder    },
   artDeco:    { outer: '#1B2A4A', gold: '#BFA060', label: '#243A5C', value: '#0A1428', bg: '#F7F8FD', Border: ArtDecoBorder   },
   floralVine: { outer: '#2A4A1C', gold: '#C8A020', label: '#3A5A28', value: '#0C1A08', bg: '#F6FBF3', Border: FloralBorder    },
   peacock:    { outer: '#0D4A5E', gold: '#F0B840', label: '#0E3A4E', value: '#04141E', bg: '#F2FAFB', Border: PeacockBorder   },
@@ -591,7 +591,7 @@ export const THEMES = {
    MAIN TEMPLATE COMPONENT
 ═══════════════════════════════════════════ */
 export default function PanIndiaTemplate({ data }) {
-  const theme = THEMES[data?.template] || THEMES.panIndia
+  const theme = THEMES[data?.template] || THEMES.lotus
   const { outer, gold, label: labelColor, value: valueColor, bg, Border } = theme
 
   const {
