@@ -12,6 +12,25 @@ const COLOR_LABEL     = '#7B2D2D'   // row label color
 const COLOR_VALUE     = '#1C0808'   // row value color
 const COLOR_BG        = '#FDFDF9'   // premium near-white (barely-warm ivory)
 
+const HINDU_SLOGANS = {
+  telugu:     '॥ శ్రీ గణేశాయ నమః ॥',
+  tamil:      '॥ ஸ்ரீ கணேசாய நமஃ ॥',
+  kannada:    '॥ ಶ್ರೀ ಗಣೇಶಾಯ ನಮಃ ॥',
+  malayalam:  '॥ ശ്രീ ഗണേശായ നമഃ ॥',
+  bengali:    '॥ শ্রী গণেশায় নমঃ ॥',
+  gujarati:   '॥ શ્રી ગણેશાય નમઃ ॥',
+  marathi:    '॥ श्री गणेशाय नमः ॥',
+  odia:       '॥ ଶ୍ରୀ ଗଣେଶାୟ ନମଃ ॥',
+  punjabi:    '॥ ਸ਼੍ਰੀ ਗਣੇਸ਼ਾਯ ਨਮਃ ॥',
+}
+const DEFAULT_SLOGAN = '॥ श्री गणेशाय नमः ॥'
+
+function getSlogan(religion, motherTongue) {
+  if (!religion || religion.toLowerCase() !== 'hindu') return null
+  const key = (motherTongue || '').toLowerCase().trim()
+  return HINDU_SLOGANS[key] || DEFAULT_SLOGAN
+}
+
 function CornerLotus() {
   return (
     <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
@@ -97,12 +116,14 @@ export default function PanIndiaTemplate({ data }) {
 
       <div style={{ padding: '48px 52px 28px 52px', position: 'relative', zIndex: 1 }}>
 
-        {/* ── Header: slogan centred ── */}
-        <header style={{ textAlign: 'center', marginBottom: 16 }}>
-          <div style={{ fontFamily: 'serif', fontSize: 13, color: COLOR_GOLD, letterSpacing: '0.14em' }}>
-            ॥ श्री गणेशाय नमः ॥
-          </div>
-        </header>
+        {/* ── Header: slogan centred — language auto-detected from mother tongue ── */}
+        {getSlogan(religion, motherTongue) && (
+          <header style={{ textAlign: 'center', marginBottom: 16 }}>
+            <div style={{ fontFamily: 'serif', fontSize: 13, color: COLOR_GOLD, letterSpacing: '0.14em' }}>
+              {getSlogan(religion, motherTongue)}
+            </div>
+          </header>
+        )}
 
         {/* ── Section 1: Personal Details ── */}
         <Divider title="Personal Details" />

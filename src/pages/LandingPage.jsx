@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useLayoutEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, Shield, Download, ChevronRight, Heart, Lock, Zap, X } from 'lucide-react'
 import PanIndiaTemplate from '../components/PanIndiaTemplate'
@@ -21,12 +21,30 @@ const PRIYA_DATA = {
   photo: priyaPhoto, photoPosition: { x: 50, y: 20 }, customFields: [],
 }
 
-/* Renders the actual PanIndiaTemplate scaled down — pixel-perfect preview */
-function LivePreview({ scale = 0.28, visibleH = 320 }) {
+/* Renders the actual PanIndiaTemplate scaled to exactly containerW wide.
+   When visibleH is set, clips to that height (thumbnail/hero).
+   When omitted, auto-measures and shows the full template. */
+function LivePreview({ containerW, visibleH, shadow = true }) {
   const naturalW = 760
+  const scale = containerW / naturalW
+  const innerRef = useRef(null)
+  const [naturalH, setNaturalH] = useState(0)
+
+  useLayoutEffect(() => {
+    if (innerRef.current) setNaturalH(innerRef.current.scrollHeight)
+  }, [containerW])
+
+  const outerH = visibleH ?? (naturalH ? naturalH * scale : 'auto')
+
   return (
-    <div style={{ width: Math.round(naturalW * scale), height: visibleH, overflow: 'hidden', borderRadius: 4, boxShadow: '0 32px 80px rgba(201,160,53,0.22), 0 8px 24px rgba(0,0,0,0.35)', flexShrink: 0 }}>
-      <div style={{ width: naturalW, transform: `scale(${scale})`, transformOrigin: 'top left', pointerEvents: 'none' }}>
+    <div style={{
+      width: containerW,
+      height: outerH,
+      overflow: 'hidden',
+      flexShrink: 0,
+      boxShadow: shadow ? '0 24px 60px rgba(201,160,53,0.2), 0 8px 24px rgba(0,0,0,0.3)' : 'none',
+    }}>
+      <div ref={innerRef} style={{ width: naturalW, transform: `scale(${scale})`, transformOrigin: 'top left', pointerEvents: 'none' }}>
         <PanIndiaTemplate data={PRIYA_DATA} />
       </div>
     </div>
@@ -43,83 +61,128 @@ const fadeUp = {
 
 
 /* ── Template preview cards ── */
-const RELIGIONS = [
+const STYLES = [
   {
-    id: 'hindu', live: true, name: 'Hindu', symbol: 'ॐ',
+    id: 'classic', live: true, name: 'Classic', symbol: '✦',
     gradient: 'linear-gradient(135deg, #b45309, #C9A035, #92400e)',
     glow: 'rgba(201,160,53,0.5)', size: 148,
-    desc: 'Pan-India · All communities · Horoscope ready',
+    desc: 'Gold & maroon · Lotus borders · Timeless Indian elegance',
     features: ['Lotus corner ornaments', 'Gold & maroon palette', 'Full horoscope section', 'Photo upload & crop'],
   },
   {
-    id: 'muslim', live: false, name: 'Muslim', symbol: '☪',
-    gradient: 'linear-gradient(135deg, #14532d, #16a34a)',
-    glow: 'rgba(22,163,74,0.35)', size: 116,
-    desc: 'Nikah Biodata · Urdu-ready · Green & ivory',
+    id: 'minimal', live: false, name: 'Minimal', symbol: '○',
+    gradient: 'linear-gradient(135deg, #374151, #6b7280)',
+    glow: 'rgba(107,114,128,0.35)', size: 116,
+    desc: 'No borders · Clean typography · Let the words speak',
   },
   {
-    id: 'sikh', live: false, name: 'Sikh', symbol: '☬',
-    gradient: 'linear-gradient(135deg, #1e3a5f, #2563eb)',
-    glow: 'rgba(37,99,235,0.35)', size: 116,
-    desc: 'Punjabi style · Navy & gold · Gurmukhi fields',
+    id: 'royal', live: false, name: 'Royal', symbol: '♛',
+    gradient: 'linear-gradient(135deg, #1e1b4b, #4338ca)',
+    glow: 'rgba(67,56,202,0.4)', size: 116,
+    desc: 'Deep navy · Gold filigree · Grand & ornate',
   },
   {
-    id: 'christian', live: false, name: 'Christian', symbol: '✝',
-    gradient: 'linear-gradient(135deg, #312e81, #6366f1)',
-    glow: 'rgba(99,102,241,0.35)', size: 116,
-    desc: 'Church style · Denomination fields · Ivory & indigo',
-  },
-  {
-    id: 'jain', live: false, name: 'Jain', symbol: '🕉',
-    gradient: 'linear-gradient(135deg, #78350f, #d97706)',
-    glow: 'rgba(217,119,6,0.35)', size: 116,
-    desc: 'Sect-specific fields · Amber & brown · Minimalist',
-  },
-  {
-    id: 'buddhist', live: false, name: 'Buddhist', symbol: '☸',
-    gradient: 'linear-gradient(135deg, #7c3aed, #a78bfa)',
-    glow: 'rgba(124,58,237,0.35)', size: 116,
-    desc: 'Dhamma-inspired · Saffron & violet · Clean layout',
+    id: 'modern', live: false, name: 'Modern', symbol: '◈',
+    gradient: 'linear-gradient(135deg, #0f766e, #14b8a6)',
+    glow: 'rgba(20,184,166,0.35)', size: 116,
+    desc: 'Light palette · Contemporary layout · Fresh feel',
   },
 ]
 
-function ReligionBubble({ r, i, selected, onSelect }) {
-  const isSelected = selected?.id === r.id
+/* Mini card in the horizontal scroll row */
+function StyleCard({ s, i, onClick }) {
   return (
     <motion.div
-      className="flex flex-col items-center gap-3 cursor-pointer"
-      initial={{ opacity: 0, y: 32 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: i * 0.1 }}
-      animate={{ y: [0, i % 2 === 0 ? -10 : -6, 0] }}
-      // @ts-ignore
-      transition2={{ y: { duration: 3 + i * 0.7, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 } }}
-      onClick={() => onSelect(isSelected ? null : r)}
+      transition={{ duration: 0.4, delay: i * 0.07 }}
+      whileHover={{ y: -6 }}
+      whileTap={{ scale: 0.96 }}
+      onClick={onClick}
+      style={{ width: 168, flexShrink: 0, cursor: 'pointer' }}
+    >
+      {/* Thumbnail */}
+      <div style={{
+        height: 132, borderRadius: 14, overflow: 'hidden',
+        border: s.live ? '1.5px solid rgba(201,160,53,0.45)' : '1.5px solid rgba(255,255,255,0.1)',
+        position: 'relative',
+        boxShadow: s.live ? '0 8px 28px rgba(201,160,53,0.18)' : '0 4px 16px rgba(0,0,0,0.3)',
+      }}>
+        {s.live ? (
+          <LivePreview containerW={168} visibleH={132} shadow={false} />
+        ) : (
+          <div style={{ width: '100%', height: '100%', background: s.gradient, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: 0.75 }}>
+            <span style={{ fontSize: 32 }}>{s.symbol}</span>
+            <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Coming Soon</span>
+          </div>
+        )}
+      </div>
+
+      {/* Name + badge */}
+      <div style={{ padding: '10px 2px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>{s.name}</span>
+        {s.live && (
+          <span style={{ fontSize: 9, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', padding: '2px 7px', borderRadius: 20, letterSpacing: '0.06em' }}>Live</span>
+        )}
+      </div>
+    </motion.div>
+  )
+}
+
+/* Full-screen modal */
+function TemplateModal({ s, onClose, onStart }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+      onClick={onClose}
     >
       <motion.div
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.94 }}
+        initial={{ opacity: 0, scale: 0.93, y: 24 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.93, y: 24 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        onClick={e => e.stopPropagation()}
         style={{
-          width: r.size, height: r.size, borderRadius: '50%',
-          background: r.gradient,
-          boxShadow: isSelected
-            ? `0 0 0 4px white, 0 12px 48px ${r.glow}`
-            : `0 8px 32px ${r.glow}`,
+          background: '#0f0f1a', borderRadius: 24, overflow: 'hidden',
+          border: '1px solid rgba(255,255,255,0.1)',
+          width: '100%', maxWidth: 880, maxHeight: '90vh',
           display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', gap: 4,
-          position: 'relative', transition: 'box-shadow 0.3s',
-          opacity: !r.live && !isSelected ? 0.65 : 1,
         }}
       >
-        <span style={{ fontSize: r.size * 0.28, lineHeight: 1 }}>{r.symbol}</span>
-        {!r.live && (
-          <span style={{ fontSize: 7, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Soon</span>
+        {/* Modal header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 28px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 24 }}>{s.symbol}</span>
+            <span style={{ fontSize: 18, fontWeight: 700, color: 'white', fontFamily: 'serif' }}>{s.name}</span>
+            {s.live && <span style={{ fontSize: 10, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', padding: '3px 10px', borderRadius: 20, letterSpacing: '0.08em' }}>Available now</span>}
+          </div>
+          <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.15)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.5)' }}>
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Modal body */}
+        {s.live ? (
+          <div style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '28px 28px 32px', gap: 24, background: 'rgba(201,160,53,0.03)' }}>
+            <LivePreview containerW={400} shadow={false} />
+            <button onClick={() => onStart(s.id)} className="btn-primary" style={{ padding: '14px 40px', fontSize: 15 }}>
+              Create with this style <ChevronRight size={18} />
+            </button>
+          </div>
+        ) : (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 48, textAlign: 'center' }}>
+            <div style={{ width: 80, height: 80, borderRadius: '50%', background: s.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, marginBottom: 20 }}>{s.symbol}</div>
+            <h3 style={{ fontFamily: 'serif', fontSize: 26, fontWeight: 700, color: 'white', marginBottom: 10 }}>{s.name} is on the way</h3>
+            <p style={{ color: 'rgba(255,255,255,0.4)', maxWidth: 340, lineHeight: 1.7, marginBottom: 24 }}>{s.desc}</p>
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', padding: '6px 16px', borderRadius: 20 }}>In the works — coming soon</span>
+          </div>
         )}
       </motion.div>
-      <span style={{ fontSize: 12, fontWeight: 600, color: isSelected ? 'white' : 'rgba(255,255,255,0.55)', letterSpacing: '0.08em', textTransform: 'uppercase', transition: 'color 0.2s' }}>
-        {r.name}
-      </span>
     </motion.div>
   )
 }
@@ -128,89 +191,36 @@ function TemplatesSection({ onStart }) {
   const [selected, setSelected] = useState(null)
 
   return (
-    <section id="templates" className="bg-[#0a0a12] py-28 px-8">
-      <div className="max-w-5xl mx-auto">
+    <section id="templates" className="bg-[#0a0a12] py-28">
+      <div className="max-w-6xl mx-auto">
 
         <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-16">
+          viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-12 px-8">
           <p className="text-amber-400 text-sm font-semibold tracking-widest uppercase mb-4">Templates</p>
           <h2 className="font-serif text-4xl lg:text-5xl font-bold text-white mb-5">
-            Every faith.<br />Every family.
+            Your story,<br />your style.
           </h2>
           <p className="text-white/45 max-w-lg mx-auto text-lg leading-relaxed">
-            Your biodata should feel like it belongs to your tradition.
-            Tap your faith to see the design crafted for you.
+            Choose a design that feels like you. Click any card to preview.
           </p>
         </motion.div>
 
-        {/* Floating religion bubbles */}
-        <div className="flex flex-wrap justify-center items-end gap-8 mb-12">
-          {RELIGIONS.map((r, i) => (
-            <ReligionBubble key={r.id} r={r} i={i} selected={selected} onSelect={setSelected} />
-          ))}
+        {/* Horizontal scroll row — no scrollbar visible */}
+        <div style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="[&::-webkit-scrollbar]:hidden">
+          <div style={{ display: 'flex', gap: 16, padding: '8px 32px 24px' }}>
+            {STYLES.map((s, i) => (
+              <StyleCard key={s.id} s={s} i={i} onClick={() => setSelected(s)} />
+            ))}
+          </div>
         </div>
 
-        {/* Expanded panel */}
-        <AnimatePresence>
-          {selected && (
-            <motion.div
-              key={selected.id}
-              initial={{ opacity: 0, y: 24, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 16, scale: 0.97 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="relative rounded-3xl border overflow-hidden"
-              style={{ borderColor: selected.live ? 'rgba(201,160,53,0.3)' : 'rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}
-            >
-              {/* Close */}
-              <button onClick={() => setSelected(null)}
-                className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full glass flex items-center justify-center text-white/50 hover:text-white transition-colors">
-                <X className="w-4 h-4" />
-              </button>
-
-              {selected.live ? (
-                <div className="flex flex-col lg:flex-row gap-0">
-                  {/* Live preview */}
-                  <div className="flex items-center justify-center p-10 lg:border-r border-white/8"
-                    style={{ background: 'rgba(201,160,53,0.04)' }}>
-                    <LivePreview scale={0.32} visibleH={400} />
-                  </div>
-                  {/* Info */}
-                  <div className="flex-1 p-10 flex flex-col justify-center">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-3xl">{selected.symbol}</span>
-                      <h3 className="font-serif text-3xl font-bold text-white">{selected.name}</h3>
-                    </div>
-                    <p className="text-amber-300/70 text-sm font-semibold tracking-widest uppercase mb-4">Available now</p>
-                    <p className="text-white/50 leading-relaxed mb-8">{selected.desc}</p>
-                    <ul className="space-y-2 mb-10">
-                      {selected.features?.map(f => (
-                        <li key={f} className="flex items-center gap-3 text-white/70 text-sm">
-                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#C9A035' }} />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                    <button onClick={onStart} className="btn-primary self-start px-8 py-4 text-base">
-                      Create with this template <ChevronRight className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-20 px-8 text-center">
-                  <span className="text-6xl mb-6">{selected.symbol}</span>
-                  <h3 className="font-serif text-3xl font-bold text-white mb-3">{selected.name} Template</h3>
-                  <p className="text-white/40 max-w-md leading-relaxed mb-6">{selected.desc}</p>
-                  <span className="px-5 py-2 rounded-full text-sm font-semibold" style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)' }}>
-                    In the works — coming soon
-                  </span>
-                </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
       </div>
+
+      {/* Modal — outside max-w container so it can go full screen */}
+      <AnimatePresence>
+        {selected && <TemplateModal s={selected} onClose={() => setSelected(null)} onStart={onStart} />}
+      </AnimatePresence>
     </section>
   )
 }
@@ -314,7 +324,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
               animate={{ y: [0, -14, 0] }}
               transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
             >
-              <LivePreview scale={0.29} visibleH={340} />
+              <LivePreview containerW={220} visibleH={340} />
             </motion.div>
             <div className="absolute inset-0 rounded-full blur-3xl pointer-events-none"
               style={{ background: 'radial-gradient(ellipse at center, rgba(201,160,53,0.15) 0%, transparent 70%)' }} />

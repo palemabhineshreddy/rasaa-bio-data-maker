@@ -54,8 +54,8 @@ export default function App() {
     return next
   })
 
-  const startBuilder = () => {
-    setFormData(EMPTY_FORM)
+  const startBuilder = (styleId) => {
+    setFormData({ ...EMPTY_FORM, template: styleId || 'panIndia' })
     try { localStorage.removeItem(LS_KEY) } catch {}
     setView('builder')
   }

@@ -327,6 +327,80 @@ function Step4({ formData, updateForm }) {
   )
 }
 
+/* ── Template styles catalogue ── */
+const TEMPLATE_STYLES = [
+  {
+    id: 'panIndia', live: true, name: 'Classic', symbol: '✦',
+    gradient: 'linear-gradient(135deg, #b45309, #C9A035, #92400e)',
+    desc: 'Gold & maroon · Lotus borders · Timeless',
+  },
+  {
+    id: 'minimal', live: false, name: 'Minimal', symbol: '○',
+    gradient: 'linear-gradient(135deg, #374151, #6b7280)',
+    desc: 'Clean typography · No borders',
+  },
+  {
+    id: 'royal', live: false, name: 'Royal', symbol: '♛',
+    gradient: 'linear-gradient(135deg, #1e1b4b, #4338ca)',
+    desc: 'Deep navy · Gold filigree',
+  },
+  {
+    id: 'modern', live: false, name: 'Modern', symbol: '◈',
+    gradient: 'linear-gradient(135deg, #0f766e, #14b8a6)',
+    desc: 'Contemporary · Fresh feel',
+  },
+]
+
+/* Scaled-down preview of the actual template using user's own data */
+function TemplateMiniPreview({ formData, containerW = 168, visibleH = 132 }) {
+  const naturalW = 760
+  const scale = containerW / naturalW
+  return (
+    <div style={{ width: containerW, height: visibleH, overflow: 'hidden' }}>
+      <div style={{ width: naturalW, transform: `scale(${scale})`, transformOrigin: 'top left', pointerEvents: 'none' }}>
+        <PanIndiaTemplate data={formData} />
+      </div>
+    </div>
+  )
+}
+
+function TemplateCard({ style, isSelected, formData, onSelect }) {
+  return (
+    <div
+      onClick={() => style.live && onSelect(style.id)}
+      style={{ width: 168, flexShrink: 0, cursor: style.live ? 'pointer' : 'default' }}
+    >
+      <div style={{
+        height: 132, borderRadius: 14, overflow: 'hidden', position: 'relative',
+        border: isSelected ? '2px solid #a855f7' : '1.5px solid rgba(255,255,255,0.1)',
+        boxShadow: isSelected ? '0 0 0 3px rgba(168,85,247,0.2)' : '0 4px 16px rgba(0,0,0,0.3)',
+        transition: 'border 0.2s, box-shadow 0.2s',
+      }}>
+        {style.live ? (
+          <TemplateMiniPreview formData={formData} containerW={168} visibleH={132} />
+        ) : (
+          <div style={{ width: '100%', height: '100%', background: style.gradient, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: 0.7 }}>
+            <span style={{ fontSize: 32 }}>{style.symbol}</span>
+            <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Coming Soon</span>
+          </div>
+        )}
+        {isSelected && (
+          <div style={{ position: 'absolute', top: 8, right: 8, width: 22, height: 22, borderRadius: '50%', background: '#a855f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Check className="w-3 h-3 text-white" />
+          </div>
+        )}
+      </div>
+      <div style={{ padding: '8px 2px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: isSelected ? 'white' : 'rgba(255,255,255,0.65)' }}>{style.name}</span>
+        {style.live
+          ? <span style={{ fontSize: 9, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', padding: '2px 7px', borderRadius: 20 }}>Live</span>
+          : <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.25)', background: 'rgba(255,255,255,0.05)', padding: '2px 7px', borderRadius: 20 }}>Soon</span>
+        }
+      </div>
+    </div>
+  )
+}
+
 /* ── Photo drag-to-reposition adjuster ── */
 function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace }) {
   const containerRef = useRef()
@@ -388,7 +462,7 @@ function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace 
   )
 }
 
-/* ── Step 5: Photo + Template ── */
+/* ── Step 5: Style + Photo ── */
 function Step5({ formData, updateForm }) {
   const fileRef = useRef()
 
@@ -401,13 +475,34 @@ function Step5({ formData, updateForm }) {
   }
 
   return (
-    <div className="space-y-8">
-      <StepHeading title="Your Photo" sub="Upload a clear, front-facing photo for your biodata." />
+    <div className="space-y-10">
+      <StepHeading title="Style & Photo" sub="Pick a template style and add your photo. You can switch style anytime." />
+
+      {/* Template style picker */}
+      <div className="space-y-4">
+        <SectionTitle>Choose Style</SectionTitle>
+        <div
+          style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="[&::-webkit-scrollbar]:hidden -mx-2"
+        >
+          <div style={{ display: 'flex', gap: 14, padding: '4px 8px 12px' }}>
+            {TEMPLATE_STYLES.map(s => (
+              <TemplateCard
+                key={s.id}
+                style={s}
+                isSelected={formData.template === s.id}
+                formData={formData}
+                onSelect={id => updateForm({ template: id })}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Photo upload */}
-      <div>
-        <SectionTitle>Your Photo</SectionTitle>
-        <div className="mt-4">
+      <div className="space-y-4">
+        <SectionTitle>Your Photo <span className="text-white/30 text-sm font-normal">(optional)</span></SectionTitle>
+        <div>
           {formData.photo ? (
             <PhotoAdjuster
               photo={formData.photo}
@@ -436,7 +531,6 @@ function Step5({ formData, updateForm }) {
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
         </div>
       </div>
-
     </div>
   )
 }
@@ -466,7 +560,7 @@ const STEPS = [
   { label: 'Career' },
   { label: 'Family' },
   { label: 'About' },
-  { label: 'Photo' },
+  { label: 'Style' },
 ]
 
 /* ── Preview + Download ── */
