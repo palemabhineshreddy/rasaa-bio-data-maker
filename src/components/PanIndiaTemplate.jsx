@@ -21,12 +21,37 @@ const HINDU_SLOGANS = {
 }
 const DEFAULT_SLOGAN = '॥ श्री गणेशाय नमः ॥'
 
+const RELIGION_SLOGANS = {
+  muslim:    'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
+  sikh:      'ੴ ਸਤਿ ਨਾਮੁ ਕਰਤਾ ਪੁਰਖੁ',
+  christian: '✝ To God Be The Glory ✝',
+  jain:      '॥ जय जिनेन्द्र ॥',
+  buddhist:  '॥ नमो बुद्धाय ॥',
+}
+
+function getReligionKey(religion) {
+  const r = (religion || '').toLowerCase().trim()
+  if (r.includes('muslim') || r.includes('islam')) return 'muslim'
+  if (r.includes('sikh'))                           return 'sikh'
+  if (r.includes('christian') || r.includes('catholic') || r.includes('protestant')) return 'christian'
+  if (r.includes('jain'))                           return 'jain'
+  if (r.includes('buddhist') || r.includes('buddhism')) return 'buddhist'
+  if (r.includes('hindu'))                          return 'hindu'
+  return null
+}
+
 function getSlogan(religion, motherTongue, sloganLanguage = 'auto') {
   if (sloganLanguage === 'hide') return null
+  // Manual override: only serve Hindu language slogans if explicitly chosen
   if (sloganLanguage !== 'auto') return HINDU_SLOGANS[sloganLanguage] || DEFAULT_SLOGAN
-  if (!religion || religion.toLowerCase() !== 'hindu') return null
-  const key = (motherTongue || '').toLowerCase().trim()
-  return HINDU_SLOGANS[key] || DEFAULT_SLOGAN
+  // Auto: pick by religion, then mother tongue for Hindus
+  const relKey = getReligionKey(religion)
+  if (!relKey) return null
+  if (relKey === 'hindu') {
+    const key = (motherTongue || '').toLowerCase().trim()
+    return HINDU_SLOGANS[key] || DEFAULT_SLOGAN
+  }
+  return RELIGION_SLOGANS[relKey] || null
 }
 
 /* ═══════════════════════════════════════════
@@ -322,6 +347,226 @@ function BridalBorder({ outer, gold }) {
   )
 }
 
+/* 8 ── Minimal — warm slate & caramel, whisper-thin frame, understated corner hooks */
+function MinimalBorder({ outer, gold }) {
+  function Corner() {
+    return (
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+        <path d="M 3 26 L 3 3 L 26 3" stroke={outer} strokeWidth="1.2" strokeLinecap="round" fill="none" />
+        <circle cx="3" cy="3" r="2.8" fill={gold} />
+      </svg>
+    )
+  }
+  return (
+    <>
+      <div style={{ position: 'absolute', top: 12, right: 12, bottom: 12, left: 12, border: `0.7px solid ${outer}`, opacity: 0.28, pointerEvents: 'none', zIndex: 2 }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', top: 0, right: 0, transform: 'scaleX(-1)', zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, transform: 'scaleY(-1)', zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', bottom: 0, right: 0, transform: 'rotate(180deg)', zIndex: 3 }}><Corner /></div>
+    </>
+  )
+}
+
+/* 9 ── Royal — deep indigo & bright gold, triple-frame with jewelled corner medallions */
+function RoyalBorder({ outer, gold }) {
+  function Corner() {
+    return (
+      <svg width="90" height="90" viewBox="0 0 90 90" fill="none">
+        {/* Triple nested L-frame */}
+        <path d="M 5 82 L 5 5 L 82 5"  stroke={outer} strokeWidth="2.5" fill="none" />
+        <path d="M 11 82 L 11 11 L 82 11" stroke={gold}  strokeWidth="1"   fill="none" />
+        <path d="M 16 82 L 16 16 L 82 16" stroke={outer} strokeWidth="0.5" fill="none" opacity="0.4" />
+        {/* Jewelled corner medallion */}
+        <circle cx="8" cy="8" r="6.5" fill={outer} fillOpacity="0.12" stroke={gold} strokeWidth="0.8" />
+        <rect x="4.5" y="4.5" width="7" height="7" transform="rotate(45 8 8)" fill={gold} />
+        <circle cx="8" cy="8" r="2" fill={outer} />
+        {/* Gold bead chain along arms */}
+        <circle cx="30" cy="8"  r="2.5" fill={gold} fillOpacity="0.8" stroke={outer} strokeWidth="0.4" />
+        <circle cx="50" cy="8"  r="2.5" fill={gold} fillOpacity="0.8" stroke={outer} strokeWidth="0.4" />
+        <circle cx="70" cy="8"  r="2.5" fill={gold} fillOpacity="0.8" stroke={outer} strokeWidth="0.4" />
+        <circle cx="8"  cy="30" r="2.5" fill={gold} fillOpacity="0.8" stroke={outer} strokeWidth="0.4" />
+        <circle cx="8"  cy="50" r="2.5" fill={gold} fillOpacity="0.8" stroke={outer} strokeWidth="0.4" />
+        <circle cx="8"  cy="70" r="2.5" fill={gold} fillOpacity="0.8" stroke={outer} strokeWidth="0.4" />
+        {/* Diamond links between beads */}
+        <rect x="37" y="5.5" width="5" height="5" transform="rotate(45 39.5 8)"  fill={gold} fillOpacity="0.55" />
+        <rect x="57" y="5.5" width="5" height="5" transform="rotate(45 59.5 8)"  fill={gold} fillOpacity="0.55" />
+        <rect x="5.5" y="37" width="5" height="5" transform="rotate(45 8 39.5)"  fill={gold} fillOpacity="0.55" />
+        <rect x="5.5" y="57" width="5" height="5" transform="rotate(45 8 59.5)"  fill={gold} fillOpacity="0.55" />
+      </svg>
+    )
+  }
+  return (
+    <>
+      <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', top: 0, right: 0, transform: 'scaleX(-1)', zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, transform: 'scaleY(-1)', zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', bottom: 0, right: 0, transform: 'rotate(180deg)', zIndex: 3 }}><Corner /></div>
+    </>
+  )
+}
+
+/* 10 ── Modern — deep teal & vivid cyan, bold viewfinder corners, no full border */
+function ModernBorder({ outer, gold }) {
+  function Corner() {
+    return (
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+        {/* Bold L-bracket */}
+        <path d="M 6 44 L 6 6 L 44 6" stroke={outer} strokeWidth="3.5" strokeLinecap="round" fill="none" />
+        {/* Thin accent inside */}
+        <path d="M 14 44 L 14 14 L 44 14" stroke={gold} strokeWidth="1.2" strokeLinecap="round" fill="none" />
+        {/* Filled square at corner junction */}
+        <rect x="2" y="2" width="9" height="9" rx="1" fill={gold} />
+        {/* Far-end accent dots */}
+        <circle cx="55" cy="9.5" r="3" fill={gold} fillOpacity="0.55" />
+        <circle cx="9.5" cy="55" r="3" fill={gold} fillOpacity="0.55" />
+        {/* Mid-arm tick */}
+        <line x1="28" y1="6" x2="28" y2="14" stroke={gold} strokeWidth="1.2" />
+        <line x1="6"  y1="28" x2="14" y2="28" stroke={gold} strokeWidth="1.2" />
+      </svg>
+    )
+  }
+  return (
+    <>
+      <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', top: 0, right: 0, transform: 'scaleX(-1)', zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, transform: 'scaleY(-1)', zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', bottom: 0, right: 0, transform: 'rotate(180deg)', zIndex: 3 }}><Corner /></div>
+    </>
+  )
+}
+
+/* 11 ── Amethyst — deep violet & luminous lavender-gold, cascading diamond lattice */
+function AmethystBorder({ outer, gold }) {
+  const diamonds = [[14,14,0.95],[28,14,0.6],[42,14,0.35],[14,28,0.6],[28,28,0.35],[14,42,0.35]]
+  function Corner() {
+    return (
+      <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+        {diamonds.map(([cx, cy, op], i) => (
+          <rect key={i} x={cx - 5} y={cy - 5} width="10" height="10"
+            transform={`rotate(45 ${cx} ${cy})`}
+            fill={gold} fillOpacity={op} stroke={outer} strokeWidth="0.5" />
+        ))}
+        <line x1="14" y1="14" x2="14" y2="42" stroke={gold} strokeWidth="0.5" opacity="0.4" />
+        <line x1="14" y1="14" x2="42" y2="14" stroke={gold} strokeWidth="0.5" opacity="0.4" />
+        <path d="M 5 70 L 5 5 L 70 5"  stroke={outer} strokeWidth="1.8" fill="none" />
+        <path d="M 10 70 L 10 10 L 70 10" stroke={gold} strokeWidth="0.6" fill="none" opacity="0.5" />
+      </svg>
+    )
+  }
+  return (
+    <>
+      <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', top: 0, right: 0, transform: 'scaleX(-1)', zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, transform: 'scaleY(-1)', zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', bottom: 0, right: 0, transform: 'rotate(180deg)', zIndex: 3 }}><Corner /></div>
+    </>
+  )
+}
+
+/* 12 ── Ember — burnt sienna & flame orange, concentric sunrise arcs */
+function EmberBorder({ outer, gold }) {
+  const radii = [52, 44, 36, 28]
+  function Corner() {
+    return (
+      <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+        {/* Concentric arc fans from corner */}
+        {radii.map((r, i) => (
+          <path key={r} d={`M 0 ${r} A ${r} ${r} 0 0 1 ${r} 0`}
+            stroke={i === 0 ? outer : gold}
+            strokeWidth={i === 0 ? 2.5 : i === 1 ? 1.2 : 0.6}
+            fill="none" opacity={i > 1 ? 0.55 : 1} />
+        ))}
+        {/* Radiating spokes */}
+        {[18, 32, 45, 58].map((deg, i) => {
+          const a = deg * Math.PI / 180
+          return <line key={i} x1="0" y1="0"
+            x2={(56 * Math.cos(a)).toFixed(1)} y2={(56 * Math.sin(a)).toFixed(1)}
+            stroke={gold} strokeWidth="0.5" opacity="0.22" />
+        })}
+        <circle cx="0" cy="0" r="7" fill={outer} />
+        <circle cx="0" cy="0" r="4" fill={gold} />
+      </svg>
+    )
+  }
+  return (
+    <>
+      <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', top: 0, right: 0, transform: 'scaleX(-1)', zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, transform: 'scaleY(-1)', zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', bottom: 0, right: 0, transform: 'rotate(180deg)', zIndex: 3 }}><Corner /></div>
+    </>
+  )
+}
+
+/* 13 ── Rose — deep rose & blush, scattered petal corners with delicate vine stems */
+function RoseBorder({ outer, gold }) {
+  const petals = [[14,14,0],[22,10,35],[10,22,-35],[28,20,65],[20,28,-65],[36,12,20],[12,36,-20]]
+  function Corner() {
+    return (
+      <svg width="76" height="76" viewBox="0 0 76 76" fill="none">
+        {petals.map(([cx, cy, rot], i) => (
+          <ellipse key={i} cx={cx} cy={cy} rx="4.5" ry="8"
+            fill={gold} fillOpacity={i === 0 ? 0.55 : 0.2}
+            stroke={gold} strokeWidth={i === 0 ? 0.8 : 0.4}
+            transform={`rotate(${rot}, ${cx}, ${cy})`} />
+        ))}
+        <circle cx="14" cy="14" r="4" fill={gold} />
+        <circle cx="14" cy="14" r="1.8" fill={outer} />
+        <path d="M 28 12 Q 48 8  68 12" stroke={gold} strokeWidth="0.9" fill="none" />
+        <path d="M 12 28 Q 8  48 12 68" stroke={gold} strokeWidth="0.9" fill="none" />
+        <ellipse cx="48" cy="10" rx="4" ry="2" fill={gold} fillOpacity="0.45" transform="rotate(-20,48,10)" />
+        <ellipse cx="66" cy="12" rx="4" ry="2" fill={gold} fillOpacity="0.45" transform="rotate(15,66,12)" />
+        <ellipse cx="10" cy="48" rx="2" ry="4" fill={gold} fillOpacity="0.45" transform="rotate(-20,10,48)" />
+        <ellipse cx="12" cy="66" rx="2" ry="4" fill={gold} fillOpacity="0.45" transform="rotate(15,12,66)" />
+        <path d="M 5 74 L 5 5 L 74 5"  stroke={outer} strokeWidth="2"   fill="none" />
+        <path d="M 10 74 L 10 10 L 74 10" stroke={gold} strokeWidth="0.7" fill="none" opacity="0.5" />
+      </svg>
+    )
+  }
+  return (
+    <>
+      <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', top: 0, right: 0, transform: 'scaleX(-1)', zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, transform: 'scaleY(-1)', zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', bottom: 0, right: 0, transform: 'rotate(180deg)', zIndex: 3 }}><Corner /></div>
+    </>
+  )
+}
+
+/* 14 ── Midnight — near-black & electric blue, circuit board corners */
+function MidnightBorder({ outer, gold }) {
+  function Corner() {
+    return (
+      <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+        <path d="M 8 66 L 8 8 L 66 8" stroke={outer} strokeWidth="3" strokeLinecap="square" fill="none" />
+        {/* Circuit branch traces */}
+        <path d="M 8 26 L 22 26 L 22 18"  stroke={gold} strokeWidth="1.2" strokeLinecap="square" fill="none" />
+        <path d="M 8 44 L 28 44 L 28 34"  stroke={gold} strokeWidth="1.2" strokeLinecap="square" fill="none" opacity="0.65" />
+        <path d="M 26 8 L 26 22 L 18 22"  stroke={gold} strokeWidth="1.2" strokeLinecap="square" fill="none" />
+        <path d="M 44 8 L 44 28 L 34 28"  stroke={gold} strokeWidth="1.2" strokeLinecap="square" fill="none" opacity="0.65" />
+        {/* Corner chip */}
+        <rect x="3" y="3" width="11" height="11" fill={outer} />
+        <rect x="5.5" y="5.5" width="6" height="6" fill={gold} />
+        {/* Node pads */}
+        <circle cx="22" cy="18" r="3"   fill={gold} />
+        <circle cx="18" cy="22" r="3"   fill={gold} />
+        <circle cx="28" cy="34" r="2.5" fill={gold} opacity="0.75" />
+        <circle cx="34" cy="28" r="2.5" fill={gold} opacity="0.75" />
+        <path d="M 14 66 L 14 14 L 66 14" stroke={gold} strokeWidth="0.5" fill="none" opacity="0.35" />
+      </svg>
+    )
+  }
+  return (
+    <>
+      <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', top: 0, right: 0, transform: 'scaleX(-1)', zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', bottom: 0, left: 0, transform: 'scaleY(-1)', zIndex: 3 }}><Corner /></div>
+      <div style={{ position: 'absolute', bottom: 0, right: 0, transform: 'rotate(180deg)', zIndex: 3 }}><Corner /></div>
+    </>
+  )
+}
+
 /* ═══════════════════════════════════════════
    THEME CATALOGUE
    Maps data.template → colors + border style
@@ -334,6 +579,13 @@ export const THEMES = {
   mandala:    { outer: '#7A1A10', gold: '#E07830', label: '#8A2A18', value: '#280806', bg: '#FDF5F0', Border: MandalaBorder   },
   celestial:  { outer: '#1E0850', gold: '#A888E0', label: '#2A1060', value: '#0C0420', bg: '#F8F4FF', Border: CelestialBorder },
   bridal:     { outer: '#720A20', gold: '#D4BC90', label: '#820C28', value: '#1E0408', bg: '#FDF8F2', Border: BridalBorder    },
+  minimal:    { outer: '#4A4540', gold: '#9B8B7A', label: '#5A5050', value: '#1A1512', bg: '#FDFCFA', Border: MinimalBorder   },
+  royal:      { outer: '#1A0A3A', gold: '#D4A820', label: '#2A1850', value: '#0A0420', bg: '#F7F5FF', Border: RoyalBorder     },
+  modern:     { outer: '#0D3D30', gold: '#00B894', label: '#1A5040', value: '#041A14', bg: '#F0FAFA', Border: ModernBorder    },
+  amethyst:   { outer: '#4A0A78', gold: '#C070E8', label: '#5A1888', value: '#180428', bg: '#FAF5FF', Border: AmethystBorder  },
+  ember:      { outer: '#7A2C08', gold: '#F07030', label: '#8A3C14', value: '#280C04', bg: '#FFF8F2', Border: EmberBorder     },
+  rose:       { outer: '#7A1040', gold: '#E898A0', label: '#8A2050', value: '#280814', bg: '#FFF5F8', Border: RoseBorder      },
+  midnight:   { outer: '#080818', gold: '#4880E0', label: '#181828', value: '#040410', bg: '#F5F5FF', Border: MidnightBorder  },
 }
 
 /* ═══════════════════════════════════════════

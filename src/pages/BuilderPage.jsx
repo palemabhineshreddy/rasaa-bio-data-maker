@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useLayoutEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Check, Download, Heart, RotateCcw, Search, Plus, Trash2, MessageCircle } from 'lucide-react'
 import PanIndiaTemplate from '../components/PanIndiaTemplate'
@@ -357,13 +357,36 @@ const SLOGAN_OPTIONS = [
   { value: 'punjabi',   label: 'Punjabi  ·  ॥ ਸ਼੍ਰੀ ਗਣੇਸ਼ਾਯ ਨਮਃ ॥' },
 ]
 
+const RELIGION_SLOGANS_MAP = {
+  muslim:    'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
+  sikh:      'ੴ ਸਤਿ ਨਾਮੁ ਕਰਤਾ ਪੁਰਖੁ',
+  christian: '✝ To God Be The Glory ✝',
+  jain:      '॥ जय जिनेन्द्र ॥',
+  buddhist:  '॥ नमो बुद्धाय ॥',
+}
+
+function getReligionKey(religion) {
+  const r = (religion || '').toLowerCase().trim()
+  if (r.includes('muslim') || r.includes('islam')) return 'muslim'
+  if (r.includes('sikh'))                          return 'sikh'
+  if (r.includes('christian') || r.includes('catholic') || r.includes('protestant')) return 'christian'
+  if (r.includes('jain'))                          return 'jain'
+  if (r.includes('buddhist') || r.includes('buddhism')) return 'buddhist'
+  if (r.includes('hindu'))                         return 'hindu'
+  return null
+}
+
 function resolveSlogan(formData) {
   const lang = formData.sloganLanguage ?? 'auto'
   if (lang === 'hide') return null
   if (lang !== 'auto') return SLOGAN_MAP[lang] || DEFAULT_SLOGAN_TEXT
-  if ((formData.religion || '').toLowerCase() !== 'hindu') return null
-  const key = (formData.motherTongue || '').toLowerCase().trim()
-  return SLOGAN_MAP[key] || DEFAULT_SLOGAN_TEXT
+  const relKey = getReligionKey(formData.religion)
+  if (!relKey) return null
+  if (relKey === 'hindu') {
+    const key = (formData.motherTongue || '').toLowerCase().trim()
+    return SLOGAN_MAP[key] || DEFAULT_SLOGAN_TEXT
+  }
+  return RELIGION_SLOGANS_MAP[relKey] || null
 }
 
 /* ── Template styles catalogue ── */
@@ -375,9 +398,13 @@ const TEMPLATE_STYLES = [
   { id: 'mandala',    live: true,  name: 'Mandala',    symbol: '◉', gradient: 'linear-gradient(135deg, #7A1A10, #E07830)', desc: 'Rust & orange · Mandala corners'     },
   { id: 'celestial',  live: true,  name: 'Celestial',  symbol: '★', gradient: 'linear-gradient(135deg, #1E0850, #A888E0)', desc: 'Indigo & lavender · Star corners'    },
   { id: 'bridal',     live: true,  name: 'Bridal',     symbol: '❋', gradient: 'linear-gradient(135deg, #720A20, #D4BC90)', desc: 'Crimson & pearl · Ornate corners'    },
-  { id: 'minimal',    live: false, name: 'Minimal',    symbol: '○', gradient: 'linear-gradient(135deg, #374151, #6b7280)', desc: 'Clean typography · No borders'       },
-  { id: 'royal',      live: false, name: 'Royal',      symbol: '♛', gradient: 'linear-gradient(135deg, #1e1b4b, #4338ca)', desc: 'Deep navy · Gold filigree'           },
-  { id: 'modern',     live: false, name: 'Modern',     symbol: '◈', gradient: 'linear-gradient(135deg, #0f766e, #14b8a6)', desc: 'Contemporary · Fresh feel'           },
+  { id: 'minimal',    live: true,  name: 'Minimal',    symbol: '○', gradient: 'linear-gradient(135deg, #4A4540, #9B8B7A)', desc: 'Warm slate · Corner hooks · Understated'    },
+  { id: 'royal',      live: true,  name: 'Royal',      symbol: '♛', gradient: 'linear-gradient(135deg, #1A0A3A, #D4A820)', desc: 'Deep indigo · Jewelled frame · Grand'        },
+  { id: 'modern',     live: true,  name: 'Modern',     symbol: '◈', gradient: 'linear-gradient(135deg, #0D3D30, #00B894)', desc: 'Teal & cyan · Bold corners · Contemporary'   },
+  { id: 'amethyst',   live: true,  name: 'Amethyst',   symbol: '◆', gradient: 'linear-gradient(135deg, #4A0A78, #C070E8)', desc: 'Deep violet · Diamond lattice · Luxurious'  },
+  { id: 'ember',      live: true,  name: 'Ember',      symbol: '◐', gradient: 'linear-gradient(135deg, #7A2C08, #F07030)', desc: 'Burnt sienna · Arc fan · Vibrant warmth'    },
+  { id: 'rose',       live: true,  name: 'Rose',       symbol: '❀', gradient: 'linear-gradient(135deg, #7A1040, #E898A0)', desc: 'Deep rose · Petal corners · Romantic'       },
+  { id: 'midnight',   live: true,  name: 'Midnight',   symbol: '⊡', gradient: 'linear-gradient(135deg, #080818, #4880E0)', desc: 'Near-black · Circuit corners · Ultra modern' },
 ]
 
 /* Portrait thumbnail — matches PDF aspect ratio (760 : ~1060 ≈ 0.72) */
@@ -434,7 +461,7 @@ function TemplateCard({ style, isSelected, formData, onSelect }) {
 /* Groups for the Step 5 picker */
 const TEMPLATE_GROUPS = [
   { label: 'Classic Collection', ids: ['panIndia', 'artDeco', 'floralVine', 'peacock', 'mandala', 'celestial', 'bridal'] },
-  { label: 'More Styles · Coming Soon', ids: ['minimal', 'royal', 'modern'] },
+  { label: 'Modern & Minimal',   ids: ['minimal', 'royal', 'modern', 'amethyst', 'ember', 'rose', 'midnight'] },
 ]
 
 /* ── Photo drag-to-reposition adjuster ── */
@@ -498,7 +525,7 @@ function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace 
   )
 }
 
-/* ── Step 5: Style + Photo ── */
+/* ── Step 5: Photo & Slogan ── */
 function Step5({ formData, updateForm }) {
   const fileRef = useRef()
 
@@ -512,32 +539,37 @@ function Step5({ formData, updateForm }) {
 
   return (
     <div className="space-y-10">
-      <StepHeading title="Style & Photo" sub="Pick a template style and add your photo. You can switch style anytime." />
+      <StepHeading title="Photo & Slogan" sub="Add your photo and set the invocation slogan if you'd like one." />
 
-      {/* Template style picker — grouped */}
-      <div className="space-y-6">
-        <SectionTitle>Choose Style</SectionTitle>
-        {TEMPLATE_GROUPS.map(group => (
-          <div key={group.label}>
-            <p className="text-white/35 text-xs font-semibold uppercase tracking-widest mb-3">{group.label}</p>
+      {/* Photo upload */}
+      <div className="space-y-4">
+        <SectionTitle>Your Photo <span className="text-white/30 text-sm font-normal">(optional)</span></SectionTitle>
+        {formData.photo ? (
+          <PhotoAdjuster
+            photo={formData.photo}
+            position={formData.photoPosition ?? { x: 50, y: 20 }}
+            onPositionChange={(pos) => updateForm({ photoPosition: pos })}
+            onRemove={() => updateForm({ photo: null, photoPosition: { x: 50, y: 20 } })}
+            onReplace={() => fileRef.current?.click()}
+          />
+        ) : (
+          <div className="flex items-center gap-6">
             <div
-              style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              className="[&::-webkit-scrollbar]:hidden -mx-2"
+              onClick={() => fileRef.current?.click()}
+              className="w-28 h-28 rounded-2xl border-2 border-dashed border-white/20 flex items-center justify-center cursor-pointer hover:border-purple-500/60 transition-colors overflow-hidden bg-white/5 group"
             >
-              <div style={{ display: 'flex', gap: 12, padding: '4px 8px 12px' }}>
-                {TEMPLATE_STYLES.filter(s => group.ids.includes(s.id)).map(s => (
-                  <TemplateCard
-                    key={s.id}
-                    style={s}
-                    isSelected={formData.template === s.id}
-                    formData={formData}
-                    onSelect={id => updateForm({ template: id })}
-                  />
-                ))}
+              <div className="flex flex-col items-center gap-2 text-white/30 group-hover:text-purple-400 transition-colors">
+                <span className="text-3xl">📷</span>
+                <span className="text-xs text-center">Click to upload</span>
               </div>
             </div>
+            <div className="text-sm text-white/50 space-y-1">
+              <p>Upload a clear, front-facing photo</p>
+              <p className="text-white/30">JPG, PNG · Max 5MB</p>
+            </div>
           </div>
-        ))}
+        )}
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
       </div>
 
       {/* Slogan override — only shown when religion is filled */}
@@ -573,38 +605,117 @@ function Step5({ formData, updateForm }) {
           </p>
         </div>
       )}
+    </div>
+  )
+}
 
-      {/* Photo upload */}
-      <div className="space-y-4">
-        <SectionTitle>Your Photo <span className="text-white/30 text-sm font-normal">(optional)</span></SectionTitle>
-        <div>
-          {formData.photo ? (
-            <PhotoAdjuster
-              photo={formData.photo}
-              position={formData.photoPosition ?? { x: 50, y: 20 }}
-              onPositionChange={(pos) => updateForm({ photoPosition: pos })}
-              onRemove={() => updateForm({ photo: null, photoPosition: { x: 50, y: 20 } })}
-              onReplace={() => fileRef.current?.click()}
-            />
-          ) : (
-            <div className="flex items-center gap-6">
+/* ── Step 6: Design picker with large live preview ── */
+function DesignLivePreview({ formData }) {
+  const innerRef = useRef()
+  const [containerH, setContainerH] = useState(0)
+  const naturalW = 760
+  const previewW = 420
+  const scale = previewW / naturalW
+
+  useLayoutEffect(() => {
+    if (!innerRef.current) return
+    const h = innerRef.current.scrollHeight
+    if (h > 0) setContainerH(h)
+  })
+
+  const selectedStyle = TEMPLATE_STYLES.find(s => s.id === (formData.template || 'panIndia'))
+  const displayH = containerH ? Math.round(containerH * scale) : Math.round(previewW * 1.39)
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Your Biodata</p>
+        {selectedStyle && (
+          <span className="text-xs font-semibold text-purple-300 bg-purple-500/10 border border-purple-500/20 rounded-full px-3 py-1">
+            {selectedStyle.name}
+          </span>
+        )}
+      </div>
+      <div
+        style={{
+          width: previewW,
+          height: displayH,
+          overflow: 'hidden',
+          borderRadius: 12,
+          border: '1.5px solid rgba(255,255,255,0.12)',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+        }}
+      >
+        <div
+          ref={innerRef}
+          style={{
+            width: naturalW,
+            transform: `scale(${scale})`,
+            transformOrigin: 'top left',
+            pointerEvents: 'none',
+          }}
+        >
+          <PanIndiaTemplate data={formData} />
+        </div>
+      </div>
+      <p className="text-[10px] text-white/25 text-center mt-2">Updates instantly as you select</p>
+    </div>
+  )
+}
+
+function Step6({ formData, updateForm }) {
+  const selectedStyle = TEMPLATE_STYLES.find(s => s.id === (formData.template || 'panIndia'))
+
+  return (
+    <div className="space-y-6">
+      <StepHeading title="Choose Your Design" sub="Tap any style — your biodata preview updates live on the right." />
+
+      <div className="flex flex-col lg:flex-row gap-10 items-start">
+
+        {/* ── Left: template groups ── */}
+        <div className="flex-1 min-w-0 space-y-6">
+          {TEMPLATE_GROUPS.map(group => (
+            <div key={group.label}>
+              <p className="text-white/35 text-xs font-semibold uppercase tracking-widest mb-3">{group.label}</p>
               <div
-                onClick={() => fileRef.current?.click()}
-                className="w-28 h-28 rounded-2xl border-2 border-dashed border-white/20 flex items-center justify-center cursor-pointer hover:border-purple-500/60 transition-colors overflow-hidden bg-white/5 group"
+                style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                className="[&::-webkit-scrollbar]:hidden -mx-2"
               >
-                <div className="flex flex-col items-center gap-2 text-white/30 group-hover:text-purple-400 transition-colors">
-                  <span className="text-3xl">📷</span>
-                  <span className="text-xs text-center">Click to upload</span>
+                <div style={{ display: 'flex', gap: 12, padding: '4px 8px 12px' }}>
+                  {TEMPLATE_STYLES.filter(s => group.ids.includes(s.id)).map(s => (
+                    <TemplateCard
+                      key={s.id}
+                      style={s}
+                      isSelected={formData.template === s.id}
+                      formData={formData}
+                      onSelect={id => updateForm({ template: id })}
+                    />
+                  ))}
                 </div>
               </div>
-              <div className="text-sm text-white/50 space-y-1">
-                <p>Upload a clear, front-facing photo</p>
-                <p className="text-white/30">JPG, PNG · Max 5MB</p>
+            </div>
+          ))}
+
+          {/* Selected template info */}
+          {selectedStyle && (
+            <div className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
+              <div style={{ width: 36, height: 36, borderRadius: 8, background: selectedStyle.gradient, flexShrink: 0 }} />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-white">{selectedStyle.name}</p>
+                <p className="text-xs text-white/45 mt-0.5 truncate">{selectedStyle.desc}</p>
               </div>
+              <span className="ml-auto text-xs font-semibold text-green-400 bg-green-500/10 border border-green-500/25 rounded-full px-3 py-1 whitespace-nowrap">
+                Selected
+              </span>
             </div>
           )}
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
         </div>
+
+        {/* ── Right: large live preview — sticky on desktop ── */}
+        <div className="lg:sticky lg:top-20 lg:self-start mx-auto lg:mx-0 order-first lg:order-last" style={{ flexShrink: 0 }}>
+          <DesignLivePreview formData={formData} />
+        </div>
+
       </div>
     </div>
   )
@@ -635,7 +746,8 @@ const STEPS = [
   { label: 'Career' },
   { label: 'Family' },
   { label: 'About' },
-  { label: 'Style' },
+  { label: 'Photo' },
+  { label: 'Design' },
 ]
 
 /* ── Preview + Download ── */
@@ -763,8 +875,8 @@ const FIELD_JUMPS = [
   { label: 'About: Hobbies', name: 'hobbies', step: 3 },
   { label: 'About: Horoscope', name: 'rashi', step: 3 },
   { label: 'Contact: Phone', name: 'phone', step: 3 },
-  { label: 'Design: Photo and template', name: 'template', step: 4 },
-  { label: 'Design: Slogan language', name: 'sloganLanguage', step: 4 },
+  { label: 'Photo: Upload photo', name: 'template', step: 4 },
+  { label: 'Design: Template style', name: 'sloganLanguage', step: 5 },
 ]
 
 /* ── Main BuilderPage ── */
@@ -923,7 +1035,8 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
             {step === 2 && <Step3 formData={formData} updateForm={updateForm} />}
             {step === 3 && <Step4 formData={formData} updateForm={updateForm} />}
             {step === 4 && <Step5 formData={formData} updateForm={updateForm} />}
-            {isPreview && <PreviewStep formData={formData} onBack={() => setStep(4)} onEditStep={setStep} />}
+            {step === 5 && <Step6 formData={formData} updateForm={updateForm} />}
+            {isPreview && <PreviewStep formData={formData} onBack={() => setStep(5)} onEditStep={setStep} />}
           </motion.div>
         </AnimatePresence>
 
