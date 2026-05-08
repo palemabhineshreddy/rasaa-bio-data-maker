@@ -779,7 +779,7 @@ const STEPS = [
 ]
 
 /* ── Feedback ── */
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/XXXXXXXXXX'
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xwvyrbpw'
 
 const RATINGS = [
   { score: 1, emoji: '😞', label: 'Poor' },
