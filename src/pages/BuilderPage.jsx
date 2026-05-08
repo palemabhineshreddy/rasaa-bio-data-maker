@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Check, Download, Heart, RotateCcw, Search, Plus, Trash2, MessageCircle } from 'lucide-react'
 import PanIndiaTemplate from '../components/PanIndiaTemplate'
 import { exportPDF } from '../utils/pdfExport'
+import { track } from '../utils/analytics'
 
 /* ── field helpers ── */
 const Field = ({ label, name, formData, updateForm, type = 'text', placeholder, options }) => (
@@ -39,6 +40,7 @@ function getCustomFields(formData) {
 }
 
 function addCustomField(formData, updateForm, section = 'custom', customTitle = 'Additional Details') {
+  track.customFieldAdded(section)
   updateForm({
     customFields: [
       ...getCustomFields(formData),
@@ -412,7 +414,7 @@ function SloganPicker({ formData, updateForm }) {
             className="form-select text-sm max-w-xs"
             style={{ paddingLeft: '1rem' }}
             value={formData.sloganLanguage ?? 'auto'}
-            onChange={e => updateForm({ sloganLanguage: e.target.value })}
+            onChange={e => { track.sloganChanged(e.target.value); updateForm({ sloganLanguage: e.target.value }) }}
           >
             {SLOGAN_OPTIONS.map(o => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -592,7 +594,10 @@ function Step5({ formData, updateForm }) {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onload = (ev) => updateForm({ photo: ev.target.result, photoPosition: { x: 50, y: 20 } })
+    reader.onload = (ev) => {
+      updateForm({ photo: ev.target.result, photoPosition: { x: 50, y: 20 } })
+      track.photoUploaded()
+    }
     reader.readAsDataURL(file)
   }
 
@@ -608,7 +613,7 @@ function Step5({ formData, updateForm }) {
             photo={formData.photo}
             position={formData.photoPosition ?? { x: 50, y: 20 }}
             onPositionChange={(pos) => updateForm({ photoPosition: pos })}
-            onRemove={() => updateForm({ photo: null, photoPosition: { x: 50, y: 20 } })}
+            onRemove={() => { track.photoRemoved(); updateForm({ photo: null, photoPosition: { x: 50, y: 20 } }) }}
             onReplace={() => fileRef.current?.click()}
           />
         ) : (
@@ -715,7 +720,10 @@ function Step6({ formData, updateForm }) {
                       style={s}
                       isSelected={formData.template === s.id}
                       formData={formData}
-                      onSelect={id => updateForm({ template: id })}
+                      onSelect={id => {
+                        track.templateSelected(id, s.name)
+                        updateForm({ template: id })
+                      }}
                     />
                   ))}
                 </div>
@@ -795,6 +803,7 @@ function PreviewStep({ formData, onBack, onEditStep }) {
       const { blob } = await exportPDF(previewRef.current, formData.fullName || 'biodata')
       pdfBlobRef.current = blob
       setDownloaded(true)
+      track.pdfDownloaded(formData.template || 'panIndia')
     } finally {
       setLoading(false)
     }
@@ -829,6 +838,7 @@ function PreviewStep({ formData, onBack, onEditStep }) {
             title: `${formData.fullName || 'My'} Biodata`,
             text: 'Here is my marriage biodata — created on Bandhan (bandhan.app)',
           })
+          track.whatsappShared('native')
           setSharing(false)
           return
         } catch { /* user cancelled or share failed — fall through */ }
@@ -836,6 +846,7 @@ function PreviewStep({ formData, onBack, onEditStep }) {
     }
 
     // Fallback: open WhatsApp with app link (desktop / unsupported browsers)
+    track.whatsappShared('link')
     window.open(`https://wa.me/?text=${WA_FALLBACK_TEXT}`, '_blank', 'noopener,noreferrer')
     setSharing(false)
   }
@@ -956,6 +967,12 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
+    // Track every step view — tells you exactly where users are
+    if (step < STEPS.length) {
+      track.stepViewed(step, STEPS[step].label)
+    } else {
+      track.previewViewed(formData.template)
+    }
   }, [step])
 
   useEffect(() => {
@@ -977,7 +994,10 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
   }
 
   const next = () => {
-    if (step < totalSteps) setStep(s => s + 1)
+    if (step < totalSteps) {
+      track.stepCompleted(step, STEPS[step]?.label ?? 'preview')
+      setStep(s => s + 1)
+    }
   }
 
   const prev = () => {
@@ -988,6 +1008,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
   const isPreview = step === totalSteps
 
   const loadSample = () => {
+    track.sampleLoaded()
     updateForm(SAMPLE_DATA)
     setStep(totalSteps)
   }

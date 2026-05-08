@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import LandingPage from './pages/LandingPage'
 import BuilderPage from './pages/BuilderPage'
+import { track } from './utils/analytics'
 
 const LS_KEY = 'bandhan_biodata_v1'
 
@@ -56,6 +57,7 @@ export default function App() {
   })
 
   const startBuilder = (styleId) => {
+    track.builderStarted(styleId || 'panIndia')
     setFormData({ ...EMPTY_FORM, template: styleId || 'panIndia' })
     try { localStorage.removeItem(LS_KEY) } catch {}
     setView('builder')
