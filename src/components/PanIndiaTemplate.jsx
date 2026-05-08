@@ -42,16 +42,15 @@ function getReligionKey(religion) {
 
 function getSlogan(religion, motherTongue, sloganLanguage = 'auto') {
   if (sloganLanguage === 'hide') return null
-  // Manual override: only serve Hindu language slogans if explicitly chosen
-  if (sloganLanguage !== 'auto') return HINDU_SLOGANS[sloganLanguage] || DEFAULT_SLOGAN
-  // Auto: pick by religion, then mother tongue for Hindus
+  // Religion is always checked first — non-Hindu users never get a Ganesh slogan
   const relKey = getReligionKey(religion)
   if (!relKey) return null
-  if (relKey === 'hindu') {
-    const key = (motherTongue || '').toLowerCase().trim()
-    return HINDU_SLOGANS[key] || DEFAULT_SLOGAN
-  }
-  return RELIGION_SLOGANS[relKey] || null
+  if (relKey !== 'hindu') return RELIGION_SLOGANS[relKey] || null
+  // Hindu: respect language override, fallback to mother tongue
+  const key = (sloganLanguage === 'auto')
+    ? (motherTongue || '').toLowerCase().trim()
+    : sloganLanguage
+  return HINDU_SLOGANS[key] || DEFAULT_SLOGAN
 }
 
 /* ═══════════════════════════════════════════

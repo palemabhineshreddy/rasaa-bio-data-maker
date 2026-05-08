@@ -377,16 +377,75 @@ function getReligionKey(religion) {
 }
 
 function resolveSlogan(formData) {
-  const lang = formData.sloganLanguage ?? 'auto'
-  if (lang === 'hide') return null
-  if (lang !== 'auto') return SLOGAN_MAP[lang] || DEFAULT_SLOGAN_TEXT
+  if ((formData.sloganLanguage ?? 'auto') === 'hide') return null
+  // Religion checked first — non-Hindu users never get a Ganesh slogan
   const relKey = getReligionKey(formData.religion)
   if (!relKey) return null
-  if (relKey === 'hindu') {
-    const key = (formData.motherTongue || '').toLowerCase().trim()
-    return SLOGAN_MAP[key] || DEFAULT_SLOGAN_TEXT
-  }
-  return RELIGION_SLOGANS_MAP[relKey] || null
+  if (relKey !== 'hindu') return RELIGION_SLOGANS_MAP[relKey] || null
+  // Hindu: respect language override, fallback to mother tongue
+  const lang = formData.sloganLanguage ?? 'auto'
+  const key = lang === 'auto'
+    ? (formData.motherTongue || '').toLowerCase().trim()
+    : lang
+  return SLOGAN_MAP[key] || DEFAULT_SLOGAN_TEXT
+}
+
+const RELIGION_DISPLAY_NAMES = {
+  muslim: 'Islamic', sikh: 'Sikh', christian: 'Christian', jain: 'Jain', buddhist: 'Buddhist',
+}
+
+function SloganPicker({ formData, updateForm }) {
+  const relKey = getReligionKey(formData.religion)
+  if (!relKey) return null
+
+  const isHindu = relKey === 'hindu'
+  const isHidden = (formData.sloganLanguage ?? 'auto') === 'hide'
+  const slogan = resolveSlogan(formData)
+
+  return (
+    <div className="space-y-3">
+      <SectionTitle>Invocation Slogan</SectionTitle>
+      <div className="flex flex-wrap items-center gap-4">
+        {isHindu ? (
+          <select
+            name="sloganLanguage"
+            className="form-select text-sm max-w-xs"
+            style={{ paddingLeft: '1rem' }}
+            value={formData.sloganLanguage ?? 'auto'}
+            onChange={e => updateForm({ sloganLanguage: e.target.value })}
+          >
+            {SLOGAN_OPTIONS.map(o => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        ) : (
+          <select
+            name="sloganLanguage"
+            className="form-select text-sm"
+            style={{ paddingLeft: '1rem', maxWidth: 260 }}
+            value={isHidden ? 'hide' : 'auto'}
+            onChange={e => updateForm({ sloganLanguage: e.target.value })}
+          >
+            <option value="auto">Show — {RELIGION_DISPLAY_NAMES[relKey]} invocation</option>
+            <option value="hide">None — hide slogan</option>
+          </select>
+        )}
+        {slogan && (
+          <span style={{ fontFamily: 'serif', fontSize: 14, color: '#C9A035', letterSpacing: '0.12em' }}>
+            {slogan}
+          </span>
+        )}
+        {isHidden && (
+          <span className="text-white/30 text-sm">No slogan will appear</span>
+        )}
+      </div>
+      <p className="text-white/25 text-xs">
+        {isHindu
+          ? 'Auto matches your mother tongue script. Override to a different language anytime.'
+          : 'Slogan is based on your religion. Hide it if not needed.'}
+      </p>
+    </div>
+  )
 }
 
 /* ── Template styles catalogue ── */
@@ -572,39 +631,7 @@ function Step5({ formData, updateForm }) {
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
       </div>
 
-      {/* Slogan override — only shown when religion is filled */}
-      {formData.religion?.trim() && (
-        <div className="space-y-3">
-          <SectionTitle>Invocation Slogan</SectionTitle>
-          <div className="flex flex-wrap items-center gap-4">
-            <select
-              name="sloganLanguage"
-              className="form-select text-sm max-w-xs"
-              style={{ paddingLeft: '1rem' }}
-              value={formData.sloganLanguage ?? 'auto'}
-              onChange={e => updateForm({ sloganLanguage: e.target.value })}
-            >
-              {SLOGAN_OPTIONS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-            {resolveSlogan(formData) && (
-              <span style={{ fontFamily: 'serif', fontSize: 14, color: '#C9A035', letterSpacing: '0.12em' }}>
-                {resolveSlogan(formData)}
-              </span>
-            )}
-            {(formData.sloganLanguage ?? 'auto') === 'hide' && (
-              <span className="text-white/30 text-sm">No slogan will appear</span>
-            )}
-            {(formData.sloganLanguage ?? 'auto') === 'auto' && !resolveSlogan(formData) && (
-              <span className="text-white/30 text-sm">No slogan for this religion yet — pick one manually above</span>
-            )}
-          </div>
-          <p className="text-white/25 text-xs">
-            Auto picks from your religion and mother tongue. Override anytime — works across all templates.
-          </p>
-        </div>
-      )}
+      <SloganPicker formData={formData} updateForm={updateForm} />
     </div>
   )
 }
@@ -751,23 +778,66 @@ const STEPS = [
 ]
 
 /* ── Preview + Download ── */
-const WA_TEXT = encodeURIComponent(
+const WA_FALLBACK_TEXT = encodeURIComponent(
   'I just created my marriage biodata on Bandhan — free, no sign-up, takes 5 minutes! Try it: https://bandhan.app'
 )
 
 function PreviewStep({ formData, onBack, onEditStep }) {
   const previewRef = useRef()
   const [loading, setLoading] = useState(false)
+  const [sharing, setSharing] = useState(false)
   const [downloaded, setDownloaded] = useState(false)
+  const pdfBlobRef = useRef(null)
 
   const handleDownload = async () => {
     setLoading(true)
     try {
-      await exportPDF(previewRef.current, formData.fullName || 'biodata')
+      const { blob } = await exportPDF(previewRef.current, formData.fullName || 'biodata')
+      pdfBlobRef.current = blob
       setDownloaded(true)
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleShare = async () => {
+    // Generate PDF if not yet downloaded
+    let blob = pdfBlobRef.current
+    let fileName = `${(formData.fullName || 'biodata').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-biodata.pdf`
+
+    if (!blob) {
+      setSharing(true)
+      try {
+        const result = await exportPDF(previewRef.current, formData.fullName || 'biodata')
+        blob = result.blob
+        fileName = result.fileName
+        pdfBlobRef.current = blob
+        setDownloaded(true)
+      } catch {
+        setSharing(false)
+        return
+      }
+    }
+
+    // Try native share with the actual PDF file (works on mobile)
+    if (blob && navigator.canShare) {
+      const file = new File([blob], fileName, { type: 'application/pdf' })
+      if (navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `${formData.fullName || 'My'} Biodata`,
+            text: 'Here is my marriage biodata — created on Bandhan (bandhan.app)',
+          })
+          setSharing(false)
+          return
+        } catch { /* user cancelled or share failed — fall through */ }
+      }
+    }
+
+    // Fallback: open WhatsApp with app link (desktop / unsupported browsers)
+    window.open(`https://wa.me/?text=${WA_FALLBACK_TEXT}`, '_blank', 'noopener,noreferrer')
+    setSharing(false)
   }
 
   return (
@@ -779,14 +849,14 @@ function PreviewStep({ formData, onBack, onEditStep }) {
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           {downloaded && (
-            <a
-              href={`https://wa.me/?text=${WA_TEXT}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={handleShare}
+              disabled={sharing}
               className="btn-ghost text-sm px-5 py-3 border-green-500/40 text-green-400 hover:bg-green-500/10"
             >
-              <MessageCircle className="w-4 h-4" /> Share on WhatsApp
-            </a>
+              <MessageCircle className="w-4 h-4" />
+              {sharing ? 'Preparing…' : 'Share via WhatsApp'}
+            </button>
           )}
           <button
             onClick={handleDownload}
@@ -804,7 +874,7 @@ function PreviewStep({ formData, onBack, onEditStep }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
         {STEPS.map((section, index) => (
           <button
             key={section.label}
@@ -830,14 +900,13 @@ function PreviewStep({ formData, onBack, onEditStep }) {
           {loading ? 'Generating PDF...' : <><Download className="w-5 h-5" /> {downloaded ? 'Download Again' : 'Download PDF'}</>}
         </button>
         {downloaded && (
-          <a
-            href={`https://wa.me/?text=${WA_TEXT}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={handleShare}
+            disabled={sharing}
             className="btn-ghost border-green-500/40 text-green-400 hover:bg-green-500/10 justify-center px-6"
           >
-            <MessageCircle className="w-4 h-4" /> WhatsApp
-          </a>
+            <MessageCircle className="w-4 h-4" /> {sharing ? 'Preparing…' : 'WhatsApp'}
+          </button>
         )}
       </div>
     </div>
