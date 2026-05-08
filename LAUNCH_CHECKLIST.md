@@ -3,7 +3,23 @@ Complete these in order. Everything in the codebase is ready — these are the o
 
 ---
 
-## 1. Analytics (do this first — start collecting data early)
+## 1. Feedback collection (do this first — free, 5 minutes)
+
+### Formspree (post-download feedback form)
+- [ ] Go to formspree.io → Sign up with your Google account (free — 50 submissions/month)
+- [ ] Click **+ New Form** → Name: **Bandhan Feedback** → set your email → Create
+- [ ] Copy the Form ID (format: `xyzabcde` — 8 chars)
+- [ ] Open `src/pages/BuilderPage.jsx` → find `FORMSPREE_ENDPOINT` (line ~815) → replace `XXXXXXXXXX` with your form ID
+- [ ] Commit and push
+- [ ] View all submissions at: `formspree.io/forms/[your-form-id]` (table view + CSV export)
+- [ ] You will also receive an email for every new submission
+
+> **What you'll capture:** star rating (1–5), template used, optional comment text.
+> **Where to view in GA4:** Events → `feedback_submitted` → dimension breakdown by `rating` and `template`.
+
+---
+
+## 2. Analytics (do this first — start collecting data early)
 
 ### Google Analytics 4
 - [ ] Go to analytics.google.com → Create account → Property: **Bandhan** → Platform: **Web** → URL: `bandhan.app`

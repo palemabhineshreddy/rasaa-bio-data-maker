@@ -1,7 +1,7 @@
 import { useState, useRef, useLayoutEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, Shield, Download, ChevronRight, Heart, Lock, Zap, X } from 'lucide-react'
-import PanIndiaTemplate from '../components/PanIndiaTemplate'
+import BioTemplate from '../components/BioTemplate'
 import photoLotus      from '../../Images/AI_Female/sample-lotus.jpg'
 import photoArtDeco    from '../../Images/AI_Female/sample-art-deco.jpg'
 import photoFloralVine from '../../Images/AI_Female/sample-floral-vine.jpg'
@@ -269,6 +269,88 @@ const SAMPLE_BY_TEMPLATE = {
     phone: '+91 90000 00000', email: 'kabir.bedi@email.com',
     photo: photoMidnight, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'hindi', customFields: [],
   },
+
+  // ── New Wave ─────────────────────────────────────────────────────────────
+  noir: {
+    fullName: 'Neel Malhotra', dateOfBirth: '1996-10-08', age: '28', gender: 'Male',
+    height: "5'11\"", weight: '74 kg', bloodGroup: 'O+',
+    religion: 'Hindu', caste: 'Khatri', subCaste: '', motherTongue: 'Hindi',
+    education: 'B.Tech + MBA (Entrepreneurship)', college: 'IIT Delhi + ISB Hyderabad',
+    occupation: 'Co-Founder & CEO', company: 'Zeno Technologies', income: '40+ LPA', workLocation: 'Mumbai',
+    fatherName: 'Rajiv Malhotra', fatherOccupation: 'Industrialist',
+    motherName: 'Pooja Malhotra', motherOccupation: 'Interior Designer',
+    brothers: 'None', sisters: '1 Elder Sister (Married, London)',
+    familyType: 'Nuclear', familyStatus: 'Affluent', nativePlace: 'New Delhi',
+    hobbies: 'Venture Capital, Squash, Contemporary Art, Jazz', about: 'Founder building at the intersection of AI and consumer — looking for a partner who is as ambitious and grounded as she is',
+    rashi: 'Simha', nakshatra: 'Magha', gotra: 'Kashyapa', manglik: 'No',
+    address: '7, Worli Sea Face', city: 'Mumbai', state: 'Maharashtra',
+    phone: '+91 90000 00000', email: 'neel.m@email.com',
+    photo: photoMidnight, photoPosition: { x: 50, y: 15 }, sloganLanguage: 'hindi', customFields: [],
+  },
+  aurora: {
+    fullName: 'Aarohi Verma', dateOfBirth: '1999-02-22', age: '25', gender: 'Female',
+    height: "5'5\"", weight: '56 kg', bloodGroup: 'B+',
+    religion: 'Hindu', caste: 'Brahmin', subCaste: 'Gaur', motherTongue: 'Hindi',
+    education: 'B.Des (Interaction Design)', college: 'NID Ahmedabad',
+    occupation: 'Senior UX Designer', company: 'Swiggy', income: '16 LPA', workLocation: 'Bengaluru',
+    fatherName: 'Anil Verma', fatherOccupation: 'Architect',
+    motherName: 'Smita Verma', motherOccupation: 'Kathak Dancer & Teacher',
+    brothers: 'None', sisters: '1 Younger Sister (Design Student)',
+    familyType: 'Nuclear', familyStatus: 'Upper Middle Class', nativePlace: 'Dehradun, Uttarakhand',
+    hobbies: 'Astrophotography, Kathak, Illustrating, Hiking', about: 'Curious about everything — designing better experiences by day, chasing the Milky Way by night',
+    rashi: 'Kumbha', nakshatra: 'Shatabhisha', gotra: 'Bharadvaja', manglik: 'No',
+    address: '21, Indiranagar 100ft Road', city: 'Bengaluru', state: 'Karnataka',
+    phone: '+91 90000 00000', email: 'aarohi.v@email.com',
+    photo: photoCelestial, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'auto', customFields: [],
+  },
+  editorial: {
+    fullName: 'Simran Dhawan', dateOfBirth: '1997-06-15', age: '27', gender: 'Female',
+    height: "5'6\"", weight: '60 kg', bloodGroup: 'A+',
+    religion: 'Hindu', caste: 'Arora', subCaste: '', motherTongue: 'Punjabi',
+    education: 'M.A. (Mass Communication)', college: 'Jamia Millia Islamia, New Delhi',
+    occupation: 'Senior Journalist', company: 'The Indian Express', income: '13 LPA', workLocation: 'New Delhi',
+    fatherName: 'Harinder Dhawan', fatherOccupation: 'Businessman',
+    motherName: 'Gurpreet Dhawan', motherOccupation: 'Dentist',
+    brothers: '1 Younger Brother (MBA Student)', sisters: 'None',
+    familyType: 'Nuclear', familyStatus: 'Upper Middle Class', nativePlace: 'Amritsar, Punjab',
+    hobbies: 'Documentary Filmmaking, Punjabi Literature, Swimming', about: 'Opinionated, empathetic, always seeking the truth — life as a journalist taught her to listen first, write second',
+    rashi: 'Mithuna', nakshatra: 'Mrigashira', gotra: 'Vasishtha', manglik: 'No',
+    address: '4, Vasant Vihar', city: 'New Delhi', state: 'Delhi',
+    phone: '+91 90000 00000', email: 'simran.d@email.com',
+    photo: photoPeacock, photoPosition: { x: 50, y: 15 }, sloganLanguage: 'auto', customFields: [],
+  },
+  bloom: {
+    fullName: 'Riya Singh', dateOfBirth: '1999-04-10', age: '25', gender: 'Female',
+    height: "5'4\"", weight: '53 kg', bloodGroup: 'O+',
+    religion: 'Hindu', caste: 'Rajput', subCaste: 'Tomar', motherTongue: 'Hindi',
+    education: 'B.Des (Visual Communication)', college: 'Symbiosis Institute of Design, Pune',
+    occupation: 'Graphic Designer & Illustrator', company: 'Freelance / Behance', income: '9 LPA', workLocation: 'Pune',
+    fatherName: 'Surendra Singh', fatherOccupation: 'School Principal',
+    motherName: 'Deepa Singh', motherOccupation: 'Yoga Instructor',
+    brothers: 'None', sisters: '1 Elder Sister (Married, Jaipur)',
+    familyType: 'Nuclear', familyStatus: 'Middle Class', nativePlace: 'Agra, Uttar Pradesh',
+    hobbies: 'Hand Lettering, Pottery, Hiking, Plant Care', about: 'Gentle by nature, bold in creativity — finds beauty in everyday details and crafts it into art',
+    rashi: 'Vrishabha', nakshatra: 'Rohini', gotra: 'Kaushika', manglik: 'No',
+    address: '9, Koregaon Park Lane', city: 'Pune', state: 'Maharashtra',
+    phone: '+91 90000 00000', email: 'riya.singh@email.com',
+    photo: photoRose, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'auto', customFields: [],
+  },
+  neo: {
+    fullName: 'Varun Reddy', dateOfBirth: '1997-08-26', age: '27', gender: 'Male',
+    height: "5'10\"", weight: '72 kg', bloodGroup: 'B+',
+    religion: 'Hindu', caste: 'Reddy', subCaste: 'Kapu', motherTongue: 'Telugu',
+    education: 'B.Tech (Computer Science)', college: 'BITS Pilani',
+    occupation: 'Founder & CTO', company: 'Kerno AI', income: '35+ LPA', workLocation: 'Hyderabad',
+    fatherName: 'Ramprasad Reddy', fatherOccupation: 'Retired IPS Officer',
+    motherName: 'Anitha Reddy', motherOccupation: 'Oncologist',
+    brothers: 'None', sisters: '1 Younger Sister (CS Student, USA)',
+    familyType: 'Nuclear', familyStatus: 'Upper Middle Class', nativePlace: 'Vijayawada, Andhra Pradesh',
+    hobbies: 'Open Source, Powerlifting, Black-and-white Photography', about: 'Builds fast, thinks long-term — values depth over noise and is looking for someone who matches that energy',
+    rashi: 'Makara', nakshatra: 'Uttara Ashadha', gotra: 'Gautama', manglik: 'No',
+    address: '15, Jubilee Hills Road 36', city: 'Hyderabad', state: 'Telangana',
+    phone: '+91 90000 00000', email: 'varun.reddy@email.com',
+    photo: photoModern, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'telugu', customFields: [],
+  },
 }
 
 /* Fallback alias */
@@ -300,7 +382,7 @@ function LivePreview({ containerW, visibleH, shadow = true, template }) {
       boxShadow: shadow ? '0 24px 60px rgba(201,160,53,0.2), 0 8px 24px rgba(0,0,0,0.3)' : 'none',
     }}>
       <div ref={innerRef} style={{ width: naturalW, transform: `scale(${scale})`, transformOrigin: 'top left', pointerEvents: 'none' }}>
-        <PanIndiaTemplate data={previewData} />
+        <BioTemplate data={previewData} />
       </div>
     </div>
   )
@@ -331,6 +413,11 @@ const STYLES = [
   { id: 'ember',      live: true,  name: 'Ember',      symbol: '◐', gradient: 'linear-gradient(135deg, #7A2C08, #F07030)', desc: 'Burnt sienna · Arc fan · Vibrant'      },
   { id: 'rose',       live: true,  name: 'Rose',       symbol: '❀', gradient: 'linear-gradient(135deg, #7A1040, #E898A0)', desc: 'Deep rose · Petal corners · Romantic'  },
   { id: 'midnight',   live: true,  name: 'Midnight',   symbol: '⊡', gradient: 'linear-gradient(135deg, #080818, #4880E0)', desc: 'Near-black · Circuit corners · Modern' },
+  { id: 'noir',       live: true,  name: 'Noir',       symbol: '◾', gradient: 'linear-gradient(135deg, #0c0c0c, #e8a820)', desc: 'Jet black · Amber accents · Dark luxury'      },
+  { id: 'aurora',     live: true,  name: 'Aurora',     symbol: '✦', gradient: 'linear-gradient(135deg, #1a0040, #002840)', desc: 'Deep gradient · Glowing cyan · Cosmic feel'    },
+  { id: 'editorial',  live: true,  name: 'Editorial',  symbol: '▮', gradient: 'linear-gradient(135deg, #0f172a, #e5193c)', desc: 'Navy & red · Magazine bold · High contrast'    },
+  { id: 'bloom',      live: true,  name: 'Bloom',      symbol: '◉', gradient: 'linear-gradient(135deg, #fdf6ef, #c084fc)', desc: 'Warm cream · Rose accent bar · Soft aesthetic' },
+  { id: 'neo',        live: true,  name: 'Neo',        symbol: '◼', gradient: 'linear-gradient(135deg, #ffe033, #f5f4f0)', desc: 'Yellow header · Bold type · Neo-brutalist'     },
 ]
 
 /* Portrait template card — matches PDF aspect ratio */
@@ -374,8 +461,9 @@ function StyleCard({ s, i, onClick }) {
 
 /* Group templates: live collection vs coming soon */
 const STYLE_GROUPS = [
-  { label: 'Classic Collection', sub: '7 designs · ornate & traditional', ids: ['lotus', 'artDeco', 'floralVine', 'peacock', 'mandala', 'celestial', 'bridal'] },
-  { label: 'Modern & Minimal',   sub: '7 designs · clean & contemporary', ids: ['minimal', 'royal', 'modern', 'amethyst', 'ember', 'rose', 'midnight'] },
+  { label: 'Classic Collection', sub: '7 designs · ornate & traditional',      ids: ['lotus', 'artDeco', 'floralVine', 'peacock', 'mandala', 'celestial', 'bridal'] },
+  { label: 'Modern & Minimal',   sub: '7 designs · clean & contemporary',      ids: ['minimal', 'royal', 'modern', 'amethyst', 'ember', 'rose', 'midnight'] },
+  { label: 'New Wave',           sub: '5 designs · fresh layouts · bold look', ids: ['noir', 'aurora', 'editorial', 'bloom', 'neo'] },
 ]
 
 /* Full-screen modal */
@@ -446,7 +534,7 @@ function TemplatesSection({ onStart }) {
           viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-16 px-8">
           <p className="text-amber-400 text-sm font-semibold tracking-widest uppercase mb-4">Templates</p>
           <h2 className="font-serif text-4xl lg:text-5xl font-bold text-white mb-5">
-            14 designs,<br />one for every tradition.
+            19 designs,<br />one for every tradition.
           </h2>
           <p className="text-white/45 max-w-lg mx-auto text-lg leading-relaxed">
             Classic ornate or clean modern — every design is a print-ready PDF. Click any card to preview in full.
@@ -713,7 +801,6 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
               ['Can I save and come back later?', 'Yes. Bandhan auto-saves your progress in your browser. Return any time and continue exactly where you left off.'],
               ['What details should I include?', 'Name, date of birth, height, religion, education, profession, family background, horoscope, photo, and contact. Bandhan has a dedicated section for each.'],
               ['Can I edit after previewing?', 'Yes. Use the quick-jump bar to go directly to any field, edit, and return to preview instantly.'],
-              ['How do I share on WhatsApp?', 'Download the PDF, then tap the Share on WhatsApp button that appears. The file attaches directly in the chat.'],
             ].map(([q, a]) => (
               <div key={q} className="border border-white/8 bg-white/[0.03] p-5 rounded-xl">
                 <h3 className="text-white font-semibold text-sm mb-2">{q}</h3>
@@ -754,8 +841,6 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
           </div>
           <p className="text-white/25 text-xs text-center">Your data never leaves your browser · 100% Private · Free forever</p>
           <div className="flex items-center gap-5 text-xs text-white/35">
-            <a href="mailto:hello@bandhan.app" className="hover:text-white/60 transition-colors">Contact</a>
-            <span className="text-white/15">·</span>
             <span className="text-white/25">© 2026 Bandhan</span>
           </div>
         </div>

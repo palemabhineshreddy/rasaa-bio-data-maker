@@ -61,4 +61,8 @@ export const track = {
   // Custom field added — shows power-user behaviour
   customFieldAdded: (section) =>
     trackEvent('custom_field_added', { section }),
+
+  // Post-download feedback: rating 1–5, template, whether they left a comment
+  feedbackSubmitted: (rating, template, hasComment = false) =>
+    trackEvent('feedback_submitted', { rating, template, has_comment: hasComment }),
 }

@@ -1,7 +1,7 @@
-import { useEffect, useLayoutEffect, useState, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Check, Download, Heart, RotateCcw, Search, Plus, Trash2, MessageCircle } from 'lucide-react'
-import PanIndiaTemplate from '../components/PanIndiaTemplate'
+import BioTemplate from '../components/BioTemplate'
 import { exportPDF } from '../utils/pdfExport'
 import { track } from '../utils/analytics'
 
@@ -466,6 +466,11 @@ const TEMPLATE_STYLES = [
   { id: 'ember',      live: true,  name: 'Ember',      symbol: '◐', gradient: 'linear-gradient(135deg, #7A2C08, #F07030)', desc: 'Burnt sienna · Arc fan · Vibrant warmth'    },
   { id: 'rose',       live: true,  name: 'Rose',       symbol: '❀', gradient: 'linear-gradient(135deg, #7A1040, #E898A0)', desc: 'Deep rose · Petal corners · Romantic'       },
   { id: 'midnight',   live: true,  name: 'Midnight',   symbol: '⊡', gradient: 'linear-gradient(135deg, #080818, #4880E0)', desc: 'Near-black · Circuit corners · Ultra modern' },
+  { id: 'noir',      live: true,  name: 'Noir',       symbol: '◾', gradient: 'linear-gradient(135deg, #0c0c0c, #e8a820)', desc: 'Jet black · Amber accents · Dark luxury'       },
+  { id: 'aurora',    live: true,  name: 'Aurora',     symbol: '✦', gradient: 'linear-gradient(135deg, #1a0040, #002840)', desc: 'Deep gradient · Glowing cyan · Cosmic feel'     },
+  { id: 'editorial', live: true,  name: 'Editorial',  symbol: '▮', gradient: 'linear-gradient(135deg, #0f172a, #e5193c)', desc: 'Navy & red · Magazine bold · High contrast'     },
+  { id: 'bloom',     live: true,  name: 'Bloom',      symbol: '◉', gradient: 'linear-gradient(135deg, #fdf6ef, #c084fc)', desc: 'Warm cream · Rose accent bar · Soft aesthetic'  },
+  { id: 'neo',       live: true,  name: 'Neo',        symbol: '◼', gradient: 'linear-gradient(135deg, #ffe033, #f5f4f0)', desc: 'Yellow header · Bold type · Neo-brutalist'      },
 ]
 
 /* Portrait thumbnail — matches PDF aspect ratio (760 : ~1060 ≈ 0.72) */
@@ -475,7 +480,7 @@ function TemplateMiniPreview({ formData, containerW = 144, visibleH = 200 }) {
   return (
     <div style={{ width: containerW, height: visibleH, overflow: 'hidden' }}>
       <div style={{ width: naturalW, transform: `scale(${scale})`, transformOrigin: 'top left', pointerEvents: 'none' }}>
-        <PanIndiaTemplate data={formData} />
+        <BioTemplate data={formData} />
       </div>
     </div>
   )
@@ -523,6 +528,7 @@ function TemplateCard({ style, isSelected, formData, onSelect }) {
 const TEMPLATE_GROUPS = [
   { label: 'Classic Collection', ids: ['lotus', 'artDeco', 'floralVine', 'peacock', 'mandala', 'celestial', 'bridal'] },
   { label: 'Modern & Minimal',   ids: ['minimal', 'royal', 'modern', 'amethyst', 'ember', 'rose', 'midnight'] },
+  { label: 'New Wave',           ids: ['noir', 'aurora', 'editorial', 'bloom', 'neo'] },
 ]
 
 /* ── Photo drag-to-reposition adjuster ── */
@@ -593,6 +599,11 @@ function Step5({ formData, updateForm }) {
   const handlePhoto = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Photo must be under 5 MB. Please choose a smaller image.')
+      e.target.value = ''
+      return
+    }
     const reader = new FileReader()
     reader.onload = (ev) => {
       updateForm({ photo: ev.target.result, photoPosition: { x: 50, y: 20 } })
@@ -687,7 +698,7 @@ function DesignLivePreview({ formData }) {
             pointerEvents: 'none',
           }}
         >
-          <PanIndiaTemplate data={formData} />
+          <BioTemplate data={formData} />
         </div>
       </div>
       <p className="text-[10px] text-white/25 text-center mt-2">Updates instantly as you select</p>
@@ -756,24 +767,6 @@ function Step6({ formData, updateForm }) {
   )
 }
 
-/* ── Sample data for template preview ── */
-const SAMPLE_DATA = {
-  fullName: 'Priya Sharma', dateOfBirth: '1998-03-12', age: '26', gender: 'Female',
-  height: "5'4\"", weight: '55 kg', bloodGroup: 'B+',
-  religion: 'Hindu', caste: 'Brahmin', subCaste: 'Iyer', motherTongue: 'Telugu',
-  education: 'B.Tech (Computer Science)', college: 'JNTU Hyderabad',
-  occupation: 'Software Engineer', company: 'Infosys', income: '8 LPA', workLocation: 'Bengaluru',
-  fatherName: 'Ramesh Sharma', fatherOccupation: 'Retired Government Officer',
-  motherName: 'Sunita Sharma', motherOccupation: 'Homemaker',
-  brothers: '1 Elder Brother (Married)', sisters: 'None',
-  familyType: 'Nuclear', familyStatus: 'Middle Class', nativePlace: 'Tirupati, Andhra Pradesh',
-  hobbies: 'Classical Dance, Reading, Cooking, Badminton',
-  about: 'Family-oriented, Calm & composed, Love to travel, Value traditions',
-  rashi: 'Vrishabha', nakshatra: 'Rohini', gotra: 'Kashyapa', manglik: 'No',
-  address: '12, MG Road, Koramangala', city: 'Bengaluru', state: 'Karnataka',
-  phone: '+91 90000 00000', email: 'priya.sharma@email.com',
-  photo: null, photoPosition: { x: 50, y: 20 }, template: 'lotus', customFields: [],
-}
 
 /* ── Steps config ── */
 const STEPS = [
@@ -785,6 +778,160 @@ const STEPS = [
   { label: 'Design' },
 ]
 
+/* ── Feedback ── */
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/XXXXXXXXXX'
+
+const RATINGS = [
+  { score: 1, emoji: '😞', label: 'Poor' },
+  { score: 2, emoji: '😐', label: 'Okay' },
+  { score: 3, emoji: '🙂', label: 'Good' },
+  { score: 4, emoji: '😊', label: 'Great' },
+  { score: 5, emoji: '🤩', label: 'Loved it' },
+]
+
+/* ── Download celebration overlay ── */
+/* ── Download celebration overlay (auto-dismisses) ── */
+function DownloadCelebration({ onDone }) {
+  const celebParticles = useMemo(() =>
+    Array.from({ length: 28 }, (_, i) => ({
+      id: i,
+      dx: (Math.random() - 0.5) * 520,
+      dy: -(Math.random() * 360 + 40),
+      rotate: Math.random() * 540,
+      color: ['#f59e0b','#10b981','#6366f1','#ec4899','#f97316','#3b82f6','#a855f7'][i % 7],
+      size: Math.random() * 10 + 5,
+      round: Math.random() > 0.45,
+      delay: Math.random() * 0.18,
+    }))
+  , [])
+
+  useEffect(() => {
+    const t = setTimeout(onDone, 2000)
+    return () => clearTimeout(t)
+  }, [onDone])
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={onDone}
+      style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'rgba(0,0,0,0.78)', cursor: 'pointer',
+      }}
+    >
+      <div style={{ position: 'absolute', top: '50%', left: '50%' }}>
+        {celebParticles.map(p => (
+          <motion.div key={p.id}
+            initial={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 0 }}
+            animate={{ x: p.dx, y: p.dy, opacity: [1, 1, 0], rotate: p.rotate, scale: 1 }}
+            transition={{ duration: 1.3, delay: p.delay, ease: 'easeOut' }}
+            style={{ position: 'absolute', width: p.size, height: p.size, background: p.color, borderRadius: p.round ? '50%' : 2 }}
+          />
+        ))}
+      </div>
+      <motion.div
+        initial={{ scale: 0 }} animate={{ scale: [0, 1.25, 1] }}
+        transition={{ duration: 0.55, type: 'spring' }}
+        style={{ textAlign: 'center', position: 'relative', zIndex: 1, pointerEvents: 'none' }}
+      >
+        <div style={{ fontSize: 80 }}>✅</div>
+        <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+          style={{ color: 'white', fontSize: 18, fontWeight: 700, marginTop: 14 }}
+        >Your biodata is ready!</motion.p>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}
+          style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 6 }}
+        >Tap anywhere to continue</motion.p>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+/* ── Inline feedback widget (appears at bottom after download) ── */
+function FeedbackWidget({ template }) {
+  const [rating, setRating] = useState(null)
+  const [comment, setComment] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  const [sending, setSending] = useState(false)
+
+  const handleSubmit = async () => {
+    if (rating === null) return
+    setSending(true)
+    track.feedbackSubmitted(rating, template, comment.trim().length > 0)
+    try {
+      if (!FORMSPREE_ENDPOINT.includes('XXXXXXXXXX')) {
+        await fetch(FORMSPREE_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            rating,
+            emoji: RATINGS.find(r => r.score === rating)?.emoji,
+            template,
+            comment: comment.trim() || '(no comment)',
+            _subject: `Bandhan Feedback — ${rating}/5 ${RATINGS.find(r => r.score === rating)?.emoji}`,
+          }),
+        })
+      }
+    } catch {}
+    setSubmitted(true)
+    setSending(false)
+  }
+
+  if (submitted) {
+    return (
+      <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 text-center">
+        <p className="text-2xl mb-2">🙏</p>
+        <p className="text-white/60 text-sm font-medium">Thank you! Your feedback helps us improve Bandhan.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+      <p className="text-white/45 text-xs font-semibold uppercase tracking-widest text-center mb-4">
+        How was your experience?
+      </p>
+      <div className="flex justify-center gap-2 mb-4">
+        {RATINGS.map(r => (
+          <button key={r.score} type="button" onClick={() => setRating(r.score)} style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+            padding: '10px 14px', borderRadius: 14, border: 'none', cursor: 'pointer',
+            background: rating === r.score ? 'rgba(168,85,247,0.18)' : 'transparent',
+            outline: rating === r.score ? '1.5px solid rgba(168,85,247,0.5)' : '1.5px solid transparent',
+            transition: 'all 0.15s',
+          }}>
+            <span style={{ fontSize: 26, lineHeight: 1, filter: rating !== null && rating !== r.score ? 'grayscale(1) opacity(0.4)' : 'none', transition: 'filter 0.15s' }}>
+              {r.emoji}
+            </span>
+            <span style={{ fontSize: 9, color: rating === r.score ? '#c084fc' : 'rgba(255,255,255,0.3)', fontWeight: 600, letterSpacing: '0.04em' }}>
+              {r.label}
+            </span>
+          </button>
+        ))}
+      </div>
+      <AnimatePresence>
+        {rating !== null && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }}
+            style={{ overflow: 'hidden' }}
+          >
+            <textarea
+              className="form-input resize-none mt-1 mb-3" rows={3} maxLength={500}
+              placeholder={rating >= 4 ? 'What did you love? (optional)' : 'How can we improve? (optional)'}
+              value={comment} onChange={e => setComment(e.target.value)}
+            />
+            <button type="button" onClick={handleSubmit} disabled={sending} className="btn-primary w-full justify-center py-3 text-sm">
+              {sending ? 'Sending…' : 'Send Feedback'}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 /* ── Preview + Download ── */
 const WA_FALLBACK_TEXT = encodeURIComponent(
   'I just created my marriage biodata on Bandhan — free, no sign-up, takes 5 minutes! Try it: https://bandhan.app'
@@ -795,6 +942,8 @@ function PreviewStep({ formData, onBack, onEditStep }) {
   const [loading, setLoading] = useState(false)
   const [sharing, setSharing] = useState(false)
   const [downloaded, setDownloaded] = useState(false)
+  const [showCelebration, setShowCelebration] = useState(false)
+  const [showFeedback, setShowFeedback] = useState(false)
   const pdfBlobRef = useRef(null)
 
   const handleDownload = async () => {
@@ -803,6 +952,7 @@ function PreviewStep({ formData, onBack, onEditStep }) {
       const { blob } = await exportPDF(previewRef.current, formData.fullName || 'biodata')
       pdfBlobRef.current = blob
       setDownloaded(true)
+      setShowCelebration(true)
       track.pdfDownloaded(formData.template || 'lotus')
     } finally {
       setLoading(false)
@@ -900,7 +1050,7 @@ function PreviewStep({ formData, onBack, onEditStep }) {
 
       {/* Biodata preview */}
       <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/10" ref={previewRef}>
-        <PanIndiaTemplate data={formData} />
+        <BioTemplate data={formData} />
       </div>
 
       <div className="flex gap-4 flex-wrap">
@@ -920,6 +1070,30 @@ function PreviewStep({ formData, onBack, onEditStep }) {
           </button>
         )}
       </div>
+
+      {/* Celebration overlay — fixed, auto-dismisses after 2s */}
+      <AnimatePresence>
+        {showCelebration && (
+          <DownloadCelebration onDone={() => {
+            setShowCelebration(false)
+            setShowFeedback(true)
+          }} />
+        )}
+      </AnimatePresence>
+
+      {/* Inline feedback — slides in at bottom after celebration */}
+      <AnimatePresence>
+        {showFeedback && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <FeedbackWidget template={formData.template || 'lotus'} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -1007,11 +1181,6 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
 
   const isPreview = step === totalSteps
 
-  const loadSample = () => {
-    track.sampleLoaded()
-    updateForm(SAMPLE_DATA)
-    setStep(totalSteps)
-  }
 
   const jumpToField = (fieldName) => {
     const target = FIELD_JUMPS.find(field => field.name === fieldName)
@@ -1033,13 +1202,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
             <span className="font-serif text-white font-semibold">Bandhan</span>
           </div>
           <div className="ml-auto flex items-center gap-4">
-            <button
-              onClick={loadSample}
-              className="text-xs text-purple-400 hover:text-purple-300 border border-purple-500/30 hover:border-purple-400/50 rounded-lg px-3 py-1.5 transition-colors"
-            >
-              Try sample
-            </button>
-            {formData.fullName?.trim() && (
+{formData.fullName?.trim() && (
               <span className="hidden sm:flex items-center gap-1.5 text-xs text-green-400/70">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
                 Auto-saved
