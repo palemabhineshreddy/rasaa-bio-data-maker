@@ -95,7 +95,7 @@ body {
 
 /* Step progress */
 .step-dot {
-  @apply w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300;
+  @apply w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold transition-all duration-300;
 }
 
 .step-dot.active {

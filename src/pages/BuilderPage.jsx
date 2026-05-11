@@ -556,7 +556,7 @@ function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace 
   const onTouchEnd = () => { dragging.current = false }
 
   return (
-    <div className="flex items-start gap-6">
+    <div className="flex flex-wrap items-start gap-4 sm:gap-6">
       <div className="space-y-2">
         <div
           ref={containerRef}
@@ -657,7 +657,15 @@ function DesignLivePreview({ formData }) {
   const innerRef = useRef()
   const [containerH, setContainerH] = useState(0)
   const naturalW = 760
-  const previewW = 420
+  const outerRef = useRef(null)
+  const [previewW, setPreviewW] = useState(420)
+
+  useLayoutEffect(() => {
+    if (!outerRef.current) return
+    const w = outerRef.current.offsetWidth
+    if (w > 0) setPreviewW(Math.min(420, w))
+  })
+
   const scale = previewW / naturalW
 
   useLayoutEffect(() => {
@@ -670,7 +678,7 @@ function DesignLivePreview({ formData }) {
   const displayH = containerH ? Math.round(containerH * scale) : Math.round(previewW * 1.39)
 
   return (
-    <div>
+    <div ref={outerRef} style={{ width: '100%', maxWidth: 420 }}>
       <div className="flex items-center justify-between mb-3">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Your Biodata</p>
         {selectedStyle && (
@@ -1005,7 +1013,7 @@ function PreviewStep({ formData, onBack, onEditStep }) {
     <div className="space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h2 className="font-serif text-2xl font-bold text-white">Preview Your Biodata</h2>
+          <h2 className="font-serif text-xl sm:text-2xl font-bold text-white">Preview Your Biodata</h2>
           <p className="text-white/50 text-sm mt-1">Looks good? Download your PDF.</p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
@@ -1022,7 +1030,7 @@ function PreviewStep({ formData, onBack, onEditStep }) {
           <button
             onClick={handleDownload}
             disabled={loading}
-            className="btn-primary px-8 py-4 text-base"
+            className="btn-primary px-5 sm:px-8 py-2.5 sm:py-4 text-sm sm:text-base"
           >
             {loading ? (
               <><span className="animate-spin">⏳</span> Generating...</>
@@ -1035,7 +1043,7 @@ function PreviewStep({ formData, onBack, onEditStep }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3">
         {STEPS.map((section, index) => (
           <button
             key={section.label}
@@ -1048,16 +1056,18 @@ function PreviewStep({ formData, onBack, onEditStep }) {
         ))}
       </div>
 
-      {/* Biodata preview */}
-      <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/10" ref={previewRef}>
-        <BioTemplate data={formData} />
+      {/* Biodata preview — scrollable on mobile so full template is visible */}
+      <div className="overflow-x-auto rounded-2xl border border-white/10 shadow-2xl -mx-3 sm:mx-0 px-0">
+        <div ref={previewRef} style={{ minWidth: 760 }}>
+          <BioTemplate data={formData} />
+        </div>
       </div>
 
       <div className="flex gap-4 flex-wrap">
         <button onClick={onBack} className="btn-ghost">
           <ChevronLeft className="w-4 h-4" /> Edit Details
         </button>
-        <button onClick={handleDownload} disabled={loading} className="btn-primary flex-1 justify-center py-4">
+        <button onClick={handleDownload} disabled={loading} className="btn-primary flex-1 justify-center py-3 sm:py-4">
           {loading ? 'Generating PDF...' : <><Download className="w-5 h-5" /> {downloaded ? 'Download Again' : 'Download PDF'}</>}
         </button>
         {downloaded && (
@@ -1102,7 +1112,7 @@ function PreviewStep({ formData, onBack, onEditStep }) {
 function StepHeading({ title, sub }) {
   return (
     <div className="mb-2">
-      <h2 className="font-serif text-2xl font-bold text-white mb-1">{title}</h2>
+      <h2 className="font-serif text-xl sm:text-2xl font-bold text-white mb-1">{title}</h2>
       <p className="text-white/50 text-sm">{sub}</p>
     </div>
   )
@@ -1192,7 +1202,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
   return (
     <div className="min-h-screen bg-[#0a0a12]">
       {/* Top bar */}
-      <header className="border-b border-white/5 bg-[#080810] px-6 py-4">
+      <header className="border-b border-white/5 bg-[#080810] px-3 sm:px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center gap-4">
           <button onClick={onBack} className="text-white/40 hover:text-white/70 transition-colors">
             <ChevronLeft className="w-5 h-5" />
@@ -1217,16 +1227,16 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-10">
+      <main className="max-w-4xl mx-auto px-3 sm:px-6 py-6 sm:py-10">
         {!isPreview && (
-          <div className="sticky top-0 z-20 -mx-6 mb-8 border-b border-white/10 bg-[#0a0a12]/95 px-6 py-4 backdrop-blur">
+          <div className="sticky top-0 z-20 -mx-3 sm:-mx-6 mb-6 sm:mb-8 border-b border-white/10 bg-[#0a0a12]/95 px-3 sm:px-6 py-3 sm:py-4 backdrop-blur">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="flex flex-wrap gap-2">
                 {STEPS.map((section, index) => (
                   <button
                     key={section.label}
                     onClick={() => setStep(index)}
-                    className={`rounded-lg px-3 py-2 text-sm transition-colors ${
+                    className={`rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm transition-colors ${
                       step === index
                         ? 'bg-purple-500 text-white'
                         : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
@@ -1256,7 +1266,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
 
         {/* Progress dots */}
         {!isPreview && (
-          <div className="flex items-center justify-center gap-3 mb-12">
+          <div className="flex items-center justify-center gap-1.5 sm:gap-3 mb-8 sm:mb-12">
             {STEPS.map((s, i) => (
               <div key={s.label} className="flex items-center gap-3">
                 <button
@@ -1267,7 +1277,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                   {i < step ? <Check className="w-4 h-4" /> : i + 1}
                 </button>
                 {i < STEPS.length - 1 && (
-                  <div className={`h-px w-8 transition-colors duration-300 ${i < step ? 'bg-green-500/50' : 'bg-white/10'}`} />
+                  <div className={`h-px w-4 sm:w-8 transition-colors duration-300 ${i < step ? 'bg-green-500/50' : 'bg-white/10'}`} />
                 )}
               </div>
             ))}
@@ -1303,7 +1313,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
             <button
               onClick={step === totalSteps - 1 ? next : next}
               disabled={!canNext()}
-              className={`btn-primary flex-1 justify-center py-4 ${!canNext() ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`btn-primary flex-1 justify-center py-3 sm:py-4 ${!canNext() ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {step === totalSteps - 1 ? (
                 <><span>Preview Biodata</span> <Check className="w-4 h-4" /></>

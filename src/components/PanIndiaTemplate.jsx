@@ -726,18 +726,13 @@ export default function PanIndiaTemplate({ data }) {
           </div>
         ))}
 
-        {/* Footer */}
-        <div style={{ marginTop: 18, textAlign: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center', marginBottom: 5 }}>
-            <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, transparent, ${gold})` }} />
-            <svg width="14" height="14" viewBox="0 0 14 14" fill={gold}>
-              <rect x="3.5" y="3.5" width="7" height="7" transform="rotate(45 7 7)" />
-            </svg>
-            <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${gold})` }} />
-          </div>
-          <div style={{ fontSize: 8, color: gold, opacity: 0.7, letterSpacing: '0.22em', textTransform: 'uppercase' }}>
-            Created with Bandhan · bandhan.app
-          </div>
+        {/* Footer ornament */}
+        <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
+          <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, transparent, ${gold})` }} />
+          <svg width="14" height="14" viewBox="0 0 14 14" fill={gold}>
+            <rect x="3.5" y="3.5" width="7" height="7" transform="rotate(45 7 7)" />
+          </svg>
+          <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${gold})` }} />
         </div>
 
       </div>

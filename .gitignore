@@ -3,3 +3,16 @@ dist/
 .DS_Store
 *.local
 .env
+
+
+
+cmds to push the code to AWS 
+
+cd "/Users/abhineshreddy/AI -Claude Projects/biodata-maker"
+aws s3 sync dist/ s3://bandhan.app --delete
+
+
+
+aws cloudfront create-invalidation \
+  --distribution-id E1XXXXXXXXXXXX \
+  --paths "/*"

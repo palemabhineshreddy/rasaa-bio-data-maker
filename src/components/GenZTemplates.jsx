@@ -154,13 +154,7 @@ export function NoirTemplate({ data }) {
           </div>
         ))}
 
-        <div style={{ marginTop: 26, display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
-          <span style={{ fontSize: 9, color: '#444444', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            Created with Bandhan · bandhan.app
-          </span>
-          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
-        </div>
+        <div style={{ marginTop: 26, height: 1, background: 'rgba(255,255,255,0.06)' }} />
       </div>
     </div>
   )
@@ -272,11 +266,6 @@ export function AuroraTemplate({ data }) {
           </div>
         ))}
 
-        <div style={{ marginTop: 26, textAlign: 'center' }}>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            Created with Bandhan · bandhan.app
-          </span>
-        </div>
       </div>
     </div>
   )
@@ -373,13 +362,7 @@ export function EditorialTemplate({ data }) {
           </div>
         ))}
 
-        <div style={{ marginTop: 26, display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
-          <span style={{ fontSize: 9, color: '#9ca3af', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            Created with Bandhan · bandhan.app
-          </span>
-          <div style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
-        </div>
+        <div style={{ marginTop: 26, height: 1, background: '#e5e7eb' }} />
       </div>
     </div>
   )
@@ -472,11 +455,6 @@ export function BloomTemplate({ data }) {
           </div>
         ))}
 
-        <div style={{ marginTop: 26, textAlign: 'center' }}>
-          <span style={{ fontSize: 9, color: LABEL, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            Created with Bandhan · bandhan.app
-          </span>
-        </div>
       </div>
     </div>
   )
@@ -570,13 +548,7 @@ export function NeoTemplate({ data }) {
           </div>
         ))}
 
-        <div style={{ marginTop: 22, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ flex: 1, height: 2, background: BLACK }} />
-          <span style={{ fontSize: 9, color: LABEL, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700 }}>
-            Bandhan · bandhan.app
-          </span>
-          <div style={{ flex: 1, height: 2, background: BLACK }} />
-        </div>
+        <div style={{ marginTop: 22, height: 2, background: BLACK }} />
       </div>
     </div>
   )

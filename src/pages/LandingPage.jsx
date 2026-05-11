@@ -505,7 +505,7 @@ function TemplateModal({ s, onClose, onStart }) {
         {/* Modal body */}
         {s.live ? (
           <div style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '28px 28px 32px', gap: 24, background: 'rgba(201,160,53,0.03)' }}>
-            <LivePreview containerW={400} shadow={false} template={s.id} />
+            <LivePreview containerW={Math.min(400, (typeof window !== 'undefined' ? window.innerWidth : 480) - 80)} shadow={false} template={s.id} />
             <button onClick={() => onStart(s.id)} className="btn-primary" style={{ padding: '14px 40px', fontSize: 15 }}>
               Create with this style <ChevronRight size={18} />
             </button>
@@ -527,16 +527,16 @@ function TemplatesSection({ onStart }) {
   const [selected, setSelected] = useState(null)
 
   return (
-    <section id="templates" className="bg-[#0a0a12] py-28">
+    <section id="templates" className="bg-[#0a0a12] py-16 sm:py-28">
       <div className="max-w-6xl mx-auto">
 
         <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-16 px-8">
+          viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 sm:mb-16 px-4 sm:px-8">
           <p className="text-amber-400 text-sm font-semibold tracking-widest uppercase mb-4">Templates</p>
-          <h2 className="font-serif text-4xl lg:text-5xl font-bold text-white mb-5">
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5">
             19 designs,<br />one for every tradition.
           </h2>
-          <p className="text-white/45 max-w-lg mx-auto text-lg leading-relaxed">
+          <p className="text-white/45 max-w-lg mx-auto text-base sm:text-lg leading-relaxed">
             Classic ornate or clean modern — every design is a print-ready PDF. Click any card to preview in full.
           </p>
         </motion.div>
@@ -548,13 +548,13 @@ function TemplatesSection({ onStart }) {
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ duration: 0.5, delay: gi * 0.1 }}
               className="mb-10">
-              <div className="px-8 mb-5 flex items-baseline gap-3">
+              <div className="px-4 sm:px-8 mb-5 flex items-baseline gap-3">
                 <span className="text-sm font-bold text-white/80 tracking-wide">{group.label}</span>
                 <span className="text-xs text-white/30">{group.sub}</span>
               </div>
               <div style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 className="[&::-webkit-scrollbar]:hidden">
-                <div style={{ display: 'flex', gap: 14, padding: '4px 32px 16px' }}>
+                <div style={{ display: 'flex', gap: 14, padding: '4px 16px 16px' }}>
                   {groupStyles.map((s, i) => (
                     <StyleCard key={s.id} s={s} i={i} onClick={() => setSelected(s)} />
                   ))}
@@ -591,7 +591,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
         <div className="orb w-72 h-72 bottom-[5%] left-[35%] bg-amber-500/15" />
 
         {/* Nav */}
-        <nav className="relative z-10 flex items-center justify-between px-8 pt-8 pb-4 max-w-7xl mx-auto w-full">
+        <nav className="relative z-10 flex items-center justify-between px-4 sm:px-8 pt-5 sm:pt-8 pb-4 max-w-7xl mx-auto w-full">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}
             className="flex items-center gap-2">
             <Heart className="w-5 h-5 text-pink-400 fill-pink-400" />
@@ -600,7 +600,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
           <div className="flex items-center gap-3">
             {savedName && (
               <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}
-                onClick={onContinue} className="btn-ghost text-sm">
+                onClick={onContinue} className="btn-ghost text-sm hidden sm:inline-flex">
                 Continue — {savedName}
               </motion.button>
             )}
@@ -612,7 +612,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
         </nav>
 
         {/* Hero body */}
-        <div className="relative z-10 flex-1 flex items-center max-w-7xl mx-auto w-full px-8 py-16 gap-16">
+        <div className="relative z-10 flex-1 flex items-center max-w-7xl mx-auto w-full px-4 sm:px-8 py-8 lg:py-16 gap-6 lg:gap-16">
           <div className="flex-1 max-w-lg">
             <motion.div custom={0} variants={fadeUp} initial="hidden" animate="show"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm text-purple-300 mb-8">
@@ -620,13 +620,13 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             </motion.div>
 
             <motion.h1 custom={1} variants={fadeUp} initial="hidden" animate="show"
-              className="font-serif text-5xl lg:text-6xl font-bold leading-[1.08] text-white mb-6">
+              className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.08] text-white mb-4 sm:mb-6">
               Your story,<br />
               <span className="gradient-text italic">beautifully told.</span>
             </motion.h1>
 
             <motion.p custom={2} variants={fadeUp} initial="hidden" animate="show"
-              className="text-lg text-white/55 leading-relaxed mb-10">
+              className="text-base sm:text-lg text-white/55 leading-relaxed mb-7 sm:mb-10">
               Create a marriage biodata that honours your family, your culture, and your tradition —
               in the time it takes to have a cup of tea.
             </motion.p>
@@ -635,17 +635,17 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
               className="flex flex-wrap gap-4">
               {savedName ? (
                 <>
-                  <button onClick={onContinue} className="btn-primary text-base px-8 py-4">
-                    Continue Biodata <ChevronRight className="w-5 h-5" />
+                  <button onClick={onContinue} className="btn-primary text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4">
+                    Continue Biodata <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
-                  <button onClick={onStart} className="btn-ghost text-base px-8 py-4">Start Fresh</button>
+                  <button onClick={onStart} className="btn-ghost text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4">Start Fresh</button>
                 </>
               ) : (
                 <>
-                  <button onClick={onStart} className="btn-primary text-base px-8 py-4">
-                    Create Your Biodata <ChevronRight className="w-5 h-5" />
+                  <button onClick={onStart} className="btn-primary text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4">
+                    Create Your Biodata <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
-                  <a href="#templates" className="btn-ghost text-base px-8 py-4">Explore Templates</a>
+                  <a href="#templates" className="btn-ghost text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4">Explore Templates</a>
                 </>
               )}
             </motion.div>
@@ -659,7 +659,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             )}
 
             <motion.div custom={4} variants={fadeUp} initial="hidden" animate="show"
-              className="flex items-center gap-6 mt-10 text-sm text-white/35">
+              className="flex flex-wrap items-center gap-3 sm:gap-6 mt-6 sm:mt-10 text-xs sm:text-sm text-white/35">
               <span className="flex items-center gap-1.5"><Shield className="w-4 h-4 text-green-400" /> 100% Private</span>
               <span className="flex items-center gap-1.5"><Download className="w-4 h-4 text-blue-400" /> Instant PDF</span>
               <span className="flex items-center gap-1.5"><Heart className="w-4 h-4 text-pink-400 fill-pink-400" /> Forever free</span>
@@ -722,20 +722,20 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
       <TemplatesSection onStart={onStart} />
 
       {/* ── FEATURES ── */}
-      <section className="bg-[#080810] py-28 px-8">
+      <section className="bg-[#080810] py-16 sm:py-28 px-4 sm:px-8">
         <div className="max-w-5xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-16">
+            viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 sm:mb-16">
             <p className="text-purple-400 text-sm font-semibold tracking-widest uppercase mb-4">Designed with intention</p>
-            <h2 className="font-serif text-4xl font-bold text-white">Nothing unnecessary.<br />Everything that matters.</h2>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">Nothing unnecessary.<br />Everything that matters.</h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-5">
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-5">
             {FEATURES.map(({ icon: Icon, label, desc }, i) => (
               <motion.div key={label}
                 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="glass rounded-2xl p-8 flex gap-5 group hover:border-purple-500/25 transition-colors duration-300">
+                className="glass rounded-2xl p-5 sm:p-8 flex gap-4 sm:gap-5 group hover:border-purple-500/25 transition-colors duration-300">
                 <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                   <Icon className="w-5 h-5 text-purple-400" />
                 </div>
@@ -750,15 +750,15 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section className="bg-[#0a0a12] py-28 px-8">
+      <section className="bg-[#0a0a12] py-16 sm:py-28 px-4 sm:px-8">
         <div className="max-w-4xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-16">
+            viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 sm:mb-16">
             <p className="text-pink-400 text-sm font-semibold tracking-widest uppercase mb-4">How it works</p>
-            <h2 className="font-serif text-4xl font-bold text-white">Six simple steps.<br />One beautiful biodata.</h2>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">Six simple steps.<br />One beautiful biodata.</h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8 relative">
+          <div className="grid md:grid-cols-3 gap-6 sm:gap-8 relative">
             <div className="hidden md:block absolute top-8 left-[16%] right-[16%] h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
             {[
               { num: '01', title: 'Fill your details', desc: 'Personal, family, career, horoscope, contact — guided across 6 short steps.' },
@@ -769,10 +769,10 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
                 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.15 }}
                 className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center mb-6 shadow-lg shadow-purple-500/20 relative z-10">
-                  <span className="font-serif text-2xl font-bold text-white">{num}</span>
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center mb-4 sm:mb-6 shadow-lg shadow-purple-500/20 relative z-10">
+                  <span className="font-serif text-xl sm:text-2xl font-bold text-white">{num}</span>
                 </div>
-                <h3 className="text-white font-semibold text-lg mb-2">{title}</h3>
+                <h3 className="text-white font-semibold text-base sm:text-lg mb-2">{title}</h3>
                 <p className="text-white/45 text-sm leading-relaxed">{desc}</p>
               </motion.div>
             ))}
@@ -781,12 +781,12 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
       </section>
 
       {/* ── FAQ ── */}
-      <section className="bg-[#080810] py-28 px-8">
-        <div className="max-w-5xl mx-auto grid gap-10 lg:grid-cols-[1fr_1fr]">
+      <section className="bg-[#080810] py-16 sm:py-28 px-4 sm:px-8">
+        <div className="max-w-5xl mx-auto grid gap-8 sm:gap-10 lg:grid-cols-[1fr_1fr]">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }}>
             <p className="text-amber-300 text-sm font-semibold tracking-widest uppercase mb-4">Good to know</p>
-            <h2 className="font-serif text-4xl font-bold text-white mb-5">Questions families ask</h2>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white mb-5">Questions families ask</h2>
             <p className="text-white/40 leading-relaxed">
               A biodata is one of the most personal documents a family shares.
               We built Bandhan to make sure creating one feels simple, private, and right.
@@ -812,27 +812,27 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
       </section>
 
       {/* ── CTA ── */}
-      <section className="hero-gradient py-32 px-8 relative overflow-hidden">
+      <section className="hero-gradient py-16 sm:py-32 px-4 sm:px-8 relative overflow-hidden">
         <div className="orb w-[500px] h-[500px] top-[-40%] left-[15%] bg-purple-600/25" />
         <div className="orb w-72 h-72 bottom-[-20%] right-[8%] bg-pink-500/20" />
         <motion.div initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }} transition={{ duration: 0.7 }}
           className="max-w-2xl mx-auto text-center relative z-10">
-          <h2 className="font-serif text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5 sm:mb-6 leading-tight">
             Begin your<br />
             <span className="gradient-text italic">Bandhan today.</span>
           </h2>
-          <p className="text-white/50 text-lg mb-10 leading-relaxed">
+          <p className="text-white/50 text-base sm:text-lg mb-8 sm:mb-10 leading-relaxed">
             Free, private, and ready in minutes.<br />The biodata your family deserves.
           </p>
-          <button onClick={onStart} className="btn-primary text-lg px-14 py-5">
+          <button onClick={onStart} className="btn-primary text-sm sm:text-lg px-8 sm:px-14 py-3 sm:py-5">
             Create Your Biodata <ChevronRight className="w-5 h-5" />
           </button>
         </motion.div>
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="bg-[#080810] py-10 px-8 border-t border-white/5">
+      <footer className="bg-[#080810] py-10 px-4 sm:px-8 border-t border-white/5">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <Heart className="w-4 h-4 text-pink-400 fill-pink-400" />
