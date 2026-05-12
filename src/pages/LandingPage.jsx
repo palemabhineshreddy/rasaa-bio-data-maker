@@ -601,10 +601,13 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
     <div className="min-h-screen">
 
       {/* ── HERO ── */}
-      <section className="hero-gradient relative min-h-screen flex flex-col overflow-hidden">
-        <div className="orb w-[500px] h-[500px] top-[-15%] left-[-12%] bg-purple-600/20" />
-        <div className="orb w-96 h-96 top-[15%] right-[-10%] bg-pink-500/20" />
-        <div className="orb w-72 h-72 bottom-[5%] left-[35%] bg-amber-500/15" />
+      <section className="hero-gradient relative min-h-screen flex flex-col">
+        {/* Orbs clipped inside their own layer so the nav dropdown is never cut off */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="orb w-[500px] h-[500px] top-[-15%] left-[-12%] bg-purple-600/20" />
+          <div className="orb w-96 h-96 top-[15%] right-[-10%] bg-pink-500/20" />
+          <div className="orb w-72 h-72 bottom-[5%] left-[35%] bg-amber-500/15" />
+        </div>
 
         {/* Nav */}
         <nav className="relative z-10 flex items-center justify-between px-4 sm:px-8 pt-5 sm:pt-8 pb-4 max-w-7xl mx-auto w-full">
