@@ -1,4 +1,5 @@
 import { formatDate } from '../utils/formatters'
+import { useLanguage } from '../contexts/LanguageContext'
 
 // ─── Shared row extractor ────────────────────────────────────────────────────
 
@@ -72,6 +73,7 @@ function extractRows(data) {
 // Dark luxury: near-black bg, amber accents, no ornamental border decoration
 
 export function NoirTemplate({ data }) {
+  const { t } = useLanguage()
   const { photo, photoPosition = { x: 50, y: 20 }, occupation, city } = data || {}
   const { personal, family, contact, customGrouped } = extractRows(data || {})
 
@@ -94,11 +96,11 @@ export function NoirTemplate({ data }) {
     )
   }
 
-  function Section({ title }) {
+  function Section({ titleKey, title }) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0 8px' }}>
         <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.22em', color: AMBER, flexShrink: 0 }}>
-          {title}
+          {titleKey ? t(titleKey) : title}
         </span>
         <div style={{ flex: 1, height: 1, background: 'rgba(232,168,32,0.22)' }} />
       </div>
@@ -138,13 +140,13 @@ export function NoirTemplate({ data }) {
           )}
         </div>
 
-        <Section title="Personal Details" />
+        <Section titleKey="pdf_personal" />
         {personal.map(([l, v]) => <Row key={l} label={l} value={v} />)}
 
-        <Section title="Family Details" />
+        <Section titleKey="pdf_family" />
         {family.map(([l, v]) => <Row key={l} label={l} value={v} />)}
 
-        <Section title="Contact & About" />
+        <Section titleKey="pdf_contact" />
         {contact.map(([l, v]) => <Row key={l} label={l} value={v} />)}
 
         {Object.entries(customGrouped).map(([title, rows]) => (
@@ -164,6 +166,7 @@ export function NoirTemplate({ data }) {
 // Deep space gradient, glowing cyan accents, atmospheric orb blobs
 
 export function AuroraTemplate({ data }) {
+  const { t } = useLanguage()
   const { photo, photoPosition = { x: 50, y: 20 }, occupation, city } = data || {}
   const { personal, family, contact, customGrouped } = extractRows(data || {})
 
@@ -182,7 +185,7 @@ export function AuroraTemplate({ data }) {
     )
   }
 
-  function Section({ title }) {
+  function Section({ titleKey, title }) {
     return (
       <div style={{ margin: '18px 0 8px' }}>
         <span style={{
@@ -194,7 +197,7 @@ export function AuroraTemplate({ data }) {
           border: '1px solid rgba(96,208,255,0.2)',
           padding: '4px 14px', borderRadius: 20,
         }}>
-          {title}
+          {titleKey ? t(titleKey) : title}
         </span>
       </div>
     )
@@ -250,13 +253,13 @@ export function AuroraTemplate({ data }) {
           )}
         </div>
 
-        <Section title="Personal Details" />
+        <Section titleKey="pdf_personal" />
         {personal.map(([l, v]) => <Row key={l} label={l} value={v} />)}
 
-        <Section title="Family Details" />
+        <Section titleKey="pdf_family" />
         {family.map(([l, v]) => <Row key={l} label={l} value={v} />)}
 
-        <Section title="Contact & About" />
+        <Section titleKey="pdf_contact" />
         {contact.map(([l, v]) => <Row key={l} label={l} value={v} />)}
 
         {Object.entries(customGrouped).map(([title, rows]) => (
@@ -275,6 +278,7 @@ export function AuroraTemplate({ data }) {
 // Bold magazine cover energy: deep navy header, vivid red accent, white content
 
 export function EditorialTemplate({ data }) {
+  const { t } = useLanguage()
   const { photo, photoPosition = { x: 50, y: 20 }, occupation, city } = data || {}
   const { personal, family, contact, customGrouped } = extractRows(data || {})
 
@@ -294,12 +298,12 @@ export function EditorialTemplate({ data }) {
     )
   }
 
-  function Section({ title }) {
+  function Section({ titleKey, title }) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '18px 0 7px' }}>
         <div style={{ width: 3, height: 14, background: RED, borderRadius: 2, flexShrink: 0 }} />
         <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.2em', color: NAVY }}>
-          {title}
+          {titleKey ? t(titleKey) : title}
         </span>
       </div>
     )
@@ -346,13 +350,13 @@ export function EditorialTemplate({ data }) {
 
       {/* Content */}
       <div style={{ padding: '28px 52px 32px' }}>
-        <Section title="Personal Details" />
+        <Section titleKey="pdf_personal" />
         {personal.map(([l, v]) => <Row key={l} label={l} value={v} />)}
 
-        <Section title="Family Details" />
+        <Section titleKey="pdf_family" />
         {family.map(([l, v]) => <Row key={l} label={l} value={v} />)}
 
-        <Section title="Contact & About" />
+        <Section titleKey="pdf_contact" />
         {contact.map(([l, v]) => <Row key={l} label={l} value={v} />)}
 
         {Object.entries(customGrouped).map(([title, rows]) => (
@@ -372,6 +376,7 @@ export function EditorialTemplate({ data }) {
 // Soft aesthetic: warm cream bg, vertical rose-to-violet accent bar, airy spacing
 
 export function BloomTemplate({ data }) {
+  const { t } = useLanguage()
   const { photo, photoPosition = { x: 50, y: 20 }, occupation, city } = data || {}
   const { personal, family, contact, customGrouped } = extractRows(data || {})
 
@@ -391,12 +396,12 @@ export function BloomTemplate({ data }) {
     )
   }
 
-  function Section({ title }) {
+  function Section({ titleKey, title }) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '18px 0 7px' }}>
         <div style={{ width: 6, height: 6, borderRadius: '50%', background: MAGENTA, flexShrink: 0 }} />
         <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.22em', color: MAGENTA }}>
-          {title}
+          {titleKey ? t(titleKey) : title}
         </span>
       </div>
     )
@@ -439,13 +444,13 @@ export function BloomTemplate({ data }) {
           )}
         </div>
 
-        <Section title="Personal Details" />
+        <Section titleKey="pdf_personal" />
         {personal.map(([l, v]) => <Row key={l} label={l} value={v} />)}
 
-        <Section title="Family Details" />
+        <Section titleKey="pdf_family" />
         {family.map(([l, v]) => <Row key={l} label={l} value={v} />)}
 
-        <Section title="Contact & About" />
+        <Section titleKey="pdf_contact" />
         {contact.map(([l, v]) => <Row key={l} label={l} value={v} />)}
 
         {Object.entries(customGrouped).map(([title, rows]) => (
@@ -464,6 +469,7 @@ export function BloomTemplate({ data }) {
 // Neo-brutalist: bold yellow header, thick black border, raw graphic confidence
 
 export function NeoTemplate({ data }) {
+  const { t } = useLanguage()
   const { photo, photoPosition = { x: 50, y: 20 }, occupation, city } = data || {}
   const { personal, family, contact, customGrouped } = extractRows(data || {})
 
@@ -483,12 +489,12 @@ export function NeoTemplate({ data }) {
     )
   }
 
-  function Section({ title }) {
+  function Section({ titleKey, title }) {
     return (
       <div style={{ margin: '18px 0 7px' }}>
         <div style={{ height: 2, background: BLACK, marginBottom: 7 }} />
         <span style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.22em', color: BLACK }}>
-          {title}
+          {titleKey ? t(titleKey) : title}
         </span>
       </div>
     )
@@ -532,13 +538,13 @@ export function NeoTemplate({ data }) {
 
       {/* Content */}
       <div style={{ padding: '24px 36px 28px' }}>
-        <Section title="Personal Details" />
+        <Section titleKey="pdf_personal" />
         {personal.map(([l, v]) => <Row key={l} label={l} value={v} />)}
 
-        <Section title="Family Details" />
+        <Section titleKey="pdf_family" />
         {family.map(([l, v]) => <Row key={l} label={l} value={v} />)}
 
-        <Section title="Contact & About" />
+        <Section titleKey="pdf_contact" />
         {contact.map(([l, v]) => <Row key={l} label={l} value={v} />)}
 
         {Object.entries(customGrouped).map(([title, rows]) => (

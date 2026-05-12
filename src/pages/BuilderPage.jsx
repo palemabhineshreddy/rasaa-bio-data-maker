@@ -2,6 +2,8 @@ import { useEffect, useLayoutEffect, useMemo, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Check, Download, Heart, RotateCcw, Search, Plus, Trash2, MessageCircle } from 'lucide-react'
 import BioTemplate from '../components/BioTemplate'
+import LanguageSwitcher from '../components/LanguageSwitcher'
+import { useLanguage } from '../contexts/LanguageContext'
 import { exportPDF } from '../utils/pdfExport'
 import { track } from '../utils/analytics'
 
@@ -70,12 +72,13 @@ function removeCustomField(formData, updateForm, id) {
 }
 
 function CustomFieldEditor({ field, index, formData, updateForm }) {
+  const { t } = useLanguage()
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
       <div className="mb-4 flex items-center justify-between gap-4">
         <div>
-          <div className="text-sm font-semibold text-white">Extra Field {index + 1}</div>
-          <div className="text-xs text-white/40">This detail will appear in the selected PDF section.</div>
+          <div className="text-sm font-semibold text-white">{t('extra_field')} {index + 1}</div>
+          <div className="text-xs text-white/40">{t('extra_field_desc')}</div>
         </div>
         <button
           type="button"
@@ -90,32 +93,32 @@ function CustomFieldEditor({ field, index, formData, updateForm }) {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {field.section === 'custom' && (
           <div className="md:col-span-2">
-            <label className="form-label">Custom Section Name</label>
+            <label className="form-label">{t('custom_sec_name')}</label>
             <input
               name={`customFields.${index}.customTitle`}
               className="form-input"
-              placeholder="e.g. Partner Expectations"
+              placeholder={t('ph_custom_sec')}
               value={field.customTitle || ''}
               onChange={event => updateCustomField(formData, updateForm, field.id, { customTitle: event.target.value })}
             />
           </div>
         )}
         <div>
-          <label className="form-label">Field Name</label>
+          <label className="form-label">{t('field_name')}</label>
           <input
             name={`customFields.${index}.label`}
             className="form-input"
-            placeholder="e.g. Time of Birth"
+            placeholder={t('ph_field_name')}
             value={field.label}
             onChange={event => updateCustomField(formData, updateForm, field.id, { label: event.target.value })}
           />
         </div>
         <div>
-          <label className="form-label">Value</label>
+          <label className="form-label">{t('field_value')}</label>
           <input
             name={`customFields.${index}.value`}
             className="form-input"
-            placeholder="e.g. 6:45 AM"
+            placeholder={t('ph_field_value')}
             value={field.value}
             onChange={event => updateCustomField(formData, updateForm, field.id, { value: event.target.value })}
           />
@@ -125,22 +128,23 @@ function CustomFieldEditor({ field, index, formData, updateForm }) {
   )
 }
 
-function InlineCustomFields({ section, title = 'Extra Fields', help, formData, updateForm }) {
+function InlineCustomFields({ section, titleKey, helpKey, formData, updateForm }) {
+  const { t } = useLanguage()
   const sectionFields = getCustomFields(formData).filter(field => field.section === section)
 
   return (
     <div className="space-y-4 rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h4 className="text-sm font-semibold uppercase tracking-widest text-purple-300">{title}</h4>
-          {help && <p className="mt-1 text-sm text-white/45">{help}</p>}
+          <h4 className="text-sm font-semibold uppercase tracking-widest text-purple-300">{t(titleKey)}</h4>
+          {helpKey && <p className="mt-1 text-sm text-white/45">{t(helpKey)}</p>}
         </div>
         <button
           type="button"
           onClick={() => addCustomField(formData, updateForm, section)}
           className="btn-ghost justify-center border-dashed px-4 py-2 text-sm"
         >
-          <Plus className="h-4 w-4" /> Add extra field
+          <Plus className="h-4 w-4" /> {t('add_field')}
         </button>
       </div>
 
@@ -163,167 +167,124 @@ function InlineCustomFields({ section, title = 'Extra Fields', help, formData, u
 
 /* ── Step 1: Personal ── */
 function Step1({ formData, updateForm }) {
+  const { t } = useLanguage()
   return (
     <div className="space-y-5">
-      <StepHeading title="Personal Details" sub="Tell us about yourself — the basics that matter most." />
+      <StepHeading title={t('b_s1_title')} sub={t('b_s1_sub')} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className="md:col-span-2">
-          <Field label="Full Name *" name="fullName" formData={formData} updateForm={updateForm} placeholder="e.g. Priya Sharma" />
+          <Field label={t('f_fullName')} name="fullName" formData={formData} updateForm={updateForm} placeholder={t('ph_fullName')} />
         </div>
-        <Field label="Gender" name="gender" formData={formData} updateForm={updateForm} options={['', 'Male', 'Female']} />
-        <Field label="Date of Birth" name="dateOfBirth" formData={formData} updateForm={updateForm} type="date" />
-        <Field label="Age (Years)" name="age" formData={formData} updateForm={updateForm} placeholder="e.g. 26" />
-        <Field label="Height" name="height" formData={formData} updateForm={updateForm} placeholder={`e.g. 5'6"`} />
-        <Field label="Weight (kg)" name="weight" formData={formData} updateForm={updateForm} placeholder="e.g. 60 kg" />
-        <Field label="Blood Group" name="bloodGroup" formData={formData} updateForm={updateForm} options={['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']} />
-        <Field label="Mother Tongue" name="motherTongue" formData={formData} updateForm={updateForm} placeholder="e.g. Telugu, Tamil, Hindi" />
-        <Field label="Religion" name="religion" formData={formData} updateForm={updateForm} placeholder="e.g. Hindu, Muslim, Christian" />
-        <Field label="Caste / Community" name="caste" formData={formData} updateForm={updateForm} placeholder="e.g. Reddy, Brahmin" />
-        <Field label="Sub-Caste (optional)" name="subCaste" formData={formData} updateForm={updateForm} placeholder="e.g. Kamma" />
+        <Field label={t('f_gender')} name="gender" formData={formData} updateForm={updateForm} options={['', 'Male', 'Female']} />
+        <Field label={t('f_dob')} name="dateOfBirth" formData={formData} updateForm={updateForm} type="date" />
+        <Field label={t('f_age')} name="age" formData={formData} updateForm={updateForm} placeholder={t('ph_age')} />
+        <Field label={t('f_height')} name="height" formData={formData} updateForm={updateForm} placeholder={t('ph_height')} />
+        <Field label={t('f_weight')} name="weight" formData={formData} updateForm={updateForm} placeholder={t('ph_weight')} />
+        <Field label={t('f_bloodGroup')} name="bloodGroup" formData={formData} updateForm={updateForm} options={['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']} />
+        <Field label={t('f_motherTongue')} name="motherTongue" formData={formData} updateForm={updateForm} placeholder={t('ph_motherTongue')} />
+        <Field label={t('f_religion')} name="religion" formData={formData} updateForm={updateForm} placeholder={t('ph_religion')} />
+        <Field label={t('f_caste')} name="caste" formData={formData} updateForm={updateForm} placeholder={t('ph_caste')} />
+        <Field label={t('f_subCaste')} name="subCaste" formData={formData} updateForm={updateForm} placeholder={t('ph_subCaste')} />
       </div>
-      <InlineCustomFields
-        section="personal"
-        title="Extra Personal Details"
-        help="Add details like time of birth, place of birth, complexion, or other family-required personal details."
-        formData={formData}
-        updateForm={updateForm}
-      />
+      <InlineCustomFields section="personal" titleKey="extra_personal_t" helpKey="extra_personal_h" formData={formData} updateForm={updateForm} />
     </div>
   )
 }
 
 /* ── Step 2: Education & Career ── */
 function Step2({ formData, updateForm }) {
+  const { t } = useLanguage()
   return (
     <div className="space-y-5">
-      <StepHeading title="Education & Career" sub="Your qualifications and professional life." />
+      <StepHeading title={t('b_s2_title')} sub={t('b_s2_sub')} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className="md:col-span-2">
-          <Field label="Highest Qualification *" name="education" formData={formData} updateForm={updateForm} placeholder="e.g. B.Tech, MBA, MBBS" />
+          <Field label={t('f_education')} name="education" formData={formData} updateForm={updateForm} placeholder={t('ph_education')} />
         </div>
-        <Field label="College / University" name="college" formData={formData} updateForm={updateForm} placeholder="e.g. IIT Delhi, BITS Pilani" />
-        <Field label="Occupation *" name="occupation" formData={formData} updateForm={updateForm} placeholder="e.g. Software Engineer, Doctor" />
-        <Field label="Company / Organisation" name="company" formData={formData} updateForm={updateForm} placeholder="e.g. Infosys, Apollo Hospital" />
-        <Field label="Annual Income (optional)" name="income" formData={formData} updateForm={updateForm} placeholder="e.g. 12 LPA, 8–10 LPA" />
+        <Field label={t('f_college')} name="college" formData={formData} updateForm={updateForm} placeholder={t('ph_college')} />
+        <Field label={t('f_occupation')} name="occupation" formData={formData} updateForm={updateForm} placeholder={t('ph_occupation')} />
+        <Field label={t('f_company')} name="company" formData={formData} updateForm={updateForm} placeholder={t('ph_company')} />
+        <Field label={t('f_income')} name="income" formData={formData} updateForm={updateForm} placeholder={t('ph_income')} />
         <div className="md:col-span-2">
-          <Field label="Work Location / City" name="workLocation" formData={formData} updateForm={updateForm} placeholder="e.g. Bengaluru, Hyderabad" />
+          <Field label={t('f_workLocation')} name="workLocation" formData={formData} updateForm={updateForm} placeholder={t('ph_workLocation')} />
         </div>
       </div>
-      <InlineCustomFields
-        section="career"
-        title="Extra Career Details"
-        help="Add details like visa status, business type, job location preference, or achievements."
-        formData={formData}
-        updateForm={updateForm}
-      />
+      <InlineCustomFields section="career" titleKey="extra_career_t" helpKey="extra_career_h" formData={formData} updateForm={updateForm} />
     </div>
   )
 }
 
 /* ── Step 3: Family ── */
 function Step3({ formData, updateForm }) {
+  const { t } = useLanguage()
   return (
     <div className="space-y-5">
-      <StepHeading title="Family Details" sub="Your family background — parents, siblings, and roots." />
+      <StepHeading title={t('b_s3_title')} sub={t('b_s3_sub')} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <Field label="Father's Name" name="fatherName" formData={formData} updateForm={updateForm} placeholder="e.g. Ramesh Sharma" />
-        <Field label="Father's Occupation" name="fatherOccupation" formData={formData} updateForm={updateForm} placeholder="e.g. Businessman, Retired IAS" />
-        <Field label="Mother's Name" name="motherName" formData={formData} updateForm={updateForm} placeholder="e.g. Sunita Sharma" />
-        <Field label="Mother's Occupation" name="motherOccupation" formData={formData} updateForm={updateForm} placeholder="e.g. Homemaker, Teacher" />
-        <Field label="Brothers" name="brothers" formData={formData} updateForm={updateForm} placeholder="e.g. 1 Elder (Married)" />
-        <Field label="Sisters" name="sisters" formData={formData} updateForm={updateForm} placeholder="e.g. 1 Younger (Unmarried)" />
-        <Field label="Family Type" name="familyType" formData={formData} updateForm={updateForm} options={['', 'Nuclear', 'Joint', 'Extended']} />
-        <Field label="Family Status" name="familyStatus" formData={formData} updateForm={updateForm} options={['', 'Middle Class', 'Upper Middle Class', 'Business Family', 'Affluent']} />
+        <Field label={t('f_fatherName')} name="fatherName" formData={formData} updateForm={updateForm} placeholder={t('ph_fatherName')} />
+        <Field label={t('f_fatherOcc')} name="fatherOccupation" formData={formData} updateForm={updateForm} placeholder={t('ph_fatherOcc')} />
+        <Field label={t('f_motherName')} name="motherName" formData={formData} updateForm={updateForm} placeholder={t('ph_motherName')} />
+        <Field label={t('f_motherOcc')} name="motherOccupation" formData={formData} updateForm={updateForm} placeholder={t('ph_motherOcc')} />
+        <Field label={t('f_brothers')} name="brothers" formData={formData} updateForm={updateForm} placeholder={t('ph_brothers')} />
+        <Field label={t('f_sisters')} name="sisters" formData={formData} updateForm={updateForm} placeholder={t('ph_sisters')} />
+        <Field label={t('f_familyType')} name="familyType" formData={formData} updateForm={updateForm} options={['', 'Nuclear', 'Joint', 'Extended']} />
+        <Field label={t('f_familyStatus')} name="familyStatus" formData={formData} updateForm={updateForm} options={['', 'Middle Class', 'Upper Middle Class', 'Business Family', 'Affluent']} />
         <div className="md:col-span-2">
-          <Field label="Native Place" name="nativePlace" formData={formData} updateForm={updateForm} placeholder="e.g. Tirupati, Andhra Pradesh" />
+          <Field label={t('f_nativePlace')} name="nativePlace" formData={formData} updateForm={updateForm} placeholder={t('ph_nativePlace')} />
         </div>
       </div>
-      <InlineCustomFields
-        section="family"
-        title="Extra Family Details"
-        help="Add details like maternal family, family property, ancestral origin, or family values."
-        formData={formData}
-        updateForm={updateForm}
-      />
+      <InlineCustomFields section="family" titleKey="extra_family_t" helpKey="extra_family_h" formData={formData} updateForm={updateForm} />
     </div>
   )
 }
 
 /* ── Step 4: About + Horoscope + Contact ── */
 function Step4({ formData, updateForm }) {
+  const { t } = useLanguage()
   return (
     <div className="space-y-8">
-      <StepHeading title="About & Contact" sub="Add a personal touch and your horoscope details." />
+      <StepHeading title={t('b_s4_title')} sub={t('b_s4_sub')} />
 
       <div className="space-y-5">
-        <SectionTitle>About Yourself</SectionTitle>
+        <SectionTitle>{t('sec_about')}</SectionTitle>
         <div className="grid grid-cols-1 gap-5">
           <div>
-            <label className="form-label">Hobbies & Interests</label>
-            <input
-              name="hobbies"
-              className="form-input"
-              placeholder="e.g. Reading, Badminton, Classical dance, Cooking"
-              value={formData.hobbies}
-              onChange={e => updateForm({ hobbies: e.target.value })}
-            />
+            <label className="form-label">{t('f_hobbies')}</label>
+            <input name="hobbies" className="form-input" placeholder={t('ph_hobbies')}
+              value={formData.hobbies} onChange={e => updateForm({ hobbies: e.target.value })} />
           </div>
           <div>
-            <label className="form-label">About Yourself (optional)</label>
-            <textarea
-              name="about"
-              className="form-input resize-none"
-              rows={3}
-              placeholder="A short description about your personality, values, or what you're looking for..."
-              value={formData.about}
-              onChange={e => updateForm({ about: e.target.value })}
-            />
+            <label className="form-label">{t('f_about')}</label>
+            <textarea name="about" className="form-input resize-none" rows={3} placeholder={t('ph_about')}
+              value={formData.about} onChange={e => updateForm({ about: e.target.value })} />
           </div>
         </div>
-        <InlineCustomFields
-          section="custom"
-          title="Personal Note Sections"
-          help="Add a separate section such as Partner Expectations, Lifestyle, or Preferences."
-          formData={formData}
-          updateForm={updateForm}
-        />
+        <InlineCustomFields section="custom" titleKey="extra_custom_t" helpKey="extra_custom_h" formData={formData} updateForm={updateForm} />
       </div>
 
       <div className="space-y-5">
-        <SectionTitle>Horoscope Details <span className="text-white/30 text-sm font-normal">(optional)</span></SectionTitle>
+        <SectionTitle>{t('sec_horoscope')} <span className="text-white/30 text-sm font-normal">({t('sec_optional')})</span></SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <Field label="Rashi (Moon Sign)" name="rashi" formData={formData} updateForm={updateForm} placeholder="e.g. Vrishabha, Mesha" />
-          <Field label="Nakshatra / Star" name="nakshatra" formData={formData} updateForm={updateForm} placeholder="e.g. Rohini, Ashwini" />
-          <Field label="Gotra" name="gotra" formData={formData} updateForm={updateForm} placeholder="e.g. Kashyapa, Bharadvaja" />
-          <Field label="Manglik" name="manglik" formData={formData} updateForm={updateForm} options={['', 'No', 'Yes', 'Partial']} />
+          <Field label={t('f_rashi')} name="rashi" formData={formData} updateForm={updateForm} placeholder={t('ph_rashi')} />
+          <Field label={t('f_nakshatra')} name="nakshatra" formData={formData} updateForm={updateForm} placeholder={t('ph_nakshatra')} />
+          <Field label={t('f_gotra')} name="gotra" formData={formData} updateForm={updateForm} placeholder={t('ph_gotra')} />
+          <Field label={t('f_manglik')} name="manglik" formData={formData} updateForm={updateForm} options={['', 'No', 'Yes', 'Partial']} />
         </div>
-        <InlineCustomFields
-          section="horoscope"
-          title="Extra Horoscope Details"
-          help="Add time of birth, place of birth, lagna, padam, or other astrology details."
-          formData={formData}
-          updateForm={updateForm}
-        />
+        <InlineCustomFields section="horoscope" titleKey="extra_horoscope_t" helpKey="extra_horoscope_h" formData={formData} updateForm={updateForm} />
       </div>
 
       <div className="space-y-5">
-        <SectionTitle>Contact Information</SectionTitle>
+        <SectionTitle>{t('sec_contact')}</SectionTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <Field label="Phone Number" name="phone" formData={formData} updateForm={updateForm} placeholder="+91 98765 43210" />
-          <Field label="Email (optional)" name="email" formData={formData} updateForm={updateForm} type="email" placeholder="name@email.com" />
-          <Field label="City" name="city" formData={formData} updateForm={updateForm} placeholder="e.g. Hyderabad" />
-          <Field label="State" name="state" formData={formData} updateForm={updateForm} placeholder="e.g. Telangana" />
+          <Field label={t('f_phone')} name="phone" formData={formData} updateForm={updateForm} placeholder={t('ph_phone')} />
+          <Field label={t('f_email')} name="email" formData={formData} updateForm={updateForm} type="email" placeholder={t('ph_email')} />
+          <Field label={t('f_city')} name="city" formData={formData} updateForm={updateForm} placeholder={t('ph_city')} />
+          <Field label={t('f_state')} name="state" formData={formData} updateForm={updateForm} placeholder={t('ph_state')} />
           <div className="md:col-span-2">
-            <Field label="Address (optional)" name="address" formData={formData} updateForm={updateForm} placeholder="House / flat, street, area" />
+            <Field label={t('f_address')} name="address" formData={formData} updateForm={updateForm} placeholder={t('ph_address')} />
           </div>
         </div>
-        <InlineCustomFields
-          section="contact"
-          title="Extra Contact Details"
-          help="Add alternate phone, parent contact, WhatsApp number, or preferred contact time."
-          formData={formData}
-          updateForm={updateForm}
-        />
+        <InlineCustomFields section="contact" titleKey="extra_contact_t" helpKey="extra_contact_h" formData={formData} updateForm={updateForm} />
       </div>
     </div>
   )
@@ -533,6 +494,7 @@ const TEMPLATE_GROUPS = [
 
 /* ── Photo drag-to-reposition adjuster ── */
 function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace }) {
+  const { t } = useLanguage()
   const containerRef = useRef()
   const dragging = useRef(false)
 
@@ -573,19 +535,19 @@ function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace 
           />
           <div className="absolute bottom-0 inset-x-0 text-center text-[10px] text-white py-1"
             style={{ background: 'rgba(0,0,0,0.45)' }}>
-            Drag to reposition
+            {t('photo_drag')}
           </div>
         </div>
-        <p className="text-xs text-white/30 text-center">Drag the photo to frame it</p>
+        <p className="text-xs text-white/30 text-center">{t('photo_drag_hint')}</p>
       </div>
       <div className="text-sm text-white/50 space-y-2 pt-1">
-        <p>Photo uploaded ✓</p>
-        <p className="text-white/30 text-xs">Drag the preview to move the crop position</p>
+        <p>{t('photo_uploaded')}</p>
+        <p className="text-white/30 text-xs">{t('photo_drag_sub')}</p>
         <button onClick={onReplace} className="text-purple-400 hover:text-purple-300 text-xs flex items-center gap-1">
-          <RotateCcw className="w-3 h-3" /> Change photo
+          <RotateCcw className="w-3 h-3" /> {t('photo_change')}
         </button>
         <button onClick={onRemove} className="text-red-400 hover:text-red-300 text-xs flex items-center gap-1">
-          Remove photo
+          {t('photo_remove')}
         </button>
       </div>
     </div>
@@ -594,6 +556,7 @@ function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace 
 
 /* ── Step 5: Photo & Slogan ── */
 function Step5({ formData, updateForm }) {
+  const { t } = useLanguage()
   const fileRef = useRef()
 
   const handlePhoto = (e) => {
@@ -614,11 +577,11 @@ function Step5({ formData, updateForm }) {
 
   return (
     <div className="space-y-10">
-      <StepHeading title="Photo & Slogan" sub="Add your photo and set the invocation slogan if you'd like one." />
+      <StepHeading title={t('b_s5_title')} sub={t('b_s5_sub')} />
 
       {/* Photo upload */}
       <div className="space-y-4">
-        <SectionTitle>Your Photo <span className="text-white/30 text-sm font-normal">(optional)</span></SectionTitle>
+        <SectionTitle>{t('sec_photo')} <span className="text-white/30 text-sm font-normal">({t('sec_optional')})</span></SectionTitle>
         {formData.photo ? (
           <PhotoAdjuster
             photo={formData.photo}
@@ -635,12 +598,12 @@ function Step5({ formData, updateForm }) {
             >
               <div className="flex flex-col items-center gap-2 text-white/30 group-hover:text-purple-400 transition-colors">
                 <span className="text-3xl">📷</span>
-                <span className="text-xs text-center">Click to upload</span>
+                <span className="text-xs text-center">{t('photo_upload_btn')}</span>
               </div>
             </div>
             <div className="text-sm text-white/50 space-y-1">
-              <p>Upload a clear, front-facing photo</p>
-              <p className="text-white/30">JPG, PNG · Max 5MB</p>
+              <p>{t('photo_hint')}</p>
+              <p className="text-white/30">{t('photo_fmt')}</p>
             </div>
           </div>
         )}
@@ -715,11 +678,12 @@ function DesignLivePreview({ formData }) {
 }
 
 function Step6({ formData, updateForm }) {
+  const { t } = useLanguage()
   const selectedStyle = TEMPLATE_STYLES.find(s => s.id === (formData.template || 'lotus'))
 
   return (
     <div className="space-y-6">
-      <StepHeading title="Choose Your Design" sub="Tap any style — your biodata preview updates live on the right." />
+      <StepHeading title={t('b_s6_title')} sub={t('b_s6_sub')} />
 
       <div className="flex flex-col lg:flex-row gap-10 items-start">
 
@@ -759,7 +723,7 @@ function Step6({ formData, updateForm }) {
                 <p className="text-xs text-white/45 mt-0.5 truncate">{selectedStyle.desc}</p>
               </div>
               <span className="ml-auto text-xs font-semibold text-green-400 bg-green-500/10 border border-green-500/25 rounded-full px-3 py-1 whitespace-nowrap">
-                Selected
+                {t('design_selected')}
               </span>
             </div>
           )}
@@ -776,15 +740,8 @@ function Step6({ formData, updateForm }) {
 }
 
 
-/* ── Steps config ── */
-const STEPS = [
-  { label: 'Personal' },
-  { label: 'Career' },
-  { label: 'Family' },
-  { label: 'About' },
-  { label: 'Photo' },
-  { label: 'Design' },
-]
+/* ── Steps config — labels resolved via t() at render time ── */
+const STEP_KEYS = ['s_personal','s_career','s_family','s_about','s_photo','s_design']
 
 /* ── Feedback ── */
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xwvyrbpw'
@@ -858,6 +815,7 @@ function DownloadCelebration({ onDone }) {
 
 /* ── Inline feedback widget (appears at bottom after download) ── */
 function FeedbackWidget({ template }) {
+  const { t } = useLanguage()
   const [rating, setRating] = useState(null)
   const [comment, setComment] = useState('')
   const [submitted, setSubmitted] = useState(false)
@@ -890,7 +848,7 @@ function FeedbackWidget({ template }) {
     return (
       <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 text-center">
         <p className="text-2xl mb-2">🙏</p>
-        <p className="text-white/60 text-sm font-medium">Thank you! Your feedback helps us improve Bandhan.</p>
+        <p className="text-white/60 text-sm font-medium">{t('prev_thank_you')}</p>
       </div>
     )
   }
@@ -898,7 +856,7 @@ function FeedbackWidget({ template }) {
   return (
     <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
       <p className="text-white/45 text-xs font-semibold uppercase tracking-widest text-center mb-4">
-        How was your experience?
+        {t('prev_how_was')}
       </p>
       <div className="flex justify-center gap-2 mb-4">
         {RATINGS.map(r => (
@@ -945,7 +903,8 @@ const WA_FALLBACK_TEXT = encodeURIComponent(
   'I just created my marriage biodata on Bandhan — free, no sign-up, takes 5 minutes! Try it: https://bandhan.app'
 )
 
-function PreviewStep({ formData, onBack, onEditStep }) {
+function PreviewStep({ formData, onBack, onEditStep, steps }) {
+  const { t } = useLanguage()
   const previewRef = useRef()
   const [loading, setLoading] = useState(false)
   const [sharing, setSharing] = useState(false)
@@ -1013,8 +972,8 @@ function PreviewStep({ formData, onBack, onEditStep }) {
     <div className="space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h2 className="font-serif text-xl sm:text-2xl font-bold text-white">Preview Your Biodata</h2>
-          <p className="text-white/50 text-sm mt-1">Looks good? Download your PDF.</p>
+          <h2 className="font-serif text-xl sm:text-2xl font-bold text-white">{t('prev_title')}</h2>
+          <p className="text-white/50 text-sm mt-1">{t('prev_sub')}</p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           {downloaded && (
@@ -1024,7 +983,7 @@ function PreviewStep({ formData, onBack, onEditStep }) {
               className="btn-ghost text-sm px-5 py-3 border-green-500/40 text-green-400 hover:bg-green-500/10"
             >
               <MessageCircle className="w-4 h-4" />
-              {sharing ? 'Preparing…' : 'Share via WhatsApp'}
+              {sharing ? t('prev_preparing') : t('prev_share')}
             </button>
           )}
           <button
@@ -1033,25 +992,25 @@ function PreviewStep({ formData, onBack, onEditStep }) {
             className="btn-primary px-5 sm:px-8 py-2.5 sm:py-4 text-sm sm:text-base"
           >
             {loading ? (
-              <><span className="animate-spin">⏳</span> Generating...</>
+              <><span className="animate-spin">⏳</span> {t('prev_generating')}</>
             ) : downloaded ? (
-              <><Check className="w-5 h-5" /> Download Again</>
+              <><Check className="w-5 h-5" /> {t('prev_again')}</>
             ) : (
-              <><Download className="w-5 h-5" /> Download PDF</>
+              <><Download className="w-5 h-5" /> {t('prev_download')}</>
             )}
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3">
-        {STEPS.map((section, index) => (
+        {steps.map((label, index) => (
           <button
-            key={section.label}
+            key={index}
             onClick={() => onEditStep(index)}
             className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-left text-sm text-white/70 hover:border-purple-400/60 hover:text-white transition-colors"
           >
-            <span className="block text-[10px] uppercase tracking-widest text-purple-300 mb-1">Edit</span>
-            {section.label}
+            <span className="block text-[10px] uppercase tracking-widest text-purple-300 mb-1">{t('prev_edit_label')}</span>
+            {label}
           </button>
         ))}
       </div>
@@ -1065,10 +1024,10 @@ function PreviewStep({ formData, onBack, onEditStep }) {
 
       <div className="flex gap-4 flex-wrap">
         <button onClick={onBack} className="btn-ghost">
-          <ChevronLeft className="w-4 h-4" /> Edit Details
+          <ChevronLeft className="w-4 h-4" /> {t('prev_edit_details')}
         </button>
         <button onClick={handleDownload} disabled={loading} className="btn-primary flex-1 justify-center py-3 sm:py-4">
-          {loading ? 'Generating PDF...' : <><Download className="w-5 h-5" /> {downloaded ? 'Download Again' : 'Download PDF'}</>}
+          {loading ? t('prev_generating') : <><Download className="w-5 h-5" /> {downloaded ? t('prev_again') : t('prev_download')}</>}
         </button>
         {downloaded && (
           <button
@@ -1076,7 +1035,7 @@ function PreviewStep({ formData, onBack, onEditStep }) {
             disabled={sharing}
             className="btn-ghost border-green-500/40 text-green-400 hover:bg-green-500/10 justify-center px-6"
           >
-            <MessageCircle className="w-4 h-4" /> {sharing ? 'Preparing…' : 'WhatsApp'}
+            <MessageCircle className="w-4 h-4" /> {sharing ? t('prev_preparing') : t('prev_whatsapp')}
           </button>
         )}
       </div>
@@ -1145,13 +1104,15 @@ const FIELD_JUMPS = [
 
 /* ── Main BuilderPage ── */
 export default function BuilderPage({ formData, updateForm, onBack }) {
-  const [step, setStep] = useState(0) // 0–4 = form steps, 5 = preview
+  const { t } = useLanguage()
+  const [step, setStep] = useState(0)
   const [pendingFocus, setPendingFocus] = useState('')
+
+  const STEPS = STEP_KEYS.map(k => ({ label: t(k) }))
   const totalSteps = STEPS.length
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    // Track every step view — tells you exactly where users are
     if (step < STEPS.length) {
       track.stepViewed(step, STEPS[step].label)
     } else {
@@ -1211,16 +1172,17 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
             <Heart className="w-4 h-4 text-pink-400 fill-pink-400" />
             <span className="font-serif text-white font-semibold">Bandhan</span>
           </div>
-          <div className="ml-auto flex items-center gap-4">
-{formData.fullName?.trim() && (
+          <div className="ml-auto flex items-center gap-2 sm:gap-4">
+            <LanguageSwitcher compact />
+            {formData.fullName?.trim() && (
               <span className="hidden sm:flex items-center gap-1.5 text-xs text-green-400/70">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
-                Auto-saved
+                {t('b_auto_saved')}
               </span>
             )}
             {!isPreview && (
               <div className="text-white/40 text-sm">
-                Step {step + 1} of {totalSteps}
+                {t('b_step')} {step + 1} {t('b_of')} {totalSteps}
               </div>
             )}
           </div>
@@ -1254,7 +1216,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                   onChange={event => jumpToField(event.target.value)}
                   aria-label="Jump to a specific biodata field"
                 >
-                  <option value="">Jump to field...</option>
+                  <option value="">{t('b_jump_ph')}</option>
                   {FIELD_JUMPS.map(field => (
                     <option key={field.name} value={field.name}>{field.label}</option>
                   ))}
@@ -1299,7 +1261,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
             {step === 3 && <Step4 formData={formData} updateForm={updateForm} />}
             {step === 4 && <Step5 formData={formData} updateForm={updateForm} />}
             {step === 5 && <Step6 formData={formData} updateForm={updateForm} />}
-            {isPreview && <PreviewStep formData={formData} onBack={() => setStep(5)} onEditStep={setStep} />}
+            {isPreview && <PreviewStep formData={formData} onBack={() => setStep(5)} onEditStep={setStep} steps={STEPS.map(s => s.label)} />}
           </motion.div>
         </AnimatePresence>
 
@@ -1308,17 +1270,17 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
           <div className="flex gap-4 mt-10">
             <button onClick={prev} className="btn-ghost px-6">
               <ChevronLeft className="w-4 h-4" />
-              {step === 0 ? 'Home' : 'Back'}
+              {step === 0 ? t('b_home') : t('b_back')}
             </button>
             <button
-              onClick={step === totalSteps - 1 ? next : next}
+              onClick={next}
               disabled={!canNext()}
               className={`btn-primary flex-1 justify-center py-3 sm:py-4 ${!canNext() ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {step === totalSteps - 1 ? (
-                <><span>Preview Biodata</span> <Check className="w-4 h-4" /></>
+                <><span>{t('b_preview_btn')}</span> <Check className="w-4 h-4" /></>
               ) : (
-                <><span>Continue</span> <ChevronRight className="w-4 h-4" /></>
+                <><span>{t('b_continue')}</span> <ChevronRight className="w-4 h-4" /></>
               )}
             </button>
           </div>

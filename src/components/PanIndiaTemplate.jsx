@@ -1,4 +1,5 @@
 import { formatDate } from '../utils/formatters'
+import { useLanguage } from '../contexts/LanguageContext'
 
 /*
  * Bandhan — Biodata Template Engine
@@ -591,6 +592,7 @@ export const THEMES = {
    MAIN TEMPLATE COMPONENT
 ═══════════════════════════════════════════ */
 export default function PanIndiaTemplate({ data }) {
+  const { t } = useLanguage()
   const theme = THEMES[data?.template] || THEMES.lotus
   const { outer, gold, label: labelColor, value: valueColor, bg, Border } = theme
 
@@ -655,26 +657,26 @@ export default function PanIndiaTemplate({ data }) {
         )}
 
         {/* Personal Details */}
-        <Divider title="Personal Details" />
+        <Divider title={t('pdf_personal')} />
         <div style={{ display: 'grid', gridTemplateColumns: photo ? '1fr 160px' : '1fr', gap: 12, alignItems: 'flex-start' }}>
           <div>
-            <Row label="Name"                 value={fullName} />
-            <Row label="Date of Birth"        value={formatDate(dateOfBirth)} />
-            <Row label="Age"                  value={age ? `${age} Years` : null} />
-            <Row label="Height"               value={height} />
-            <Row label="Weight"               value={weight} />
-            <Row label="Blood Group"          value={bloodGroup} />
-            <Row label="Religion"             value={religion} />
-            <Row label="Community"            value={[caste, subCaste].filter(Boolean).join(' / ')} />
-            <Row label="Mother Tongue"        value={motherTongue} />
-            <Row label="Gender"               value={gender} />
+            <Row label={t('pdf_name')}       value={fullName} />
+            <Row label={t('pdf_dob')}        value={formatDate(dateOfBirth)} />
+            <Row label={t('pdf_age')}        value={age ? `${age} Years` : null} />
+            <Row label={t('pdf_height')}     value={height} />
+            <Row label={t('pdf_weight')}     value={weight} />
+            <Row label={t('pdf_blood')}      value={bloodGroup} />
+            <Row label={t('pdf_religion')}   value={religion} />
+            <Row label={t('pdf_community')}  value={[caste, subCaste].filter(Boolean).join(' / ')} />
+            <Row label={t('pdf_tongue')}     value={motherTongue} />
+            <Row label={t('pdf_gender')}     value={gender} />
             {bySection('personal').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
-            <Row label="Education"            value={education} />
-            <Row label="College / University" value={college} />
-            <Row label="Occupation"           value={occupation} />
-            <Row label="Organisation"         value={company} />
-            <Row label="Annual Income"        value={income} />
-            <Row label="Work Location"        value={workLocation} />
+            <Row label={t('pdf_education')}  value={education} />
+            <Row label={t('pdf_college')}    value={college} />
+            <Row label={t('pdf_occupation')} value={occupation} />
+            <Row label={t('pdf_org')}        value={company} />
+            <Row label={t('pdf_income')}     value={income} />
+            <Row label={t('pdf_work')}       value={workLocation} />
             {bySection('career').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
           </div>
           {photo && (
@@ -689,34 +691,34 @@ export default function PanIndiaTemplate({ data }) {
         </div>
 
         {/* Family Details */}
-        <Divider title="Family Details" />
-        <Row label="Father"        value={fatherName && fatherOccupation ? `${fatherName} (${fatherOccupation})` : fatherName || fatherOccupation} />
-        <Row label="Mother"        value={motherName && motherOccupation ? `${motherName} (${motherOccupation})` : motherName || motherOccupation} />
-        <Row label="Brothers"      value={brothers} />
-        <Row label="Sisters"       value={sisters} />
-        <Row label="Family Type"   value={familyType} />
-        <Row label="Family Status" value={familyStatus} />
-        <Row label="Native Place"  value={nativePlace} />
+        <Divider title={t('pdf_family')} />
+        <Row label={t('pdf_father')}        value={fatherName && fatherOccupation ? `${fatherName} (${fatherOccupation})` : fatherName || fatherOccupation} />
+        <Row label={t('pdf_mother')}        value={motherName && motherOccupation ? `${motherName} (${motherOccupation})` : motherName || motherOccupation} />
+        <Row label={t('pdf_brothers')}      value={brothers} />
+        <Row label={t('pdf_sisters')}       value={sisters} />
+        <Row label={t('pdf_family_type')}   value={familyType} />
+        <Row label={t('pdf_family_status')} value={familyStatus} />
+        <Row label={t('pdf_native')}        value={nativePlace} />
         {bySection('family').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
         {hasHoroscope && (
           <>
-            <Row label="Rashi"     value={rashi} />
-            <Row label="Nakshatra" value={nakshatra} />
-            <Row label="Gotra"     value={gotra} />
-            <Row label="Manglik"   value={manglik} />
+            <Row label={t('pdf_rashi')}     value={rashi} />
+            <Row label={t('pdf_nakshatra')} value={nakshatra} />
+            <Row label={t('pdf_gotra')}     value={gotra} />
+            <Row label={t('pdf_manglik')}   value={manglik} />
             {bySection('horoscope').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
           </>
         )}
 
         {/* Contact & About */}
-        <Divider title="Contact & About" />
-        <Row label="Phone"               value={phone} />
-        <Row label="Email"               value={email} />
-        <Row label="City / State"        value={[city, state].filter(Boolean).join(', ')} />
-        <Row label="Address"             value={address} />
+        <Divider title={t('pdf_contact')} />
+        <Row label={t('pdf_phone')}    value={phone} />
+        <Row label={t('pdf_email')}    value={email} />
+        <Row label="City / State"      value={[city, state].filter(Boolean).join(', ')} />
+        <Row label={t('pdf_address')}  value={address} />
         {bySection('contact').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
-        <Row label="Interests & Hobbies" value={hobbies} />
-        <Row label="About Me"            value={about} />
+        <Row label={t('pdf_hobbies')}  value={hobbies} />
+        <Row label={t('pdf_about')}    value={about} />
 
         {/* Custom sections */}
         {Object.entries(grouped).map(([title, rows]) => (

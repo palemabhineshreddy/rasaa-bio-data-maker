@@ -2,6 +2,8 @@ import { useState, useRef, useLayoutEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, Shield, Download, ChevronRight, Heart, Lock, Zap, X } from 'lucide-react'
 import BioTemplate from '../components/BioTemplate'
+import LanguageSwitcher from '../components/LanguageSwitcher'
+import { useLanguage } from '../contexts/LanguageContext'
 import photoLotus      from '../../Images/AI_Female/sample-lotus.jpg'
 import photoArtDeco    from '../../Images/AI_Female/sample-art-deco.jpg'
 import photoFloralVine from '../../Images/AI_Female/sample-floral-vine.jpg'
@@ -459,15 +461,16 @@ function StyleCard({ s, i, onClick }) {
   )
 }
 
-/* Group templates: live collection vs coming soon */
-const STYLE_GROUPS = [
-  { label: 'Classic Collection', sub: '7 designs · ornate & traditional',      ids: ['lotus', 'artDeco', 'floralVine', 'peacock', 'mandala', 'celestial', 'bridal'] },
-  { label: 'Modern & Minimal',   sub: '7 designs · clean & contemporary',      ids: ['minimal', 'royal', 'modern', 'amethyst', 'ember', 'rose', 'midnight'] },
-  { label: 'New Wave',           sub: '5 designs · fresh layouts · bold look', ids: ['noir', 'aurora', 'editorial', 'bloom', 'neo'] },
+/* Group templates — labels resolved at render via t() */
+const STYLE_GROUP_IDS = [
+  { labelKey: 'tpl_group1', subKey: 'tpl_group1_sub', ids: ['lotus', 'artDeco', 'floralVine', 'peacock', 'mandala', 'celestial', 'bridal'] },
+  { labelKey: 'tpl_group2', subKey: 'tpl_group2_sub', ids: ['minimal', 'royal', 'modern', 'amethyst', 'ember', 'rose', 'midnight'] },
+  { labelKey: 'tpl_group3', subKey: 'tpl_group3_sub', ids: ['noir', 'aurora', 'editorial', 'bloom', 'neo'] },
 ]
 
 /* Full-screen modal */
 function TemplateModal({ s, onClose, onStart }) {
+  const { t } = useLanguage()
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -495,7 +498,7 @@ function TemplateModal({ s, onClose, onStart }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span style={{ fontSize: 24 }}>{s.symbol}</span>
             <span style={{ fontSize: 18, fontWeight: 700, color: 'white', fontFamily: 'serif' }}>{s.name}</span>
-            {s.live && <span style={{ fontSize: 10, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', padding: '3px 10px', borderRadius: 20, letterSpacing: '0.08em' }}>Available now</span>}
+            {s.live && <span style={{ fontSize: 10, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', padding: '3px 10px', borderRadius: 20, letterSpacing: '0.08em' }}>{t('tpl_available')}</span>}
           </div>
           <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.15)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.5)' }}>
             <X size={16} />
@@ -507,7 +510,7 @@ function TemplateModal({ s, onClose, onStart }) {
           <div style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '28px 28px 32px', gap: 24, background: 'rgba(201,160,53,0.03)' }}>
             <LivePreview containerW={Math.min(400, (typeof window !== 'undefined' ? window.innerWidth : 480) - 80)} shadow={false} template={s.id} />
             <button onClick={() => onStart(s.id)} className="btn-primary" style={{ padding: '14px 40px', fontSize: 15 }}>
-              Create with this style <ChevronRight size={18} />
+              {t('tpl_modal_btn')} <ChevronRight size={18} />
             </button>
           </div>
         ) : (
@@ -515,7 +518,7 @@ function TemplateModal({ s, onClose, onStart }) {
             <div style={{ width: 80, height: 80, borderRadius: '50%', background: s.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, marginBottom: 20 }}>{s.symbol}</div>
             <h3 style={{ fontFamily: 'serif', fontSize: 26, fontWeight: 700, color: 'white', marginBottom: 10 }}>{s.name} is on the way</h3>
             <p style={{ color: 'rgba(255,255,255,0.4)', maxWidth: 340, lineHeight: 1.7, marginBottom: 24 }}>{s.desc}</p>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', padding: '6px 16px', borderRadius: 20 }}>In the works — coming soon</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', padding: '6px 16px', borderRadius: 20 }}>{t('tpl_coming')}</span>
           </div>
         )}
       </motion.div>
@@ -525,6 +528,7 @@ function TemplateModal({ s, onClose, onStart }) {
 
 function TemplatesSection({ onStart }) {
   const [selected, setSelected] = useState(null)
+  const { t } = useLanguage()
 
   return (
     <section id="templates" className="bg-[#0a0a12] py-16 sm:py-28">
@@ -532,25 +536,25 @@ function TemplatesSection({ onStart }) {
 
         <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 sm:mb-16 px-4 sm:px-8">
-          <p className="text-amber-400 text-sm font-semibold tracking-widest uppercase mb-4">Templates</p>
+          <p className="text-amber-400 text-sm font-semibold tracking-widest uppercase mb-4">{t('tpl_label')}</p>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5">
-            19 designs,<br />one for every tradition.
+            {t('tpl_title').split('\n').map((line, i) => <span key={i}>{line}{i === 0 && <br />}</span>)}
           </h2>
           <p className="text-white/45 max-w-lg mx-auto text-base sm:text-lg leading-relaxed">
-            Classic ornate or clean modern — every design is a print-ready PDF. Click any card to preview in full.
+            {t('tpl_desc')}
           </p>
         </motion.div>
 
-        {STYLE_GROUPS.map((group, gi) => {
+        {STYLE_GROUP_IDS.map((group, gi) => {
           const groupStyles = STYLES.filter(s => group.ids.includes(s.id))
           return (
-            <motion.div key={group.label}
+            <motion.div key={group.labelKey}
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ duration: 0.5, delay: gi * 0.1 }}
               className="mb-10">
               <div className="px-4 sm:px-8 mb-5 flex items-baseline gap-3">
-                <span className="text-sm font-bold text-white/80 tracking-wide">{group.label}</span>
-                <span className="text-xs text-white/30">{group.sub}</span>
+                <span className="text-sm font-bold text-white/80 tracking-wide">{t(group.labelKey)}</span>
+                <span className="text-xs text-white/30">{t(group.subKey)}</span>
               </div>
               <div style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 className="[&::-webkit-scrollbar]:hidden">
@@ -573,14 +577,26 @@ function TemplatesSection({ onStart }) {
   )
 }
 
-const FEATURES = [
-  { icon: Lock, label: 'Stays on your device', desc: 'Nothing is uploaded. Your details, photo, and biodata exist only in your browser.' },
-  { icon: Zap, label: 'Ready in minutes', desc: 'Fill your details, preview instantly, download a print-ready PDF. No friction.' },
-  { icon: Sparkles, label: 'Every tradition', desc: 'Templates crafted for Hindu, Muslim, Sikh, Christian, and Jain families — more added regularly.' },
-  { icon: Download, label: 'Share anywhere', desc: 'PDF works on every device. Share on WhatsApp, email, or print — exactly as designed.' },
+const FEATURE_ICONS = [
+  { icon: Lock, labelKey: 'feat1_label', descKey: 'feat1_desc' },
+  { icon: Zap,  labelKey: 'feat2_label', descKey: 'feat2_desc' },
+  { icon: Sparkles, labelKey: 'feat3_label', descKey: 'feat3_desc' },
+  { icon: Download, labelKey: 'feat4_label', descKey: 'feat4_desc' },
 ]
 
 export default function LandingPage({ onStart, onContinue, savedName }) {
+  const { t } = useLanguage()
+
+  const HOW_STEPS = [
+    { num: '01', titleKey: 'how_s1_title', descKey: 'how_s1_desc' },
+    { num: '02', titleKey: 'how_s2_title', descKey: 'how_s2_desc' },
+    { num: '03', titleKey: 'how_s3_title', descKey: 'how_s3_desc' },
+  ]
+  const FAQ_KEYS = [
+    ['faq_q1','faq_a1'], ['faq_q2','faq_a2'], ['faq_q3','faq_a3'],
+    ['faq_q4','faq_a4'], ['faq_q5','faq_a5'],
+  ]
+
   return (
     <div className="min-h-screen">
 
@@ -597,16 +613,17 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             <Heart className="w-5 h-5 text-pink-400 fill-pink-400" />
             <span className="font-serif text-xl font-semibold text-white">Bandhan</span>
           </motion.div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <LanguageSwitcher compact />
             {savedName && (
               <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}
                 onClick={onContinue} className="btn-ghost text-sm hidden sm:inline-flex">
-                Continue — {savedName}
+                {t('continue_btn')} — {savedName}
               </motion.button>
             )}
             <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}
               onClick={onStart} className="btn-primary text-sm">
-              {savedName ? 'Start Fresh' : 'Begin Free'} <ChevronRight className="w-4 h-4" />
+              {savedName ? t('start_fresh') : t('begin_free')} <ChevronRight className="w-4 h-4" />
             </motion.button>
           </div>
         </nav>
@@ -616,19 +633,18 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
           <div className="flex-1 max-w-lg">
             <motion.div custom={0} variants={fadeUp} initial="hidden" animate="show"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm text-purple-300 mb-8">
-              <Sparkles className="w-4 h-4" /> Free · No sign-up · Private by design
+              <Sparkles className="w-4 h-4" /> {t('badge')}
             </motion.div>
 
             <motion.h1 custom={1} variants={fadeUp} initial="hidden" animate="show"
               className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.08] text-white mb-4 sm:mb-6">
-              Your story,<br />
-              <span className="gradient-text italic">beautifully told.</span>
+              {t('headline1')}<br />
+              <span className="gradient-text italic">{t('headline2')}</span>
             </motion.h1>
 
             <motion.p custom={2} variants={fadeUp} initial="hidden" animate="show"
               className="text-base sm:text-lg text-white/55 leading-relaxed mb-7 sm:mb-10">
-              Create a marriage biodata that honours your family, your culture, and your tradition —
-              in the time it takes to have a cup of tea.
+              {t('tagline')}
             </motion.p>
 
             <motion.div custom={3} variants={fadeUp} initial="hidden" animate="show"
@@ -636,16 +652,16 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
               {savedName ? (
                 <>
                   <button onClick={onContinue} className="btn-primary text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4">
-                    Continue Biodata <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                    {t('cta_continue')} <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
-                  <button onClick={onStart} className="btn-ghost text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4">Start Fresh</button>
+                  <button onClick={onStart} className="btn-ghost text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4">{t('cta_fresh')}</button>
                 </>
               ) : (
                 <>
                   <button onClick={onStart} className="btn-primary text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4">
-                    Create Your Biodata <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                    {t('cta_create')} <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
-                  <a href="#templates" className="btn-ghost text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4">Explore Templates</a>
+                  <a href="#templates" className="btn-ghost text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4">{t('cta_explore')}</a>
                 </>
               )}
             </motion.div>
@@ -654,24 +670,21 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
               <motion.p custom={3.5} variants={fadeUp} initial="hidden" animate="show"
                 className="mt-5 text-sm text-green-400/80 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
-                Progress saved for <span className="font-semibold">{savedName}</span> — pick up where you left off
+                {t('progress_saved')} <span className="font-semibold">{savedName}</span> {t('pick_up')}
               </motion.p>
             )}
 
             <motion.div custom={4} variants={fadeUp} initial="hidden" animate="show"
               className="flex flex-wrap items-center gap-3 sm:gap-6 mt-6 sm:mt-10 text-xs sm:text-sm text-white/35">
-              <span className="flex items-center gap-1.5"><Shield className="w-4 h-4 text-green-400" /> 100% Private</span>
-              <span className="flex items-center gap-1.5"><Download className="w-4 h-4 text-blue-400" /> Instant PDF</span>
-              <span className="flex items-center gap-1.5"><Heart className="w-4 h-4 text-pink-400 fill-pink-400" /> Forever free</span>
+              <span className="flex items-center gap-1.5"><Shield className="w-4 h-4 text-green-400" /> {t('pill_private')}</span>
+              <span className="flex items-center gap-1.5"><Download className="w-4 h-4 text-blue-400" /> {t('pill_pdf')}</span>
+              <span className="flex items-center gap-1.5"><Heart className="w-4 h-4 text-pink-400 fill-pink-400" /> {t('pill_free')}</span>
             </motion.div>
           </div>
 
-          {/* Floating portrait template previews — 5 cards, staggered depth */}
+          {/* Floating portrait previews */}
           <div className="flex-1 hidden lg:flex items-center justify-center relative h-[540px] overflow-visible">
-
-            {/* Ambient glow pool */}
             <div className="absolute pointer-events-none" style={{ width: 480, height: 300, top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'radial-gradient(ellipse at center, rgba(168,136,224,0.1) 0%, transparent 70%)', filter: 'blur(8px)' }} />
-
             {[
               { template: 'lotus',      x: -234, scl: 0.80, op: 0.50, rot: -6,  y: [0,   -10, 0],   delay: 0,   z: 1, glow: 'rgba(201,160,53,0.5)'  },
               { template: 'floralVine', x: -118, scl: 0.91, op: 0.75, rot: -2,  y: [-6,  -18, -6],  delay: 0.5, z: 2, glow: 'rgba(200,160,32,0.5)'  },
@@ -681,37 +694,25 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             ].map(({ template, x, scl, op, rot, y, delay, z, glow }) => (
               <motion.div key={template}
                 style={{ position: 'absolute', x, scale: scl, opacity: op, rotate: rot, zIndex: z }}
-                animate={{ y }}
-                transition={{ duration: 8 + z * 0.4, repeat: Infinity, ease: 'easeInOut', delay }}
-              >
-                {/* Per-card coloured glow pool */}
+                animate={{ y }} transition={{ duration: 8 + z * 0.4, repeat: Infinity, ease: 'easeInOut', delay }}>
                 <div style={{ position: 'absolute', bottom: -18, left: '50%', transform: 'translateX(-50%)', width: 100, height: 44, background: glow, filter: 'blur(22px)', borderRadius: '50%', zIndex: -1 }} />
-
                 <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: z === 5 ? '0 32px 72px rgba(0,0,0,0.55), 0 8px 24px rgba(0,0,0,0.4)' : '0 12px 36px rgba(0,0,0,0.35)' }}>
                   <LivePreview containerW={130} visibleH={182} shadow={false} template={template} />
                 </div>
               </motion.div>
             ))}
-
-            {/* Twinkling sparkle dots */}
             {[
-              { x: -195, y: -105, s: 5, d: 0    },
-              { x:   85, y: -130, s: 3, d: 1.2  },
-              { x: -55,  y:  95,  s: 4, d: 0.6  },
-              { x:  210, y:  -55, s: 5, d: 1.8  },
-              { x: -240, y:   50, s: 3, d: 0.3  },
-              { x:  155, y:  110, s: 4, d: 2.2  },
-              { x:   30, y: -160, s: 3, d: 0.9  },
+              { x: -195, y: -105, s: 5, d: 0 }, { x: 85, y: -130, s: 3, d: 1.2 },
+              { x: -55, y: 95, s: 4, d: 0.6 },  { x: 210, y: -55, s: 5, d: 1.8 },
+              { x: -240, y: 50, s: 3, d: 0.3 }, { x: 155, y: 110, s: 4, d: 2.2 },
+              { x: 30, y: -160, s: 3, d: 0.9 },
             ].map((sp, i) => (
               <motion.div key={i} style={{ position: 'absolute', x: sp.x, y: sp.y, zIndex: 10 }}
                 animate={{ opacity: [0, 1, 0], scale: [0.4, 1, 0.4] }}
                 transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut', delay: sp.d, repeatDelay: 1.5 }}>
-                <svg width={sp.s} height={sp.s} viewBox="0 0 10 10">
-                  <circle cx="5" cy="5" r="4" fill="rgba(255,255,255,0.85)" />
-                </svg>
+                <svg width={sp.s} height={sp.s} viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="rgba(255,255,255,0.85)" /></svg>
               </motion.div>
             ))}
-
           </div>
         </div>
 
@@ -726,13 +727,14 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
         <div className="max-w-5xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 sm:mb-16">
-            <p className="text-purple-400 text-sm font-semibold tracking-widest uppercase mb-4">Designed with intention</p>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">Nothing unnecessary.<br />Everything that matters.</h2>
+            <p className="text-purple-400 text-sm font-semibold tracking-widest uppercase mb-4">{t('feat_label')}</p>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
+              {t('feat_title').split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
+            </h2>
           </motion.div>
-
           <div className="grid md:grid-cols-2 gap-4 sm:gap-5">
-            {FEATURES.map(({ icon: Icon, label, desc }, i) => (
-              <motion.div key={label}
+            {FEATURE_ICONS.map(({ icon: Icon, labelKey, descKey }, i) => (
+              <motion.div key={labelKey}
                 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}
                 className="glass rounded-2xl p-5 sm:p-8 flex gap-4 sm:gap-5 group hover:border-purple-500/25 transition-colors duration-300">
@@ -740,8 +742,8 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
                   <Icon className="w-5 h-5 text-purple-400" />
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold text-base mb-1.5">{label}</h3>
-                  <p className="text-white/45 text-sm leading-relaxed">{desc}</p>
+                  <h3 className="text-white font-semibold text-base mb-1.5">{t(labelKey)}</h3>
+                  <p className="text-white/45 text-sm leading-relaxed">{t(descKey)}</p>
                 </div>
               </motion.div>
             ))}
@@ -754,17 +756,14 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
         <div className="max-w-4xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 sm:mb-16">
-            <p className="text-pink-400 text-sm font-semibold tracking-widest uppercase mb-4">How it works</p>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">Six simple steps.<br />One beautiful biodata.</h2>
+            <p className="text-pink-400 text-sm font-semibold tracking-widest uppercase mb-4">{t('how_label')}</p>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
+              {t('how_title').split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
+            </h2>
           </motion.div>
-
           <div className="grid md:grid-cols-3 gap-6 sm:gap-8 relative">
             <div className="hidden md:block absolute top-8 left-[16%] right-[16%] h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
-            {[
-              { num: '01', title: 'Fill your details', desc: 'Personal, family, career, horoscope, contact — guided across 6 short steps.' },
-              { num: '02', title: 'Add photo & pick a design', desc: 'Upload your photo, choose from 14 templates, and see the live preview update instantly.' },
-              { num: '03', title: 'Download and share', desc: 'Your PDF is ready in one click. Share the actual file on WhatsApp or print it.' },
-            ].map(({ num, title, desc }, i) => (
+            {HOW_STEPS.map(({ num, titleKey, descKey }, i) => (
               <motion.div key={num}
                 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.15 }}
@@ -772,8 +771,8 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
                 <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center mb-4 sm:mb-6 shadow-lg shadow-purple-500/20 relative z-10">
                   <span className="font-serif text-xl sm:text-2xl font-bold text-white">{num}</span>
                 </div>
-                <h3 className="text-white font-semibold text-base sm:text-lg mb-2">{title}</h3>
-                <p className="text-white/45 text-sm leading-relaxed">{desc}</p>
+                <h3 className="text-white font-semibold text-base sm:text-lg mb-2">{t(titleKey)}</h3>
+                <p className="text-white/45 text-sm leading-relaxed">{t(descKey)}</p>
               </motion.div>
             ))}
           </div>
@@ -785,26 +784,17 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
         <div className="max-w-5xl mx-auto grid gap-8 sm:gap-10 lg:grid-cols-[1fr_1fr]">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }}>
-            <p className="text-amber-300 text-sm font-semibold tracking-widest uppercase mb-4">Good to know</p>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white mb-5">Questions families ask</h2>
-            <p className="text-white/40 leading-relaxed">
-              A biodata is one of the most personal documents a family shares.
-              We built Bandhan to make sure creating one feels simple, private, and right.
-            </p>
+            <p className="text-amber-300 text-sm font-semibold tracking-widest uppercase mb-4">{t('faq_label')}</p>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white mb-5">{t('faq_title')}</h2>
+            <p className="text-white/40 leading-relaxed">{t('faq_desc')}</p>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.1 }}
             className="grid gap-3">
-            {[
-              ['Is this really free?', 'Yes — completely. No sign-up, no payment, no hidden steps. The full biodata builder is free.'],
-              ['Does my data leave my device?', 'Never. Everything stays in your browser. We have no servers, no database, no accounts.'],
-              ['Can I save and come back later?', 'Yes. Bandhan auto-saves your progress in your browser. Return any time and continue exactly where you left off.'],
-              ['What details should I include?', 'Name, date of birth, height, religion, education, profession, family background, horoscope, photo, and contact. Bandhan has a dedicated section for each.'],
-              ['Can I edit after previewing?', 'Yes. Use the quick-jump bar to go directly to any field, edit, and return to preview instantly.'],
-            ].map(([q, a]) => (
-              <div key={q} className="border border-white/8 bg-white/[0.03] p-5 rounded-xl">
-                <h3 className="text-white font-semibold text-sm mb-2">{q}</h3>
-                <p className="text-white/45 text-sm leading-relaxed">{a}</p>
+            {FAQ_KEYS.map(([qk, ak]) => (
+              <div key={qk} className="border border-white/8 bg-white/[0.03] p-5 rounded-xl">
+                <h3 className="text-white font-semibold text-sm mb-2">{t(qk)}</h3>
+                <p className="text-white/45 text-sm leading-relaxed">{t(ak)}</p>
               </div>
             ))}
           </motion.div>
@@ -819,14 +809,14 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
           viewport={{ once: true }} transition={{ duration: 0.7 }}
           className="max-w-2xl mx-auto text-center relative z-10">
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5 sm:mb-6 leading-tight">
-            Begin your<br />
-            <span className="gradient-text italic">Bandhan today.</span>
+            {t('cta_title1')}<br />
+            <span className="gradient-text italic">{t('cta_title2')}</span>
           </h2>
           <p className="text-white/50 text-base sm:text-lg mb-8 sm:mb-10 leading-relaxed">
-            Free, private, and ready in minutes.<br />The biodata your family deserves.
+            {t('cta_subtitle').split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
           </p>
           <button onClick={onStart} className="btn-primary text-sm sm:text-lg px-8 sm:px-14 py-3 sm:py-5">
-            Create Your Biodata <ChevronRight className="w-5 h-5" />
+            {t('cta_btn')} <ChevronRight className="w-5 h-5" />
           </button>
         </motion.div>
       </section>
@@ -839,7 +829,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             <span className="font-serif text-white/80 font-semibold">Bandhan</span>
             <span className="text-white/30 text-sm ml-1">· bandhan.app</span>
           </div>
-          <p className="text-white/25 text-xs text-center">Your data never leaves your browser · 100% Private · Free forever</p>
+          <p className="text-white/25 text-xs text-center">{t('footer_tagline')}</p>
           <div className="flex items-center gap-5 text-xs text-white/35">
             <span className="text-white/25">© 2026 Bandhan</span>
           </div>
