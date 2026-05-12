@@ -610,7 +610,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
         </div>
 
         {/* Nav */}
-        <nav className="relative z-10 flex items-center justify-between px-4 sm:px-8 pt-5 sm:pt-8 pb-4 max-w-7xl mx-auto w-full">
+        <nav className="relative z-50 flex items-center justify-between px-4 sm:px-8 pt-5 sm:pt-8 pb-4 max-w-7xl mx-auto w-full">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}
             className="flex items-center gap-2">
             <Heart className="w-5 h-5 text-pink-400 fill-pink-400" />
