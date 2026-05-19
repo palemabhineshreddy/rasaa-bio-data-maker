@@ -1,12 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset
   xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml"
   xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://bandhan.app/</loc>
     <lastmod>2026-05-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+
+    <!-- hreflang: all 9 languages served at the same URL (client-side i18n) -->
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="en-IN"     href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="hi"        href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="te"        href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="ta"        href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="kn"        href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="ml"        href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="bn"        href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="mr"        href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="gu"        href="https://bandhan.app/"/>
+
     <image:image>
       <image:loc>https://bandhan.app/og-image.png</image:loc>
       <image:title>Bandhan — Free Indian Marriage Biodata Maker with 19 premium designs</image:title>
