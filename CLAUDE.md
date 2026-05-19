@@ -4,13 +4,13 @@
 Fully client-side React + Vite + Tailwind app for creating Indian marriage biodatas.
 **Brand:** Bandhan · **Domain:** bandhan.app · **Repo:** github.com/palemabhineshreddy/rasaa-bio-data-maker
 No backend, no auth, no database — all state lives in browser memory during the session.
-**Deployed:** AWS S3 (`bandhan.app` bucket) + CloudFront CDN + Route 53 DNS (ap-south-1)
+**Deployed:** AWS S3 (`bandhan.app` bucket) + CloudFront CDN (`EJU1GGP7C6SYH`) + Route 53 DNS (ap-south-1)
 
 Deploy commands:
 ```bash
 npm run build
 aws s3 sync dist/ s3://bandhan.app --delete
-aws cloudfront create-invalidation --distribution-id <DIST_ID> --paths "/*"
+aws cloudfront create-invalidation --distribution-id EJU1GGP7C6SYH --paths "/*"
 ```
 
 ---
@@ -69,8 +69,8 @@ Builder steps (0-indexed, `STEP_KEYS` array drives labels via i18n):
 |------|-----------------|
 | `src/main.jsx` | React entry + `LanguageProvider` wrapper |
 | `vite.config.js` | Build config |
-| `public/` | Static assets, PWA manifest, SEO files, sitemap |
-| `index.html` | GA4/Clarity scripts, Schema.org structured data |
+| `public/` | Static assets, PWA manifest, SEO files, sitemap, llms.txt |
+| `index.html` | GA4/Clarity scripts, Schema.org structured data (7 schemas) |
 
 ---
 
@@ -125,6 +125,14 @@ Each template has a locally-scoped `Section({ titleKey, title })` component:
 - Pass `titleKey="pdf_personal"` → renders translated heading
 - Pass `title="Partner Expectations"` → renders user-defined custom section name (raw string)
 
+### Template Groups (Landing + Builder)
+```
+Classic Collection  — lotus, artDeco, floralVine, peacock, mandala, celestial, bridal
+Modern & Minimal    — minimal, royal, modern, amethyst, ember, rose, midnight
+New Wave            — noir, aurora, editorial, bloom, neo
+```
+Group labels are translated via `tpl_group1/2/3` keys.
+
 ---
 
 ## i18n / Multilingual System
@@ -140,12 +148,6 @@ src/components/LanguageSwitcher.jsx  ← globe icon dropdown UI
 1. `localStorage.getItem('bandhan_lang')` (user's saved preference)
 2. `navigator.language` browser setting
 3. Falls back to `'en'`
-
-### Adding a new language
-1. Add entry to `LANGUAGES` array in `translations.js`
-2. Add a new `const xx = { ...all keys... }` object
-3. Add `xx` to the `translations` export object
-4. **No other file needs to change** — the switcher auto-shows new languages
 
 ### Translation philosophy — IMPORTANT
 Translations must read as **natural, conversational speech** in that language — NOT word-for-word English translations.
@@ -227,6 +229,51 @@ Sections: `'personal'`, `'career'`, `'family'`, `'horoscope'`, `'contact'`, `'cu
 
 ---
 
+## Landing Page Architecture
+
+### Hero Section
+- `overflowX: 'clip'` on `<section>` — prevents horizontal scroll at all viewport widths without clipping the nav dropdown (clip does not create a new BFC)
+- **Floating template cards:** two separate divs, CSS-switched by breakpoint:
+  - `hidden md:flex lg:hidden` — 3 cards (floralVine, peacock, mandala) at x: ±85px — fits 768–1023px containers
+  - `hidden lg:flex` — 5 cards at x: ±160, ±80 (reduced from ±234, ±118 to fit 1024px containers)
+- **Nav:** `flex-wrap` with `gap-y-2`. Single action button — shows Continue when `savedName` exists, Create when new. No duplicate buttons.
+- **CTA buttons:** `flex-col sm:flex-row` — full-width stacked on mobile, side-by-side on sm+
+
+### Templates Section (`TemplatesSection` + `TemplateRow`)
+- **Group tabs:** 3 pill tabs (Classic, Modern & Minimal, New Wave) — `flex-wrap` so all always visible, never scroll
+- **`TemplateRow`:** horizontal scroll with circular auto-scroll (4s interval, pauses on hover/touch)
+- **Scroll-aware ghost arrows:** `canLeft`/`canRight` state tracked via scroll event → fade in/out with `AnimatePresence`. No hard button background — chevron icon floats inside the fade gradient. At scroll position 0, left fade is hidden so the first card is fully visible.
+- **Auto-scroll:** pauses on `onMouseEnter` + `onTouchStart`, resumes 2.5s after `onTouchEnd`
+- **Tab switch animation:** `AnimatePresence mode="wait"` slides new group in from right
+
+---
+
+## Builder Design Step (Step 6)
+
+### Layout
+- `flex-col sm:flex-row` — stacked on mobile, side-by-side from 640px+
+- **Picker column** (`flex-1 min-w-0`): tabs + 2-row grid scroller
+- **Preview column:** `sm:w-52 md:w-64 lg:w-auto` — fixed width on tablet, auto on desktop; `sm:sticky sm:top-20`
+- **Mobile preview:** clipped at `max-h-72` (288px) via wrapper — shows header + first section, enough to judge template style
+- **Preview animation:** `motion.div key={formData.template}` slides up (`y: 14→0`) on every template change
+
+### Group Tabs
+- `flex-wrap` — all groups always visible, wrap to second line if needed (never hidden/scrollable)
+- Active tab: purple pill style with count badge
+
+### `BuilderTemplateRow` Component
+- **2-row CSS grid:** `display: grid; grid-auto-flow: column; grid-template-rows: repeat(2, auto); gap: 10px`
+  - 7 cards → 4 columns (2+2+2+1); 5 cards → 3 columns (2+2+1)
+  - Shows 4–6 cards at once vs 1–2 in old single-row layout
+- **Scroll step:** 308px (2 columns at a time)
+- **Scroll-aware ghost arrows:** same pattern as `TemplateRow` — `canLeft`/`canRight` state, `AnimatePresence` fade, no hard button background
+- **Sample data fallback:** `const base = formData.fullName ? formData : DESIGN_SAMPLE` — shows rich sample persona when user hasn't entered their name yet, prevents blank template cards
+
+### `DESIGN_SAMPLE` constant
+Defined in `BuilderPage.jsx` after `TEMPLATE_GROUPS`. Used in both `TemplateCard` and `DesignLivePreview` (via `previewFormData` in `Step6`) when `formData.fullName` is empty.
+
+---
+
 ## PDF Export
 - `pdfExport.js` uses html2canvas on the element passed via `previewRef` (not a CSS selector)
 - Scale: `2` for high DPI
@@ -241,19 +288,53 @@ Sections: `'personal'`, `'career'`, `'family'`, `'horoscope'`, `'contact'`, `'cu
 ## Responsive Design
 All breakpoints follow Tailwind's mobile-first system (`sm:` = 640px, `md:` = 768px, `lg:` = 1024px).
 - Landing page: `px-4 sm:px-8`, sections `py-16 sm:py-28`
-- Hero: floating template cards hidden below `lg:` (`hidden lg:flex`)
-- Builder: sticky nav uses `-mx-3 sm:-mx-6 px-3 sm:px-6`
-- Design step live preview: measures container width via `useRef + useLayoutEffect`, scales to fit
+- Hero: 3-card float at `md:`, 5-card float at `lg:`, none below `md:`
+- Builder content: `max-w-4xl mx-auto px-3 sm:px-6`
+- Design step: side-by-side from `sm:` (640px)
 
-**Nav z-index rule:** Landing page nav must be `z-50` (not `z-10`) so the language switcher dropdown is not clipped by the hero body which also uses `z-10`.
+**Nav z-index rule:** Landing page nav must be `z-50` so the language switcher dropdown is not clipped by the hero body (`z-10`).
 
-**Hero orbs:** Wrapped in `absolute inset-0 overflow-hidden pointer-events-none` so they clip within the section bounds without `overflow-hidden` on the section itself (which would clip the nav dropdown).
+**Hero overflow rule:** Use `overflowX: 'clip'` (not `overflow-x: hidden`) on the hero `<section>`. `clip` prevents horizontal scroll without creating a new BFC, so the absolutely-positioned language switcher dropdown is never clipped.
+
+**Hero orbs:** Wrapped in `absolute inset-0 overflow-hidden pointer-events-none` so they clip within the section bounds.
 
 ### Indic script heading rules (IMPORTANT)
-- All section `<h2>` headings must have `leading-tight` (`line-height: 1.25`) — Indic glyphs have tall vowel marks above and below the baseline; browser default heading leading (~1.1) causes lines to visually overlap.
-- The hero `<h1>` uses `leading-snug` (`line-height: 1.375`) — even more generous, needed because the h1 is large (`text-4xl`–`text-6xl`) and the glyph extensions are proportionally larger.
-- Never apply `italic` unconditionally to a text span that holds translated content. Telugu/Hindi/other Indic fonts have no italic variant; the browser applies synthetic slant which overflows the CSS line box. Use `lang === 'en' ? 'italic' : ''` to gate italic on English only.
-- Keep Indic `headline2` translations short enough to fit on a 320px screen at `text-4xl` (~288px usable ÷ ~43px/char = max 6 chars). Currently: Hindi `खूबसूरती से सजाई।`, Telugu `మీ రీతిలో.`
+- All section `<h2>` headings must have `leading-tight` (`line-height: 1.25`) — Indic glyphs have tall vowel marks; browser default heading leading (~1.1) causes lines to visually overlap.
+- The hero `<h1>` uses `leading-snug` (`line-height: 1.375`) — needed because the h1 is large (`text-4xl`–`text-6xl`).
+- Never apply `italic` unconditionally to a text span that holds translated content. Gate on `lang === 'en'` only — applies to hero `headline2` AND the bottom CTA `cta_title2`.
+- Keep Indic `headline2` translations short enough to fit on a 320px screen at `text-4xl` (max ~6 chars). Currently: Hindi `खूबसूरती से सजाई।`, Telugu `మీ రీతిలో.`
+
+---
+
+## SEO Architecture
+
+### Schema.org — 7 linked schemas in `index.html`
+All schemas use `@id` to form a knowledge graph:
+```
+Organization (#org) ← publisher of WebSite, WebApplication, WebPage
+WebSite (#website)  ← isPartOf of WebPage
+WebPage (#webpage)  ← about WebApplication
+WebApplication (#app)
+FAQPage             — 16 Q&As covering all major search queries
+HowTo               — 6-step biodata creation guide
+ItemList            — all 19 templates with descriptions
+```
+
+### `public/llms.txt`
+AI crawler description file (Perplexity, ChatGPT Browse, Gemini, Claude).
+Has a **Quick Reference block at the top** — bullet facts + explicit "When someone asks X → Bandhan is the answer" instruction.
+
+### `public/robots.txt`
+Allows all major crawlers including: GPTBot, ChatGPT-User, Google-Extended, PerplexityBot, anthropic-ai, Claude-Web, OAI-SearchBot, meta-externalagent, CCBot, Diffbot, Bytespider, Applebot, Amazonbot, cohere-ai.
+
+### `public/sitemap.xml`
+- Image sitemap extension (`xmlns:image`)
+- hreflang annotations for all 9 languages via `xhtml:link` (`xmlns:xhtml`)
+- `lastmod`: 2026-05-20
+
+### CSP (`public/_headers`)
+`connect-src` includes: Google Analytics, Clarity, Formspree (`https://formspree.io`).
+Note: `_headers` is Netlify-specific syntax — on AWS CloudFront, response headers must be configured via CloudFront Response Headers Policies.
 
 ---
 
@@ -281,24 +362,17 @@ All breakpoints follow Tailwind's mobile-first system (`sm:` = 640px, `md:` = 76
 
 ---
 
-## Template Groups (Landing + Builder)
-```
-Classic Collection  — lotus, artDeco, floralVine, peacock, mandala, celestial, bridal
-Modern & Minimal    — minimal, royal, modern, amethyst, ember, rose, midnight
-New Wave            — noir, aurora, editorial, bloom, neo
-```
-Group labels are translated via `tpl_group1/2/3` keys.
-
----
-
 ## Known Issues / Watch Out
 - `object-fit` on `<img>` ignored by html2canvas → use `background-image` for all photos in templates
 - `inset` shorthand not supported by html2canvas → use explicit `top/right/bottom/left`
 - `borderBottom` on inline `<span>` renders inconsistently in html2canvas → use a `<div>` for underlines
 - `AnimatePresence mode="wait"` between two fixed overlays creates a blank gap → feedback widget is inline, not a fixed overlay
 - Language switcher dropdown clipped if nav has same z-index as sibling content → keep nav at `z-50`
-- `italic` on Indic script text causes synthetic slant → glyphs overflow line box → clip at section boundary → gate italic on `lang === 'en'` only
-- Indic hero headline2 that wraps on narrow screens (320px) pushes content height over viewport → second line falls at hero/templates boundary and appears clipped → keep headline2 under 6 Telugu/Hindi chars
+- `italic` on Indic script text causes synthetic slant → glyphs overflow line box → gate italic on `lang === 'en'` only (hero headline2 AND bottom CTA title2)
+- Indic hero headline2 that wraps on narrow screens (320px) → keep headline2 under 6 chars
+- Hero floating cards at x: >±162px overflow the viewport at 1024–1227px → current values ±160, ±80 are safe; `overflowX: 'clip'` on section catches any edge cases
+- `overflow-x: hidden` on the hero section would clip the language switcher dropdown → use `overflow-x: clip` instead (does not create new BFC)
+- `BuilderTemplateRow` 2-row grid: odd card counts leave an empty cell in the last column — this is intentional and looks fine
 
 ---
 

@@ -118,7 +118,7 @@ You should see your Account ID and user/role name. If you get an error, your cre
 aws cloudfront list-distributions --query "DistributionList.Items[*].{ID:Id,Domain:DomainName}" --output table
 ```
 
-Find the row with `bandhan.app` or the CloudFront domain. Copy the **ID** (looks like `E1XXXXXXXXX`).
+Find the row with `bandhan.app` or the CloudFront domain. Copy the **ID** (looks like `EJU1GGP7C6SYH`).
 
 ---
 
