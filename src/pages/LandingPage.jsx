@@ -1,6 +1,6 @@
-import { useState, useRef, useLayoutEffect } from 'react'
+import { useState, useRef, useLayoutEffect, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, Shield, Download, ChevronRight, Heart, Lock, Zap, X } from 'lucide-react'
+import { Sparkles, Shield, Download, ChevronRight, ChevronLeft, Heart, Lock, Zap, X } from 'lucide-react'
 import BioTemplate from '../components/BioTemplate'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -461,6 +461,121 @@ function StyleCard({ s, i, onClick }) {
   )
 }
 
+/* Scrollable template row — arrows + fade edges + circular auto-scroll */
+function TemplateRow({ groupStyles, onSelect }) {
+  const scrollRef = useRef(null)
+  const [paused, setPaused] = useState(false)
+  const [canLeft, setCanLeft] = useState(false)
+  const [canRight, setCanRight] = useState(true)
+  const CARD_STEP = 174 // 160px card + 14px gap
+
+  const scrollTo = useCallback((dir) => {
+    const el = scrollRef.current
+    if (!el) return
+    const max = el.scrollWidth - el.clientWidth
+    if (dir > 0) {
+      el.scrollLeft >= max - 8
+        ? (el.scrollLeft = 0)
+        : el.scrollBy({ left: CARD_STEP * 2, behavior: 'smooth' })
+    } else {
+      el.scrollLeft <= 8
+        ? (el.scrollLeft = max)
+        : el.scrollBy({ left: -CARD_STEP * 2, behavior: 'smooth' })
+    }
+  }, [])
+
+  // Auto-scroll: advance 1 card every 4 s, loop back instantly
+  useEffect(() => {
+    if (paused) return
+    const id = setInterval(() => {
+      const el = scrollRef.current
+      if (!el) return
+      const max = el.scrollWidth - el.clientWidth
+      el.scrollLeft >= max - 8
+        ? (el.scrollLeft = 0)
+        : el.scrollBy({ left: CARD_STEP, behavior: 'smooth' })
+    }, 4000)
+    return () => clearInterval(id)
+  }, [paused, groupStyles])
+
+  // Track scroll position to show/hide fades and arrows
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const update = () => {
+      setCanLeft(el.scrollLeft > 8)
+      setCanRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 8)
+    }
+    update()
+    el.addEventListener('scroll', update, { passive: true })
+    return () => el.removeEventListener('scroll', update)
+  }, [groupStyles])
+
+  // Reset scroll when group tab changes
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollLeft = 0
+  }, [groupStyles])
+
+  return (
+    <div style={{ position: 'relative' }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onTouchStart={() => setPaused(true)}
+      onTouchEnd={() => setTimeout(() => setPaused(false), 2500)}>
+
+      {/* Left fade + ghost arrow — only when there's content to the left */}
+      <AnimatePresence>
+        {canLeft && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute left-0 top-0 bottom-4 w-14 sm:w-20 z-[3] flex items-center justify-start pl-1"
+            style={{ background: 'linear-gradient(to right, #0a0a12 35%, transparent)' }}>
+            <motion.button
+              onClick={() => scrollTo(-1)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, color: 'rgba(255,255,255,0.5)', display: 'flex' }}
+              whileHover={{ scale: 1.3, color: 'rgba(255,255,255,0.95)' }}
+              whileTap={{ scale: 0.85 }}
+              transition={{ duration: 0.15 }}>
+              <ChevronLeft size={20} />
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Cards */}
+      <div ref={scrollRef} style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        className="[&::-webkit-scrollbar]:hidden">
+        <div style={{ display: 'flex', gap: 14, padding: '4px 16px 16px' }}>
+          {groupStyles.map((s, i) => (
+            <StyleCard key={s.id} s={s} i={i} onClick={() => onSelect(s)} />
+          ))}
+        </div>
+      </div>
+
+      {/* Right fade + ghost arrow — only when there's content to the right */}
+      <AnimatePresence>
+        {canRight && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute right-0 top-0 bottom-4 w-14 sm:w-20 z-[3] flex items-center justify-end pr-1"
+            style={{ background: 'linear-gradient(to left, #0a0a12 35%, transparent)' }}>
+            <motion.button
+              onClick={() => scrollTo(1)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, color: 'rgba(255,255,255,0.5)', display: 'flex' }}
+              whileHover={{ scale: 1.3, color: 'rgba(255,255,255,0.95)' }}
+              whileTap={{ scale: 0.85 }}
+              transition={{ duration: 0.15 }}>
+              <ChevronRight size={20} />
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 /* Group templates — labels resolved at render via t() */
 const STYLE_GROUP_IDS = [
   { labelKey: 'tpl_group1', subKey: 'tpl_group1_sub', ids: ['lotus', 'artDeco', 'floralVine', 'peacock', 'mandala', 'celestial', 'bridal'] },
@@ -471,13 +586,21 @@ const STYLE_GROUP_IDS = [
 /* Full-screen modal */
 function TemplateModal({ s, onClose, onStart }) {
   const { t } = useLanguage()
+  const vw = typeof window !== 'undefined' ? window.innerWidth : 480
+  const isMobile = vw < 640
+  // outer padding + body horizontal padding on each side
+  const outerPad = isMobile ? 16 : 24
+  const bodyPadH = isMobile ? 16 : 28
+  // containerW must fit inside: vw − outerPad×2 − bodyPadH×2
+  const previewW = Math.min(400, vw - outerPad * 2 - bodyPadH * 2)
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
-      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: outerPad }}
       onClick={onClose}
     >
       <motion.div
@@ -487,37 +610,41 @@ function TemplateModal({ s, onClose, onStart }) {
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
         onClick={e => e.stopPropagation()}
         style={{
-          background: '#0f0f1a', borderRadius: 24, overflow: 'hidden',
+          background: '#0f0f1a', borderRadius: isMobile ? 20 : 24, overflow: 'hidden',
           border: '1px solid rgba(255,255,255,0.1)',
           width: '100%', maxWidth: 880, maxHeight: '90vh',
           display: 'flex', flexDirection: 'column',
         }}
       >
         {/* Modal header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 28px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 24 }}>{s.symbol}</span>
-            <span style={{ fontSize: 18, fontWeight: 700, color: 'white', fontFamily: 'serif' }}>{s.name}</span>
-            {s.live && <span style={{ fontSize: 10, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', padding: '3px 10px', borderRadius: 20, letterSpacing: '0.08em' }}>{t('tpl_available')}</span>}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: isMobile ? '14px 16px' : '20px 28px',
+          borderBottom: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+            <span style={{ fontSize: isMobile ? 20 : 24, flexShrink: 0 }}>{s.symbol}</span>
+            <span style={{ fontSize: isMobile ? 15 : 18, fontWeight: 700, color: 'white', fontFamily: 'serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</span>
+            {s.live && <span style={{ fontSize: 10, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', padding: '3px 8px', borderRadius: 20, letterSpacing: '0.08em', flexShrink: 0 }}>{t('tpl_available')}</span>}
           </div>
-          <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.15)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.5)' }}>
+          <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.15)', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.5)', flexShrink: 0, marginLeft: 12 }}>
             <X size={16} />
           </button>
         </div>
 
-        {/* Modal body */}
+        {/* Modal body — flex:1 + minHeight:0 so it scrolls within the modal bounds */}
         {s.live ? (
-          <div style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '28px 28px 32px', gap: 24, background: 'rgba(201,160,53,0.03)' }}>
-            <LivePreview containerW={Math.min(400, (typeof window !== 'undefined' ? window.innerWidth : 480) - 80)} shadow={false} template={s.id} />
-            <button onClick={() => onStart(s.id)} className="btn-primary" style={{ padding: '14px 40px', fontSize: 15 }}>
+          <div style={{ overflowY: 'auto', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center',
+            padding: isMobile ? `20px ${bodyPadH}px 24px` : '28px 28px 32px',
+            gap: 24, background: 'rgba(201,160,53,0.03)' }}>
+            <LivePreview containerW={previewW} shadow={false} template={s.id} />
+            <button onClick={() => onStart(s.id)} className="btn-primary" style={{ padding: isMobile ? '12px 28px' : '14px 40px', fontSize: 15, flexShrink: 0 }}>
               {t('tpl_modal_btn')} <ChevronRight size={18} />
             </button>
           </div>
         ) : (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 48, textAlign: 'center' }}>
-            <div style={{ width: 80, height: 80, borderRadius: '50%', background: s.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, marginBottom: 20 }}>{s.symbol}</div>
-            <h3 style={{ fontFamily: 'serif', fontSize: 26, fontWeight: 700, color: 'white', marginBottom: 10 }}>{s.name} is on the way</h3>
-            <p style={{ color: 'rgba(255,255,255,0.4)', maxWidth: 340, lineHeight: 1.7, marginBottom: 24 }}>{s.desc}</p>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: isMobile ? 28 : 48, textAlign: 'center' }}>
+            <div style={{ width: 72, height: 72, borderRadius: '50%', background: s.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, marginBottom: 20 }}>{s.symbol}</div>
+            <h3 style={{ fontFamily: 'serif', fontSize: isMobile ? 22 : 26, fontWeight: 700, color: 'white', marginBottom: 10 }}>{s.name} is on the way</h3>
+            <p style={{ color: 'rgba(255,255,255,0.4)', maxWidth: 300, lineHeight: 1.7, marginBottom: 24, fontSize: isMobile ? 14 : 16 }}>{s.desc}</p>
             <span style={{ fontSize: 12, fontWeight: 600, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', padding: '6px 16px', borderRadius: 20 }}>{t('tpl_coming')}</span>
           </div>
         )}
@@ -528,7 +655,11 @@ function TemplateModal({ s, onClose, onStart }) {
 
 function TemplatesSection({ onStart }) {
   const [selected, setSelected] = useState(null)
+  const [activeGroup, setActiveGroup] = useState(0)
   const { t } = useLanguage()
+
+  const currentGroup = STYLE_GROUP_IDS[activeGroup]
+  const groupStyles = STYLES.filter(s => currentGroup.ids.includes(s.id))
 
   return (
     <section id="templates" className="bg-[#0a0a12] py-16 sm:py-28">
@@ -537,7 +668,7 @@ function TemplatesSection({ onStart }) {
         <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 sm:mb-16 px-4 sm:px-8">
           <p className="text-amber-400 text-sm font-semibold tracking-widest uppercase mb-4">{t('tpl_label')}</p>
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5">
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-white mb-5">
             {t('tpl_title').split('\n').map((line, i) => <span key={i}>{line}{i === 0 && <br />}</span>)}
           </h2>
           <p className="text-white/45 max-w-lg mx-auto text-base sm:text-lg leading-relaxed">
@@ -545,28 +676,46 @@ function TemplatesSection({ onStart }) {
           </p>
         </motion.div>
 
-        {STYLE_GROUP_IDS.map((group, gi) => {
-          const groupStyles = STYLES.filter(s => group.ids.includes(s.id))
-          return (
-            <motion.div key={group.labelKey}
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }} transition={{ duration: 0.5, delay: gi * 0.1 }}
-              className="mb-10">
-              <div className="px-4 sm:px-8 mb-5 flex items-baseline gap-3">
-                <span className="text-sm font-bold text-white/80 tracking-wide">{t(group.labelKey)}</span>
-                <span className="text-xs text-white/30">{t(group.subKey)}</span>
-              </div>
-              <div style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                className="[&::-webkit-scrollbar]:hidden">
-                <div style={{ display: 'flex', gap: 14, padding: '4px 16px 16px' }}>
-                  {groupStyles.map((s, i) => (
-                    <StyleCard key={s.id} s={s} i={i} onClick={() => setSelected(s)} />
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )
-        })}
+        {/* Group tabs — single scrollable row so they never wrap on small phones */}
+        <motion.div initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }} transition={{ duration: 0.4 }} className="mb-6">
+          <div style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="[&::-webkit-scrollbar]:hidden">
+            <div style={{ display: 'flex', gap: 8, padding: '0 16px 4px', flexWrap: 'nowrap' }}>
+              {STYLE_GROUP_IDS.map((group, gi) => (
+                <button key={group.labelKey} onClick={() => setActiveGroup(gi)} style={{
+                  padding: '8px 16px', borderRadius: 100, fontSize: 13, fontWeight: 600,
+                  cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
+                  background: activeGroup === gi ? 'rgba(168,85,247,0.15)' : 'transparent',
+                  color: activeGroup === gi ? '#c084fc' : 'rgba(255,255,255,0.45)',
+                  border: `1px solid ${activeGroup === gi ? 'rgba(168,85,247,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                  transition: 'all 0.2s',
+                }}>
+                  {t(group.labelKey)}
+                  <span style={{ marginLeft: 7, fontSize: 11, opacity: 0.55,
+                    background: activeGroup === gi ? 'rgba(192,132,252,0.15)' : 'rgba(255,255,255,0.06)',
+                    padding: '1px 6px', borderRadius: 10 }}>
+                    {group.ids.length}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Sub-label */}
+        <div className="px-4 sm:px-8 mb-4">
+          <span className="text-xs text-white/30">{t(currentGroup.subKey)}</span>
+        </div>
+
+        {/* Animated row — slides in when group changes */}
+        <AnimatePresence mode="wait">
+          <motion.div key={activeGroup}
+            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22 }}>
+            <TemplateRow groupStyles={groupStyles} onSelect={setSelected} />
+          </motion.div>
+        </AnimatePresence>
 
       </div>
 
@@ -585,7 +734,7 @@ const FEATURE_ICONS = [
 ]
 
 export default function LandingPage({ onStart, onContinue, savedName }) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
 
   const HOW_STEPS = [
     { num: '01', titleKey: 'how_s1_title', descKey: 'how_s1_desc' },
@@ -601,7 +750,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
     <div className="min-h-screen">
 
       {/* ── HERO ── */}
-      <section className="hero-gradient relative min-h-screen flex flex-col">
+      <section className="hero-gradient relative min-h-screen flex flex-col" style={{ overflowX: 'clip' }}>
         {/* Orbs clipped inside their own layer so the nav dropdown is never cut off */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="orb w-[500px] h-[500px] top-[-15%] left-[-12%] bg-purple-600/20" />
@@ -609,25 +758,34 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
           <div className="orb w-72 h-72 bottom-[5%] left-[35%] bg-amber-500/15" />
         </div>
 
-        {/* Nav */}
-        <nav className="relative z-50 flex items-center justify-between px-4 sm:px-8 pt-5 sm:pt-8 pb-4 max-w-7xl mx-auto w-full">
+        {/* Nav — flex-wrap so Continue drops to its own row on mobile */}
+        <nav className="relative z-50 flex flex-wrap items-center justify-between px-4 sm:px-8 pt-4 sm:pt-8 pb-3 sm:pb-4 max-w-7xl mx-auto w-full gap-y-2">
+
+          {/* Logo */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}
-            className="flex items-center gap-2">
+            className="flex items-center gap-2 flex-shrink-0">
             <Heart className="w-5 h-5 text-pink-400 fill-pink-400" />
             <span className="font-serif text-xl font-semibold text-white">Bandhan</span>
           </motion.div>
-          <div className="flex items-center gap-2 sm:gap-3">
+
+          {/* Right: Globe + one action button — Continue if returning, Create if new */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <LanguageSwitcher compact />
-            {savedName && (
+            {savedName ? (
               <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}
-                onClick={onContinue} className="btn-ghost text-sm hidden sm:inline-flex">
-                {t('continue_btn')} — {savedName}
+                onClick={onContinue}
+                className="btn-primary flex-shrink-0 text-xs sm:text-sm px-3 py-1.5 sm:px-6 sm:py-3 overflow-hidden max-w-[160px] sm:max-w-[220px]">
+                <span className="truncate">{t('continue_btn')} — {savedName}</span>
+                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              </motion.button>
+            ) : (
+              <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}
+                onClick={onStart}
+                className="btn-primary flex-shrink-0 text-xs sm:text-sm px-3 py-1.5 sm:px-6 sm:py-3">
+                {t('begin_free')}
+                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
               </motion.button>
             )}
-            <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}
-              onClick={onStart} className="btn-primary text-sm">
-              {savedName ? t('start_fresh') : t('begin_free')} <ChevronRight className="w-4 h-4" />
-            </motion.button>
           </div>
         </nav>
 
@@ -640,9 +798,9 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             </motion.div>
 
             <motion.h1 custom={1} variants={fadeUp} initial="hidden" animate="show"
-              className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.08] text-white mb-4 sm:mb-6">
+              className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-snug text-white mb-6 sm:mb-8">
               {t('headline1')}<br />
-              <span className="gradient-text italic">{t('headline2')}</span>
+              <span className={`gradient-text${lang === 'en' ? ' italic' : ''}`}>{t('headline2')}</span>
             </motion.h1>
 
             <motion.p custom={2} variants={fadeUp} initial="hidden" animate="show"
@@ -651,29 +809,31 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             </motion.p>
 
             <motion.div custom={3} variants={fadeUp} initial="hidden" animate="show"
-              className="flex flex-wrap gap-4">
+              className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               {savedName ? (
                 <>
-                  <button onClick={onContinue} className="btn-primary text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4">
+                  <button onClick={onContinue} className="btn-primary text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4 justify-center">
                     {t('cta_continue')} <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
-                  <button onClick={onStart} className="btn-ghost text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4">{t('cta_fresh')}</button>
+                  <button onClick={onStart} className="btn-ghost text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4 justify-center">{t('cta_fresh')}</button>
                 </>
               ) : (
                 <>
-                  <button onClick={onStart} className="btn-primary text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4">
+                  <button onClick={onStart} className="btn-primary text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4 justify-center">
                     {t('cta_create')} <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
-                  <a href="#templates" className="btn-ghost text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4">{t('cta_explore')}</a>
+                  <a href="#templates" className="btn-ghost text-sm sm:text-base px-5 sm:px-8 py-3 sm:py-4 justify-center text-center">{t('cta_explore')}</a>
                 </>
               )}
             </motion.div>
 
             {savedName && (
               <motion.p custom={3.5} variants={fadeUp} initial="hidden" animate="show"
-                className="mt-5 text-sm text-green-400/80 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
-                {t('progress_saved')} <span className="font-semibold">{savedName}</span> {t('pick_up')}
+                className="mt-5 text-sm text-green-400/80 flex flex-wrap items-center gap-x-1.5 gap-y-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block flex-shrink-0" />
+                <span>{t('progress_saved')}</span>
+                <span className="font-semibold truncate max-w-[160px]">{savedName}</span>
+                <span>{t('pick_up')}</span>
               </motion.p>
             )}
 
@@ -685,15 +845,43 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             </motion.div>
           </div>
 
-          {/* Floating portrait previews */}
+          {/* Floating portrait previews — tablet (768–1023px): 3 cards, tighter ±85px spread */}
+          <div className="flex-1 hidden md:flex lg:hidden items-center justify-center relative h-[460px] overflow-visible">
+            <div className="absolute pointer-events-none" style={{ width: 280, height: 220, top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'radial-gradient(ellipse at center, rgba(168,136,224,0.1) 0%, transparent 70%)', filter: 'blur(8px)' }} />
+            {[
+              { template: 'floralVine', x: -85, scl: 0.82, op: 0.65, rot: -3, y: [0,  -10, 0],   delay: 0.5, z: 2, glow: 'rgba(200,160,32,0.5)'  },
+              { template: 'peacock',    x: 0,   scl: 0.97, op: 1,    rot: 0,  y: [-12,-24,-12], delay: 1.0, z: 5, glow: 'rgba(240,184,64,0.6)'  },
+              { template: 'mandala',    x: 85,  scl: 0.82, op: 0.65, rot: 3,  y: [-4, -14, -4],  delay: 0.7, z: 2, glow: 'rgba(224,120,48,0.5)'  },
+            ].map(({ template, x, scl, op, rot, y, delay, z, glow }) => (
+              <motion.div key={template}
+                style={{ position: 'absolute', x, scale: scl, opacity: op, rotate: rot, zIndex: z }}
+                animate={{ y }} transition={{ duration: 8 + z * 0.4, repeat: Infinity, ease: 'easeInOut', delay }}>
+                <div style={{ position: 'absolute', bottom: -16, left: '50%', transform: 'translateX(-50%)', width: 80, height: 36, background: glow, filter: 'blur(18px)', borderRadius: '50%', zIndex: -1 }} />
+                <div style={{ borderRadius: 14, overflow: 'hidden', boxShadow: z === 5 ? '0 28px 60px rgba(0,0,0,0.5), 0 8px 20px rgba(0,0,0,0.35)' : '0 10px 30px rgba(0,0,0,0.3)' }}>
+                  <LivePreview containerW={120} visibleH={168} shadow={false} template={template} />
+                </div>
+              </motion.div>
+            ))}
+            {[{ x: -110, y: -90, s: 4, d: 0 }, { x: 75, y: -110, s: 3, d: 1.2 },
+              { x: -35, y: 80, s: 4, d: 0.6 }, { x: 125, y: -40, s: 3, d: 1.8 }]
+              .map((sp, i) => (
+                <motion.div key={i} style={{ position: 'absolute', x: sp.x, y: sp.y, zIndex: 10 }}
+                  animate={{ opacity: [0, 1, 0], scale: [0.4, 1, 0.4] }}
+                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut', delay: sp.d, repeatDelay: 1.5 }}>
+                  <svg width={sp.s} height={sp.s} viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="rgba(255,255,255,0.85)" /></svg>
+                </motion.div>
+              ))}
+          </div>
+
+          {/* Floating portrait previews — desktop (1024px+): full 5-card spread */}
           <div className="flex-1 hidden lg:flex items-center justify-center relative h-[540px] overflow-visible">
             <div className="absolute pointer-events-none" style={{ width: 480, height: 300, top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'radial-gradient(ellipse at center, rgba(168,136,224,0.1) 0%, transparent 70%)', filter: 'blur(8px)' }} />
             {[
-              { template: 'lotus',      x: -234, scl: 0.80, op: 0.50, rot: -6,  y: [0,   -10, 0],   delay: 0,   z: 1, glow: 'rgba(201,160,53,0.5)'  },
-              { template: 'floralVine', x: -118, scl: 0.91, op: 0.75, rot: -2,  y: [-6,  -18, -6],  delay: 0.5, z: 2, glow: 'rgba(200,160,32,0.5)'  },
+              { template: 'lotus',      x: -160, scl: 0.80, op: 0.50, rot: -6,  y: [0,   -10, 0],   delay: 0,   z: 1, glow: 'rgba(201,160,53,0.5)'  },
+              { template: 'floralVine', x: -80,  scl: 0.91, op: 0.75, rot: -2,  y: [-6,  -18, -6],  delay: 0.5, z: 2, glow: 'rgba(200,160,32,0.5)'  },
               { template: 'peacock',    x: 0,    scl: 1.06, op: 1,    rot: 0,   y: [-14, -28, -14], delay: 1.0, z: 5, glow: 'rgba(240,184,64,0.6)'  },
-              { template: 'mandala',    x: 118,  scl: 0.91, op: 0.75, rot: 2,   y: [-4,  -16, -4],  delay: 0.7, z: 2, glow: 'rgba(224,120,48,0.5)'  },
-              { template: 'celestial',  x: 234,  scl: 0.80, op: 0.50, rot: 6,   y: [-2,  -12, -2],  delay: 1.4, z: 1, glow: 'rgba(168,136,224,0.5)' },
+              { template: 'mandala',    x: 80,   scl: 0.91, op: 0.75, rot: 2,   y: [-4,  -16, -4],  delay: 0.7, z: 2, glow: 'rgba(224,120,48,0.5)'  },
+              { template: 'celestial',  x: 160,  scl: 0.80, op: 0.50, rot: 6,   y: [-2,  -12, -2],  delay: 1.4, z: 1, glow: 'rgba(168,136,224,0.5)' },
             ].map(({ template, x, scl, op, rot, y, delay, z, glow }) => (
               <motion.div key={template}
                 style={{ position: 'absolute', x, scale: scl, opacity: op, rotate: rot, zIndex: z }}
@@ -705,10 +893,10 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
               </motion.div>
             ))}
             {[
-              { x: -195, y: -105, s: 5, d: 0 }, { x: 85, y: -130, s: 3, d: 1.2 },
-              { x: -55, y: 95, s: 4, d: 0.6 },  { x: 210, y: -55, s: 5, d: 1.8 },
-              { x: -240, y: 50, s: 3, d: 0.3 }, { x: 155, y: 110, s: 4, d: 2.2 },
-              { x: 30, y: -160, s: 3, d: 0.9 },
+              { x: -130, y: -105, s: 5, d: 0 }, { x: 70,  y: -130, s: 3, d: 1.2 },
+              { x: -45,  y: 95,   s: 4, d: 0.6 }, { x: 145, y: -55,  s: 5, d: 1.8 },
+              { x: -165, y: 50,   s: 3, d: 0.3 }, { x: 110, y: 110,  s: 4, d: 2.2 },
+              { x: 25,   y: -155, s: 3, d: 0.9 },
             ].map((sp, i) => (
               <motion.div key={i} style={{ position: 'absolute', x: sp.x, y: sp.y, zIndex: 10 }}
                 animate={{ opacity: [0, 1, 0], scale: [0.4, 1, 0.4] }}
@@ -731,7 +919,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 sm:mb-16">
             <p className="text-purple-400 text-sm font-semibold tracking-widest uppercase mb-4">{t('feat_label')}</p>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold leading-tight text-white">
               {t('feat_title').split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
             </h2>
           </motion.div>
@@ -760,7 +948,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 sm:mb-16">
             <p className="text-pink-400 text-sm font-semibold tracking-widest uppercase mb-4">{t('how_label')}</p>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold leading-tight text-white">
               {t('how_title').split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
             </h2>
           </motion.div>
@@ -788,7 +976,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }}>
             <p className="text-amber-300 text-sm font-semibold tracking-widest uppercase mb-4">{t('faq_label')}</p>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white mb-5">{t('faq_title')}</h2>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold leading-tight text-white mb-5">{t('faq_title')}</h2>
             <p className="text-white/40 leading-relaxed">{t('faq_desc')}</p>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
@@ -813,7 +1001,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
           className="max-w-2xl mx-auto text-center relative z-10">
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5 sm:mb-6 leading-tight">
             {t('cta_title1')}<br />
-            <span className="gradient-text italic">{t('cta_title2')}</span>
+            <span className={`gradient-text${lang === 'en' ? ' italic' : ''}`}>{t('cta_title2')}</span>
           </h2>
           <p className="text-white/50 text-base sm:text-lg mb-8 sm:mb-10 leading-relaxed">
             {t('cta_subtitle').split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}

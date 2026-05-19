@@ -29,4 +29,24 @@ Allow: /
 User-agent: Applebot
 Allow: /
 
+# OpenAI SearchGPT crawler
+User-agent: OAI-SearchBot
+Allow: /
+
+# Meta AI crawler
+User-agent: meta-externalagent
+Allow: /
+
+# Common Crawl — feeds LLM training datasets
+User-agent: CCBot
+Allow: /
+
+# Diffbot — structured data extraction for AI
+User-agent: Diffbot
+Allow: /
+
+# Bytespider — ByteDance AI
+User-agent: Bytespider
+Allow: /
+
 Sitemap: https://bandhan.app/sitemap.xml

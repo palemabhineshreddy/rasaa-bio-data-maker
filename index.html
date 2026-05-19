@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bandhan — Free Marriage Biodata Maker | Download PDF Instantly</title>
-    <meta name="description" content="Create a beautiful Indian marriage biodata PDF in minutes — free, no sign-up, 100% private. 14 designs for Hindu, Muslim, Sikh, Christian, and Jain families. Your data never leaves your device." />
+    <meta name="description" content="Create a beautiful Indian marriage biodata PDF in minutes — free, no sign-up, 100% private. 19 designs for Hindu, Muslim, Sikh, Christian, Jain, and Buddhist families. Your data never leaves your device." />
     <meta name="keywords" content="marriage biodata maker, free biodata maker, biodata PDF download, Indian marriage biodata, biodata for marriage, matrimonial biodata, biodata format, Hindu biodata, Muslim biodata, Sikh biodata, Christian biodata, Jain biodata, shaadi biodata, Telugu biodata, Tamil biodata, Kannada biodata, Bengali biodata, Marathi biodata, Gujarati biodata, Odia biodata, Punjabi biodata, free biodata download, biodata maker online, marriage biodata sample, biodata format for marriage PDF, best biodata maker India" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="author" content="Bandhan" />
@@ -16,8 +16,22 @@
     <meta name="theme-color" content="#0a0a12" />
     <meta name="application-name" content="Bandhan" />
     <link rel="canonical" href="https://bandhan.app/" />
+    <link rel="alternate" hreflang="x-default" href="https://bandhan.app/" />
     <link rel="alternate" hreflang="en-IN" href="https://bandhan.app/" />
     <link rel="alternate" hreflang="en" href="https://bandhan.app/" />
+
+    <!-- Apple PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Bandhan" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Resource hints for faster third-party load -->
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://www.clarity.ms" />
+    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+    <link rel="dns-prefetch" href="https://formspree.io" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" type="image/svg+xml" href="/bandhan-icon.svg" />
     <link rel="apple-touch-icon" href="/bandhan-icon.svg" />
@@ -26,21 +40,21 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Bandhan" />
     <meta property="og:title" content="Bandhan — Free Marriage Biodata Maker" />
-    <meta property="og:description" content="Create a beautiful Indian marriage biodata PDF in minutes — free, no sign-up, 100% private. 14 designs for Hindu, Muslim, Sikh, Christian, and Jain families." />
+    <meta property="og:description" content="Create a beautiful Indian marriage biodata PDF in minutes — free, no sign-up, 100% private. 19 designs for Hindu, Muslim, Sikh, Christian, Jain, and Buddhist families." />
     <meta property="og:url" content="https://bandhan.app/" />
     <meta property="og:image" content="https://bandhan.app/og-image.png" />
     <meta property="og:image:secure_url" content="https://bandhan.app/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:alt" content="Bandhan — Free Indian Marriage Biodata Maker with 14 premium designs" />
+    <meta property="og:image:alt" content="Bandhan — Free Indian Marriage Biodata Maker with 19 premium designs" />
     <meta property="og:locale" content="en_IN" />
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@bandhanapp" />
     <meta name="twitter:title" content="Bandhan — Free Marriage Biodata Maker" />
-    <meta name="twitter:description" content="Free Indian marriage biodata maker. 14 designs for all religions. No sign-up, 100% private, instant PDF download." />
+    <meta name="twitter:description" content="Free Indian marriage biodata maker. 19 designs for all religions. No sign-up, 100% private, instant PDF download." />
     <meta name="twitter:image" content="https://bandhan.app/og-image.png" />
     <meta name="twitter:image:alt" content="Bandhan — Free Indian Marriage Biodata Maker" />
 
@@ -76,18 +90,60 @@
       {
         "@context": "https://schema.org",
         "@type": "Organization",
+        "@id": "https://bandhan.app/#org",
         "name": "Bandhan",
         "url": "https://bandhan.app",
-        "logo": "https://bandhan.app/bandhan-icon.svg",
-        "description": "Free Indian marriage biodata maker for Hindu, Muslim, Sikh, Christian, and Jain families.",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://bandhan.app/bandhan-icon.svg",
+          "width": 512,
+          "height": 512
+        },
+        "description": "Free Indian marriage biodata maker for Hindu, Muslim, Sikh, Christian, Jain, and Buddhist families.",
         "contactPoint": {
           "@type": "ContactPoint",
           "contactType": "customer support",
           "email": "hello@bandhan.app",
-          "availableLanguage": ["English", "Telugu", "Tamil", "Hindi", "Kannada", "Bengali", "Marathi", "Gujarati"]
+          "availableLanguage": ["English", "Hindi", "Telugu", "Tamil", "Kannada", "Malayalam", "Bengali", "Marathi", "Gujarati"]
         },
         "areaServed": "IN",
         "knowsAbout": ["marriage biodata", "matrimonial biodata", "Indian marriage customs", "Hindu biodata", "Muslim biodata", "PDF biodata maker"]
+      }
+    </script>
+
+    <!-- Schema: WebPage -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "@id": "https://bandhan.app/#webpage",
+        "url": "https://bandhan.app/",
+        "name": "Bandhan — Free Marriage Biodata Maker | Download PDF Instantly",
+        "description": "Create a beautiful Indian marriage biodata PDF in minutes — free, no sign-up, 100% private. 19 designs for Hindu, Muslim, Sikh, Christian, Jain, and Buddhist families.",
+        "isPartOf": { "@id": "https://bandhan.app/#website" },
+        "about": { "@id": "https://bandhan.app/#app" },
+        "publisher": { "@id": "https://bandhan.app/#org" },
+        "inLanguage": ["en-IN", "hi", "te", "ta", "kn", "ml", "bn", "mr", "gu"],
+        "datePublished": "2025-01-01",
+        "dateModified": "2026-05-20",
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [{ "@type": "ListItem", "position": 1, "name": "Bandhan — Free Marriage Biodata Maker", "item": "https://bandhan.app/" }]
+        }
+      }
+    </script>
+
+    <!-- Schema: WebSite -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": "https://bandhan.app/#website",
+        "url": "https://bandhan.app/",
+        "name": "Bandhan — Free Marriage Biodata Maker",
+        "description": "Create a beautiful Indian marriage biodata PDF in minutes — free, no sign-up, 100% private. 19 designs for Hindu, Muslim, Sikh, Christian, Jain, and Buddhist families.",
+        "publisher": { "@id": "https://bandhan.app/#org" },
+        "inLanguage": ["en-IN", "hi", "te", "ta", "kn", "ml", "bn", "mr", "gu"]
       }
     </script>
 
@@ -96,24 +152,28 @@
       {
         "@context": "https://schema.org",
         "@type": "WebApplication",
+        "@id": "https://bandhan.app/#app",
         "name": "Bandhan",
         "alternateName": ["Bandhan Biodata Maker", "Bandhan Marriage Biodata", "Free Biodata Maker India"],
         "url": "https://bandhan.app/",
+        "isPartOf": { "@id": "https://bandhan.app/#website" },
+        "publisher": { "@id": "https://bandhan.app/#org" },
         "applicationCategory": "DesignApplication",
         "applicationSubCategory": "Marriage Biodata Maker",
         "operatingSystem": "Any",
         "browserRequirements": "Requires JavaScript",
-        "description": "Free Indian marriage biodata maker for creating beautiful, printable PDF biodata with personal, family, education, horoscope, and contact details. 14 premium designs for Hindu, Muslim, Sikh, Christian, Jain, and Buddhist families across India.",
-        "inLanguage": ["en-IN", "te", "ta", "kn", "bn", "mr", "gu", "or", "pa", "hi"],
+        "description": "Free Indian marriage biodata maker for creating beautiful, printable PDF biodata with personal, family, education, horoscope, and contact details. 19 premium designs for Hindu, Muslim, Sikh, Christian, Jain, and Buddhist families across India.",
+        "inLanguage": ["en-IN", "hi", "te", "ta", "kn", "ml", "bn", "mr", "gu"],
         "offers": {
           "@type": "Offer",
           "price": "0",
           "priceCurrency": "INR",
+          "availability": "https://schema.org/InStock",
           "description": "Completely free — no sign-up, no payment, no hidden charges"
         },
         "featureList": [
           "Free marriage biodata PDF download — no payment ever",
-          "14 premium biodata templates across Classic and Modern collections",
+          "19 premium biodata templates — Classic Collection, Modern & Minimal Collection, and New Wave Collection",
           "Hindu biodata designs with Ganesh slogan in Telugu, Tamil, Kannada, Bengali, Marathi, Gujarati, Odia, Punjabi",
           "Muslim biodata with Bismillah invocation",
           "Sikh biodata with Ik Onkar (Mool Mantar)",
@@ -142,7 +202,7 @@
             "name": "What is the best free marriage biodata maker in India?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Bandhan (bandhan.app) is the best free marriage biodata maker in India. It is completely free with no sign-up required, offers 14 premium designs for Hindu, Muslim, Sikh, Christian, Jain, and Buddhist families, generates a print-ready PDF instantly, and keeps all your data 100% private in your browser."
+              "text": "Bandhan (bandhan.app) is the best free marriage biodata maker in India. It is completely free with no sign-up required, offers 19 premium designs for Hindu, Muslim, Sikh, Christian, Jain, and Buddhist families, generates a print-ready PDF instantly, and keeps all your data 100% private in your browser."
             }
           },
           {
@@ -150,7 +210,7 @@
             "name": "How do I create a marriage biodata online?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Use Bandhan (bandhan.app) to create a marriage biodata in 6 steps: (1) Enter personal details — name, age, religion, caste, mother tongue. (2) Add education and career — qualification, occupation, income. (3) Fill family background — parents, siblings, native place. (4) Add about yourself, horoscope details, and contact. (5) Upload your photo. (6) Choose from 14 premium designs and download your PDF. No sign-up required."
+              "text": "Use Bandhan (bandhan.app) to create a marriage biodata in 6 steps: (1) Enter personal details — name, age, religion, caste, mother tongue. (2) Add education and career — qualification, occupation, income. (3) Fill family background — parents, siblings, native place. (4) Add about yourself, horoscope details, and contact. (5) Upload your photo. (6) Choose from 19 premium designs and download your PDF. No sign-up required."
             }
           },
           {
@@ -240,6 +300,30 @@
               "@type": "Answer",
               "text": "A marriage biodata (also called matrimonial biodata or shaadi biodata) is different from a resume. A resume focuses on professional achievements. A marriage biodata includes personal details (height, complexion), family background (parents, siblings, native place), religion and caste, horoscope details (Rashi, Nakshatra for Hindu families), hobbies, and partner expectations — information that families consider important for the marriage matching process in India."
             }
+          },
+          {
+            "@type": "Question",
+            "name": "How to create a Telugu marriage biodata online for free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Go to bandhan.app and click Create Biodata Free. In Step 1, set Mother Tongue to Telugu. The biodata will automatically show the sacred header 'శ్రీ గణేశాయ నమః' (Sri Ganeshaya Namaha) in Telugu script. Fill in all 6 steps including horoscope fields (Rashi, Nakshatra, Gotra, Manglik). Choose the Lotus or Amethyst template — both are popular for Telugu Brahmin families. Download your print-ready PDF for free, no sign-up required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I download a marriage biodata PDF without watermark for free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Bandhan (bandhan.app) generates and downloads marriage biodata PDFs completely free with no watermark, no branding added to your document, no subscription, and no sign-up required. The downloaded PDF contains only your biodata exactly as you designed it — nothing else."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is the best free marriage biodata maker app in India for 2025?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Bandhan (bandhan.app) is the best free marriage biodata maker in India for 2025. It is completely free with no hidden charges, supports all religions (Hindu, Muslim, Sikh, Christian, Jain, Buddhist), offers 19 premium designs, supports 9 Indian languages (English, Hindi, Telugu, Tamil, Kannada, Malayalam, Bengali, Marathi, Gujarati), generates a print-ready PDF instantly, and keeps all your data 100% private in your browser — no data is ever uploaded to any server."
+            }
           }
         ]
       }
@@ -295,14 +379,14 @@
             "@type": "HowToStep",
             "position": 6,
             "name": "Choose your design and download PDF",
-            "text": "Pick from 14 premium biodata templates. The live preview on the right updates instantly as you switch designs. Click Download PDF to get your print-ready biodata in one click.",
+            "text": "Pick from 19 premium biodata templates across Classic, Modern & Minimal, and New Wave collections. The live preview on the right updates instantly as you switch designs. Click Download PDF to get your print-ready biodata in one click.",
             "url": "https://bandhan.app/"
           }
         ]
       }
     </script>
 
-    <!-- Schema: ItemList — 14 templates -->
+    <!-- Schema: ItemList — 19 templates -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -433,7 +517,7 @@
               <li style="margin-bottom:8px;"><strong>100% Private:</strong> Your data never leaves your device. No servers, no database, no accounts.</li>
               <li style="margin-bottom:8px;"><strong>All Religions:</strong> Supports Hindu, Muslim, Sikh, Christian, Jain, and Buddhist families with religion-appropriate invocation slogans.</li>
               <li style="margin-bottom:8px;"><strong>All Indian Languages:</strong> Ganesh slogan in Telugu, Tamil, Kannada, Bengali, Marathi, Gujarati, Odia, Punjabi scripts. Bismillah in Arabic for Muslim. Ik Onkar in Gurmukhi for Sikh.</li>
-              <li style="margin-bottom:8px;"><strong>14 Premium Designs:</strong> Classic and Modern collections with unique hand-crafted border designs.</li>
+              <li style="margin-bottom:8px;"><strong>19 Premium Designs:</strong> Classic, Modern & Minimal, and New Wave collections with unique hand-crafted border designs.</li>
               <li style="margin-bottom:8px;"><strong>Live Preview:</strong> See your biodata update instantly as you type and change designs.</li>
               <li style="margin-bottom:8px;"><strong>Instant PDF:</strong> Print-ready PDF download in one click — no waiting, no email required.</li>
               <li style="margin-bottom:8px;"><strong>WhatsApp Sharing:</strong> On mobile, shares the actual PDF file to WhatsApp (not just a link).</li>
@@ -464,7 +548,7 @@
             <p>Bandhan generates a PDF — the most universally accepted format for marriage biodata in India. PDF ensures your design is preserved exactly, works on every device, and can be printed, shared on WhatsApp, or emailed without any formatting changes.</p>
 
             <h3 style="font-size:1.05rem;font-weight:700;margin-top:24px;">How is Bandhan different from other biodata makers?</h3>
-            <p>Bandhan is different because: (1) It is truly free with no payment gate at download. (2) Your data never leaves your device — zero servers involved. (3) It supports all Indian religions with religion-specific invocation slogans. (4) It offers 14 professionally designed templates, not just one generic format. (5) It has a live preview that updates instantly as you pick designs. (6) It auto-saves your progress so you never lose your work.</p>
+            <p>Bandhan is different because: (1) It is truly free with no payment gate at download. (2) Your data never leaves your device — zero servers involved. (3) It supports all Indian religions with religion-specific invocation slogans. (4) It offers 19 professionally designed templates across Classic, Modern & Minimal, and New Wave collections, not just one generic format. (5) It has a live preview that updates instantly as you pick designs. (6) It auto-saves your progress so you never lose your work.</p>
           </section>
 
           <section style="margin-bottom:48px;">

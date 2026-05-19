@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useState, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Check, Download, Heart, RotateCcw, Search, Plus, Trash2, MessageCircle } from 'lucide-react'
 import BioTemplate from '../components/BioTemplate'
@@ -448,7 +448,9 @@ function TemplateMiniPreview({ formData, containerW = 144, visibleH = 200 }) {
 }
 
 function TemplateCard({ style, isSelected, formData, onSelect }) {
-  const previewData = { ...formData, template: style.id }
+  // Use sample data when user hasn't filled their name yet — blank cards look bad
+  const base = formData.fullName ? formData : DESIGN_SAMPLE
+  const previewData = { ...base, template: style.id }
   return (
     <div
       onClick={() => style.live && onSelect(style.id)}
@@ -485,12 +487,128 @@ function TemplateCard({ style, isSelected, formData, onSelect }) {
   )
 }
 
-/* Groups for the Step 5 picker */
+/* 2-row grid scroller — scroll-aware ghost arrows, framer-motion fades */
+function BuilderTemplateRow({ styles, formData, onSelect }) {
+  const scrollRef = useRef(null)
+  const [canLeft, setCanLeft] = useState(false)
+  const [canRight, setCanRight] = useState(true)
+  const SCROLL_STEP = 308 // 2 columns at a time
+
+  const scrollTo = useCallback((dir) => {
+    const el = scrollRef.current
+    if (!el) return
+    const max = el.scrollWidth - el.clientWidth
+    if (dir > 0) {
+      el.scrollLeft >= max - 8 ? (el.scrollLeft = 0) : el.scrollBy({ left: SCROLL_STEP, behavior: 'smooth' })
+    } else {
+      el.scrollLeft <= 8 ? (el.scrollLeft = max) : el.scrollBy({ left: -SCROLL_STEP, behavior: 'smooth' })
+    }
+  }, [])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const update = () => {
+      setCanLeft(el.scrollLeft > 8)
+      setCanRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 8)
+    }
+    update()
+    el.addEventListener('scroll', update, { passive: true })
+    return () => el.removeEventListener('scroll', update)
+  }, [styles])
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollLeft = 0
+  }, [styles])
+
+  return (
+    <div style={{ position: 'relative' }}>
+
+      {/* Left fade + ghost arrow — hidden at scroll start so first card is fully visible */}
+      <AnimatePresence>
+        {canLeft && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute left-0 top-0 bottom-3 w-10 z-[3] flex items-center justify-start pl-0.5"
+            style={{ background: 'linear-gradient(to right, #0a0a12 30%, transparent)' }}>
+            <motion.button
+              onClick={() => scrollTo(-1)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: 'rgba(255,255,255,0.45)', display: 'flex' }}
+              whileHover={{ scale: 1.3, color: 'rgba(255,255,255,0.9)' }}
+              whileTap={{ scale: 0.85 }}
+              transition={{ duration: 0.15 }}>
+              <ChevronLeft size={16} />
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div ref={scrollRef} style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        className="[&::-webkit-scrollbar]:hidden">
+        <div style={{
+          display: 'grid',
+          gridAutoFlow: 'column',
+          gridTemplateRows: 'repeat(2, auto)',
+          gap: 10,
+          padding: '4px 6px 12px',
+        }}>
+          {styles.map(s => (
+            <TemplateCard key={s.id} style={s} isSelected={formData.template === s.id}
+              formData={formData} onSelect={onSelect} />
+          ))}
+        </div>
+      </div>
+
+      {/* Right fade + ghost arrow — hidden when all cards are visible */}
+      <AnimatePresence>
+        {canRight && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute right-0 top-0 bottom-3 w-10 z-[3] flex items-center justify-end pr-0.5"
+            style={{ background: 'linear-gradient(to left, #0a0a12 30%, transparent)' }}>
+            <motion.button
+              onClick={() => scrollTo(1)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: 'rgba(255,255,255,0.45)', display: 'flex' }}
+              whileHover={{ scale: 1.3, color: 'rgba(255,255,255,0.9)' }}
+              whileTap={{ scale: 0.85 }}
+              transition={{ duration: 0.15 }}>
+              <ChevronRight size={16} />
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+/* Groups for the Step 6 picker */
 const TEMPLATE_GROUPS = [
   { label: 'Classic Collection', ids: ['lotus', 'artDeco', 'floralVine', 'peacock', 'mandala', 'celestial', 'bridal'] },
   { label: 'Modern & Minimal',   ids: ['minimal', 'royal', 'modern', 'amethyst', 'ember', 'rose', 'midnight'] },
   { label: 'New Wave',           ids: ['noir', 'aurora', 'editorial', 'bloom', 'neo'] },
 ]
+
+/* Shown in template cards when the user hasn't entered their name yet.
+   Gives every template a beautiful preview instead of blank sections. */
+const DESIGN_SAMPLE = {
+  fullName: 'Priya Sharma', dateOfBirth: '14 Feb 1998', age: '26', gender: 'Female',
+  height: "5'4\"", weight: '55 kg', bloodGroup: 'B+',
+  religion: 'Hindu', caste: 'Brahmin', subCaste: 'Iyer', motherTongue: 'Telugu',
+  education: 'B.Tech (Computer Science)', college: 'JNTU Hyderabad',
+  occupation: 'Software Engineer', company: 'Infosys', income: '8 LPA', workLocation: 'Bengaluru',
+  fatherName: 'Ramesh Sharma', fatherOccupation: 'Retired Govt. Officer',
+  motherName: 'Sunita Sharma', motherOccupation: 'Homemaker',
+  brothers: '1 Elder Brother (Married)', sisters: 'None',
+  familyType: 'Nuclear', familyStatus: 'Middle Class', nativePlace: 'Tirupati, Andhra Pradesh',
+  hobbies: 'Classical Dance, Reading, Cooking',
+  about: 'Family-oriented and calm — loves to travel and explore new places.',
+  rashi: 'Vrishabha', nakshatra: 'Rohini', gotra: 'Kashyapa', manglik: 'No',
+  address: '12, MG Road, Koramangala', city: 'Bengaluru', state: 'Karnataka',
+  phone: '+91 90000 00000', email: 'priya.sharma@email.com',
+  photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'telugu', customFields: [],
+}
 
 /* ── Photo drag-to-reposition adjuster ── */
 function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace }) {
@@ -679,48 +797,70 @@ function DesignLivePreview({ formData }) {
 
 function Step6({ formData, updateForm }) {
   const { t } = useLanguage()
+  const [activeGroup, setActiveGroup] = useState(0)
   const selectedStyle = TEMPLATE_STYLES.find(s => s.id === (formData.template || 'lotus'))
+  const currentGroup = TEMPLATE_GROUPS[activeGroup]
+  const groupStyles = TEMPLATE_STYLES.filter(s => currentGroup.ids.includes(s.id))
+  // Use sample data for the live preview when user hasn't entered their name yet
+  const previewFormData = {
+    ...(formData.fullName ? formData : DESIGN_SAMPLE),
+    template: formData.template || 'lotus',
+  }
 
   return (
     <div className="space-y-6">
       <StepHeading title={t('b_s6_title')} sub={t('b_s6_sub')} />
 
-      <div className="flex flex-col lg:flex-row gap-10 items-start">
+      <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 items-start">
 
-        {/* ── Left: template groups ── */}
-        <div className="flex-1 min-w-0 space-y-6">
-          {TEMPLATE_GROUPS.map(group => (
-            <div key={group.label}>
-              <p className="text-white/35 text-xs font-semibold uppercase tracking-widest mb-3">{group.label}</p>
-              <div
-                style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                className="[&::-webkit-scrollbar]:hidden -mx-2"
-              >
-                <div style={{ display: 'flex', gap: 12, padding: '4px 8px 12px' }}>
-                  {TEMPLATE_STYLES.filter(s => group.ids.includes(s.id)).map(s => (
-                    <TemplateCard
-                      key={s.id}
-                      style={s}
-                      isSelected={formData.template === s.id}
-                      formData={formData}
-                      onSelect={id => {
-                        track.templateSelected(id, s.name)
-                        updateForm({ template: id })
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
+        {/* ── Picker: tabs + scrollable arrow row ── */}
+        <div className="flex-1 min-w-0 space-y-4 w-full sm:w-0">
 
-          {/* Selected template info */}
+          {/* Group tabs — all always visible, wrap to next line if needed */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {TEMPLATE_GROUPS.map((group, gi) => (
+              <button key={group.label} onClick={() => setActiveGroup(gi)} style={{
+                padding: '6px 14px', borderRadius: 100, fontSize: 12, fontWeight: 600,
+                cursor: 'pointer', whiteSpace: 'nowrap',
+                background: activeGroup === gi ? 'rgba(168,85,247,0.15)' : 'transparent',
+                color: activeGroup === gi ? '#c084fc' : 'rgba(255,255,255,0.4)',
+                border: `1px solid ${activeGroup === gi ? 'rgba(168,85,247,0.4)' : 'rgba(255,255,255,0.1)'}`,
+                transition: 'all 0.15s',
+              }}>
+                {group.label}
+                <span style={{ marginLeft: 6, fontSize: 10, opacity: 0.5,
+                  background: activeGroup === gi ? 'rgba(192,132,252,0.12)' : 'rgba(255,255,255,0.05)',
+                  padding: '1px 5px', borderRadius: 8 }}>
+                  {group.ids.length}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Template row slides in when group changes */}
+          <AnimatePresence mode="wait">
+            <motion.div key={activeGroup}
+              initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.18 }}>
+              <BuilderTemplateRow
+                styles={groupStyles}
+                formData={formData}
+                onSelect={id => {
+                  const s = TEMPLATE_STYLES.find(t => t.id === id)
+                  track.templateSelected(id, s?.name)
+                  updateForm({ template: id })
+                }}
+              />
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Selected info chip */}
           {selectedStyle && (
-            <div className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
-              <div style={{ width: 36, height: 36, borderRadius: 8, background: selectedStyle.gradient, flexShrink: 0 }} />
+            <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3">
+              <div style={{ width: 32, height: 32, borderRadius: 7, background: selectedStyle.gradient, flexShrink: 0 }} />
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-white">{selectedStyle.name}</p>
-                <p className="text-xs text-white/45 mt-0.5 truncate">{selectedStyle.desc}</p>
+                <p className="text-xs text-white/40 truncate">{selectedStyle.desc}</p>
               </div>
               <span className="ml-auto text-xs font-semibold text-green-400 bg-green-500/10 border border-green-500/25 rounded-full px-3 py-1 whitespace-nowrap">
                 {t('design_selected')}
@@ -729,9 +869,24 @@ function Step6({ formData, updateForm }) {
           )}
         </div>
 
-        {/* ── Right: large live preview — sticky on desktop ── */}
-        <div className="lg:sticky lg:top-20 lg:self-start mx-auto lg:mx-0 order-first lg:order-last" style={{ flexShrink: 0 }}>
-          <DesignLivePreview formData={formData} />
+        {/* ── Preview ──
+             Mobile  (< 640px): full width below picker, clipped at 288px so no endless scroll
+             Tablet  (640–1023px): fixed width right column, full preview visible
+             Desktop (1024px+): wider column, sticky               ── */}
+        <div className="sm:sticky sm:top-20 sm:self-start w-full sm:w-52 md:w-64 lg:w-auto flex-shrink-0">
+          {/* Height clip: 288px on mobile, uncapped on sm+ */}
+          <div className="max-h-72 sm:max-h-none overflow-hidden sm:overflow-visible rounded-xl sm:rounded-none">
+            <motion.div key={formData.template || 'lotus'}
+              initial={{ opacity: 0.7, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}>
+              <DesignLivePreview formData={previewFormData} />
+            </motion.div>
+          </div>
+          {/* "See more" hint shown only when preview is clipped on mobile */}
+          <p className="sm:hidden text-center text-[10px] text-white/25 mt-2">
+            ↑ preview clipped · tap Preview in nav for full view
+          </p>
         </div>
 
       </div>

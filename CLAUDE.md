@@ -168,12 +168,18 @@ Always review translations for:
 | `en` | English | ✅ Complete |
 | `hi` | Hindi | ✅ Complete |
 | `te` | Telugu | ✅ Complete |
-| `ta` | Tamil | ⏳ Pending |
-| `kn` | Kannada | ⏳ Pending |
-| `ml` | Malayalam | ⏳ Pending |
-| `bn` | Bengali | ⏳ Pending |
-| `mr` | Marathi | ⏳ Pending |
-| `gu` | Gujarati | ⏳ Pending |
+| `ta` | Tamil | ✅ Complete |
+| `kn` | Kannada | ✅ Complete |
+| `ml` | Malayalam | ✅ Complete |
+| `bn` | Bengali | ✅ Complete |
+| `mr` | Marathi | ✅ Complete |
+| `gu` | Gujarati | ✅ Complete |
+
+### Adding a new language — exact steps
+1. Add entry to `LANGUAGES` array at top of `translations.js`
+2. Add `const xx = { ...all ~280 keys... }` object
+3. Add `xx` to `export const translations = { en, hi, te, xx }` at bottom of file
+4. No other file needs changing — the switcher auto-shows it
 
 ### Translation key groups (~280 keys total)
 - **Nav/Hero:** `begin_free`, `badge`, `headline1`, `headline2`, `tagline`, `cta_*`, `pill_*`
@@ -243,6 +249,12 @@ All breakpoints follow Tailwind's mobile-first system (`sm:` = 640px, `md:` = 76
 
 **Hero orbs:** Wrapped in `absolute inset-0 overflow-hidden pointer-events-none` so they clip within the section bounds without `overflow-hidden` on the section itself (which would clip the nav dropdown).
 
+### Indic script heading rules (IMPORTANT)
+- All section `<h2>` headings must have `leading-tight` (`line-height: 1.25`) — Indic glyphs have tall vowel marks above and below the baseline; browser default heading leading (~1.1) causes lines to visually overlap.
+- The hero `<h1>` uses `leading-snug` (`line-height: 1.375`) — even more generous, needed because the h1 is large (`text-4xl`–`text-6xl`) and the glyph extensions are proportionally larger.
+- Never apply `italic` unconditionally to a text span that holds translated content. Telugu/Hindi/other Indic fonts have no italic variant; the browser applies synthetic slant which overflows the CSS line box. Use `lang === 'en' ? 'italic' : ''` to gate italic on English only.
+- Keep Indic `headline2` translations short enough to fit on a 320px screen at `text-4xl` (~288px usable ÷ ~43px/char = max 6 chars). Currently: Hindi `खूबसूरती से सजाई।`, Telugu `మీ రీతిలో.`
+
 ---
 
 ## Analytics Events (`src/utils/analytics.js`)
@@ -285,6 +297,8 @@ Group labels are translated via `tpl_group1/2/3` keys.
 - `borderBottom` on inline `<span>` renders inconsistently in html2canvas → use a `<div>` for underlines
 - `AnimatePresence mode="wait"` between two fixed overlays creates a blank gap → feedback widget is inline, not a fixed overlay
 - Language switcher dropdown clipped if nav has same z-index as sibling content → keep nav at `z-50`
+- `italic` on Indic script text causes synthetic slant → glyphs overflow line box → clip at section boundary → gate italic on `lang === 'en'` only
+- Indic hero headline2 that wraps on narrow screens (320px) pushes content height over viewport → second line falls at hero/templates boundary and appears clipped → keep headline2 under 6 Telugu/Hindi chars
 
 ---
 
