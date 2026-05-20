@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import LandingPage from './pages/LandingPage'
 import BuilderPage from './pages/BuilderPage'
 import { track } from './utils/analytics'
@@ -46,24 +46,36 @@ export default function App() {
   const [view, setView] = useState('landing')
   const [formData, setFormData] = useState(() => loadSaved() ?? EMPTY_FORM)
 
+  // Handle browser back button — popstate fires when user presses browser back
+  useEffect(() => {
+    const handlePopState = () => setView('landing')
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
   const updateForm = (fields) => setFormData(prev => {
     const next = { ...prev, ...fields }
     try {
-      // photo is base64 — too large for localStorage, skip it
       const { photo, ...rest } = next
       localStorage.setItem(LS_KEY, JSON.stringify(rest))
     } catch {}
     return next
   })
 
+  const goToBuilder = () => {
+    // Push a history entry so browser back returns to landing, not Google
+    history.pushState({ view: 'builder' }, '', '/')
+    setView('builder')
+  }
+
   const startBuilder = (styleId) => {
     track.builderStarted(styleId || 'lotus')
     setFormData({ ...EMPTY_FORM, template: styleId || 'lotus' })
     try { localStorage.removeItem(LS_KEY) } catch {}
-    setView('builder')
+    goToBuilder()
   }
 
-  const continueBuilder = () => setView('builder')
+  const continueBuilder = () => goToBuilder()
 
   const savedName = formData.fullName?.trim() || null
 
@@ -80,7 +92,10 @@ export default function App() {
         <BuilderPage
           formData={formData}
           updateForm={updateForm}
-          onBack={() => setView('landing')}
+          onBack={() => {
+            // Use browser history.back() so popstate fires and view resets cleanly
+            history.back()
+          }}
         />
       )}
     </div>

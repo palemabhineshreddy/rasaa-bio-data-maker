@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Check, Download, Heart, RotateCcw, Search, Plus, Trash2, MessageCircle } from 'lucide-react'
+import { useForm } from '@formspree/react'
 import BioTemplate from '../components/BioTemplate'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -899,157 +900,137 @@ function Step6({ formData, updateForm }) {
 const STEP_KEYS = ['s_personal','s_career','s_family','s_about','s_photo','s_design']
 
 /* ── Feedback ── */
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xwvyrbpw'
-
 const RATINGS = [
-  { score: 1, emoji: '😞', label: 'Poor' },
-  { score: 2, emoji: '😐', label: 'Okay' },
-  { score: 3, emoji: '🙂', label: 'Good' },
-  { score: 4, emoji: '😊', label: 'Great' },
-  { score: 5, emoji: '🤩', label: 'Loved it' },
+  { score: 1, emoji: '😞', labelKey: 'fb_r1' },
+  { score: 2, emoji: '😐', labelKey: 'fb_r2' },
+  { score: 3, emoji: '🙂', labelKey: 'fb_r3' },
+  { score: 4, emoji: '😊', labelKey: 'fb_r4' },
+  { score: 5, emoji: '🤩', labelKey: 'fb_r5' },
 ]
 
 /* ── Download celebration overlay ── */
-/* ── Download celebration overlay (auto-dismisses) ── */
-function DownloadCelebration({ onDone }) {
-  const celebParticles = useMemo(() =>
-    Array.from({ length: 28 }, (_, i) => ({
-      id: i,
-      dx: (Math.random() - 0.5) * 520,
-      dy: -(Math.random() * 360 + 40),
-      rotate: Math.random() * 540,
-      color: ['#f59e0b','#10b981','#6366f1','#ec4899','#f97316','#3b82f6','#a855f7'][i % 7],
-      size: Math.random() * 10 + 5,
-      round: Math.random() > 0.45,
-      delay: Math.random() * 0.18,
-    }))
-  , [])
+/* ── Feedback modal (appears immediately after PDF download) ── */
+function FeedbackModal({ template, onClose }) {
+  const { t } = useLanguage()
+  const [rating, setRating] = useState(null)
+  const [state, handleSubmit] = useForm('xwvyrbpw')
 
   useEffect(() => {
-    const t = setTimeout(onDone, 2000)
-    return () => clearTimeout(t)
-  }, [onDone])
+    if (state.succeeded) {
+      track.feedbackSubmitted(rating, template, false)
+      const timer = setTimeout(onClose, 1800)
+      return () => clearTimeout(timer)
+    }
+  }, [state.succeeded])
+
+  const selectedRating = RATINGS.find(r => r.score === rating)
 
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      onClick={onDone}
+      onClick={onClose}
       style={{
-        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-        zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'rgba(0,0,0,0.78)', cursor: 'pointer',
+        position: 'fixed', inset: 0, zIndex: 200,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)',
+        padding: 16,
       }}
     >
-      <div style={{ position: 'absolute', top: '50%', left: '50%' }}>
-        {celebParticles.map(p => (
-          <motion.div key={p.id}
-            initial={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 0 }}
-            animate={{ x: p.dx, y: p.dy, opacity: [1, 1, 0], rotate: p.rotate, scale: 1 }}
-            transition={{ duration: 1.3, delay: p.delay, ease: 'easeOut' }}
-            style={{ position: 'absolute', width: p.size, height: p.size, background: p.color, borderRadius: p.round ? '50%' : 2 }}
-          />
-        ))}
-      </div>
       <motion.div
-        initial={{ scale: 0 }} animate={{ scale: [0, 1.25, 1] }}
-        transition={{ duration: 0.55, type: 'spring' }}
-        style={{ textAlign: 'center', position: 'relative', zIndex: 1, pointerEvents: 'none' }}
+        initial={{ scale: 0.88, opacity: 0, y: 24 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.92, opacity: 0, y: 12 }}
+        transition={{ type: 'spring', damping: 22, stiffness: 320 }}
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: 'linear-gradient(145deg, #1e1035 0%, #150d2a 100%)',
+          border: '1px solid rgba(168,85,247,0.2)',
+          borderRadius: 24, padding: '32px 28px',
+          maxWidth: 380, width: '100%',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(168,85,247,0.1)',
+        }}
       >
-        <div style={{ fontSize: 80 }}>✅</div>
-        <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-          style={{ color: 'white', fontSize: 18, fontWeight: 700, marginTop: 14 }}
-        >Your biodata is ready!</motion.p>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}
-          style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 6 }}
-        >Tap anywhere to continue</motion.p>
+        {state.succeeded ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+            style={{ textAlign: 'center', padding: '8px 0' }}
+          >
+            <div style={{ fontSize: 52, marginBottom: 12 }}>🙏</div>
+            <p style={{ color: 'white', fontWeight: 700, fontSize: 17, marginBottom: 6 }}>{t('prev_thank_you')}</p>
+          </motion.div>
+        ) : (
+          <>
+            <div style={{ textAlign: 'center', marginBottom: 24 }}>
+              <motion.div
+                initial={{ scale: 0 }} animate={{ scale: [0, 1.2, 1] }}
+                transition={{ type: 'spring', damping: 12, stiffness: 260, delay: 0.08 }}
+                style={{ fontSize: 52, marginBottom: 10 }}
+              >✅</motion.div>
+              <p style={{ color: 'white', fontWeight: 700, fontSize: 17, marginBottom: 4 }}>{t('prev_ready')}</p>
+              <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 13 }}>{t('prev_how_was')}</p>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <input type="hidden" name="rating" value={rating ?? ''} />
+              <input type="hidden" name="emoji" value={selectedRating?.emoji ?? ''} />
+              <input type="hidden" name="template" value={template} />
+              <input type="hidden" name="_subject" value={`Bandhan Feedback — ${rating ?? '?'}/5 ${selectedRating?.emoji ?? ''}`} />
+              <input type="hidden" name="_replyto" value="hello@bandhan.app" />
+
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 20 }}>
+                {RATINGS.map(r => (
+                  <button key={r.score} type="button" onClick={() => setRating(r.score)} style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                    padding: '10px 12px', borderRadius: 14, border: 'none', cursor: 'pointer',
+                    background: rating === r.score ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.04)',
+                    outline: rating === r.score ? '1.5px solid rgba(168,85,247,0.55)' : '1.5px solid transparent',
+                    transition: 'all 0.15s',
+                  }}>
+                    <span style={{ fontSize: 28, lineHeight: 1, filter: rating !== null && rating !== r.score ? 'grayscale(1) opacity(0.35)' : 'none', transition: 'filter 0.15s' }}>
+                      {r.emoji}
+                    </span>
+                    <span style={{ fontSize: 9, color: rating === r.score ? '#c084fc' : 'rgba(255,255,255,0.28)', fontWeight: 600, letterSpacing: '0.04em' }}>
+                      {t(r.labelKey)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              <AnimatePresence>
+                {rating !== null && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }}
+                    style={{ overflow: 'hidden' }}
+                  >
+                    <textarea
+                      name="comment"
+                      className="form-input resize-none mb-3" rows={3} maxLength={500}
+                      placeholder={rating >= 4 ? t('prev_fb_loved') : t('prev_fb_improve')}
+                    />
+                    <button type="submit" disabled={state.submitting} className="btn-primary w-full justify-center py-3 text-sm mb-2">
+                      {state.submitting ? t('prev_fb_sending') : t('prev_fb_send')}
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <button
+                type="button" onClick={onClose}
+                style={{
+                  width: '100%', background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'rgba(255,255,255,0.3)', fontSize: 13, padding: '8px 0',
+                  transition: 'color 0.15s',
+                }}
+                onMouseEnter={e => e.target.style.color = 'rgba(255,255,255,0.6)'}
+                onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.3)'}
+              >Skip →</button>
+            </form>
+          </>
+        )}
       </motion.div>
     </motion.div>
-  )
-}
-
-/* ── Inline feedback widget (appears at bottom after download) ── */
-function FeedbackWidget({ template }) {
-  const { t } = useLanguage()
-  const [rating, setRating] = useState(null)
-  const [comment, setComment] = useState('')
-  const [submitted, setSubmitted] = useState(false)
-  const [sending, setSending] = useState(false)
-
-  const handleSubmit = async () => {
-    if (rating === null) return
-    setSending(true)
-    track.feedbackSubmitted(rating, template, comment.trim().length > 0)
-    try {
-      if (!FORMSPREE_ENDPOINT.includes('XXXXXXXXXX')) {
-        await fetch(FORMSPREE_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            rating,
-            emoji: RATINGS.find(r => r.score === rating)?.emoji,
-            template,
-            comment: comment.trim() || '(no comment)',
-            _subject: `Bandhan Feedback — ${rating}/5 ${RATINGS.find(r => r.score === rating)?.emoji}`,
-          }),
-        })
-      }
-    } catch {}
-    setSubmitted(true)
-    setSending(false)
-  }
-
-  if (submitted) {
-    return (
-      <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 text-center">
-        <p className="text-2xl mb-2">🙏</p>
-        <p className="text-white/60 text-sm font-medium">{t('prev_thank_you')}</p>
-      </div>
-    )
-  }
-
-  return (
-    <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
-      <p className="text-white/45 text-xs font-semibold uppercase tracking-widest text-center mb-4">
-        {t('prev_how_was')}
-      </p>
-      <div className="flex justify-center gap-2 mb-4">
-        {RATINGS.map(r => (
-          <button key={r.score} type="button" onClick={() => setRating(r.score)} style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-            padding: '10px 14px', borderRadius: 14, border: 'none', cursor: 'pointer',
-            background: rating === r.score ? 'rgba(168,85,247,0.18)' : 'transparent',
-            outline: rating === r.score ? '1.5px solid rgba(168,85,247,0.5)' : '1.5px solid transparent',
-            transition: 'all 0.15s',
-          }}>
-            <span style={{ fontSize: 26, lineHeight: 1, filter: rating !== null && rating !== r.score ? 'grayscale(1) opacity(0.4)' : 'none', transition: 'filter 0.15s' }}>
-              {r.emoji}
-            </span>
-            <span style={{ fontSize: 9, color: rating === r.score ? '#c084fc' : 'rgba(255,255,255,0.3)', fontWeight: 600, letterSpacing: '0.04em' }}>
-              {r.label}
-            </span>
-          </button>
-        ))}
-      </div>
-      <AnimatePresence>
-        {rating !== null && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }}
-            style={{ overflow: 'hidden' }}
-          >
-            <textarea
-              className="form-input resize-none mt-1 mb-3" rows={3} maxLength={500}
-              placeholder={rating >= 4 ? 'What did you love? (optional)' : 'How can we improve? (optional)'}
-              value={comment} onChange={e => setComment(e.target.value)}
-            />
-            <button type="button" onClick={handleSubmit} disabled={sending} className="btn-primary w-full justify-center py-3 text-sm">
-              {sending ? 'Sending…' : 'Send Feedback'}
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
   )
 }
 
@@ -1064,17 +1045,17 @@ function PreviewStep({ formData, onBack, onEditStep, steps }) {
   const [loading, setLoading] = useState(false)
   const [sharing, setSharing] = useState(false)
   const [downloaded, setDownloaded] = useState(false)
-  const [showCelebration, setShowCelebration] = useState(false)
-  const [showFeedback, setShowFeedback] = useState(false)
+  const [showModal, setShowModal] = useState(false)
   const pdfBlobRef = useRef(null)
 
   const handleDownload = async () => {
     setLoading(true)
+    setShowModal(false)
     try {
       const { blob } = await exportPDF(previewRef.current, formData.fullName || 'biodata')
       pdfBlobRef.current = blob
       setDownloaded(true)
-      setShowCelebration(true)
+      setShowModal(true)
       track.pdfDownloaded(formData.template || 'lotus')
     } finally {
       setLoading(false)
@@ -1195,27 +1176,13 @@ function PreviewStep({ formData, onBack, onEditStep, steps }) {
         )}
       </div>
 
-      {/* Celebration overlay — fixed, auto-dismisses after 2s */}
+      {/* Feedback modal — pops up immediately after download */}
       <AnimatePresence>
-        {showCelebration && (
-          <DownloadCelebration onDone={() => {
-            setShowCelebration(false)
-            setShowFeedback(true)
-          }} />
-        )}
-      </AnimatePresence>
-
-      {/* Inline feedback — slides in at bottom after celebration */}
-      <AnimatePresence>
-        {showFeedback && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <FeedbackWidget template={formData.template || 'lotus'} />
-          </motion.div>
+        {showModal && (
+          <FeedbackModal
+            template={formData.template || 'lotus'}
+            onClose={() => setShowModal(false)}
+          />
         )}
       </AnimatePresence>
     </div>

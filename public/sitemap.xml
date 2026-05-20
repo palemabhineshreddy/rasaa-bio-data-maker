@@ -3,29 +3,117 @@
   xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml"
   xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- English (default) -->
   <url>
     <loc>https://bandhan.app/</loc>
-    <lastmod>2026-05-20</lastmod>
+    <lastmod>2026-05-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-
-    <!-- hreflang: all 9 languages served at the same URL (client-side i18n) -->
     <xhtml:link rel="alternate" hreflang="x-default" href="https://bandhan.app/"/>
     <xhtml:link rel="alternate" hreflang="en"        href="https://bandhan.app/"/>
     <xhtml:link rel="alternate" hreflang="en-IN"     href="https://bandhan.app/"/>
-    <xhtml:link rel="alternate" hreflang="hi"        href="https://bandhan.app/"/>
-    <xhtml:link rel="alternate" hreflang="te"        href="https://bandhan.app/"/>
-    <xhtml:link rel="alternate" hreflang="ta"        href="https://bandhan.app/"/>
-    <xhtml:link rel="alternate" hreflang="kn"        href="https://bandhan.app/"/>
-    <xhtml:link rel="alternate" hreflang="ml"        href="https://bandhan.app/"/>
-    <xhtml:link rel="alternate" hreflang="bn"        href="https://bandhan.app/"/>
-    <xhtml:link rel="alternate" hreflang="mr"        href="https://bandhan.app/"/>
-    <xhtml:link rel="alternate" hreflang="gu"        href="https://bandhan.app/"/>
-
+    <xhtml:link rel="alternate" hreflang="hi"        href="https://bandhan.app/hindi-biodata-maker"/>
+    <xhtml:link rel="alternate" hreflang="te"        href="https://bandhan.app/telugu-biodata-maker"/>
+    <xhtml:link rel="alternate" hreflang="ta"        href="https://bandhan.app/tamil-biodata-maker"/>
+    <xhtml:link rel="alternate" hreflang="kn"        href="https://bandhan.app/kannada-biodata-maker"/>
+    <xhtml:link rel="alternate" hreflang="ml"        href="https://bandhan.app/malayalam-biodata-maker"/>
+    <xhtml:link rel="alternate" hreflang="bn"        href="https://bandhan.app/bengali-biodata-maker"/>
+    <xhtml:link rel="alternate" hreflang="mr"        href="https://bandhan.app/marathi-biodata-maker"/>
+    <xhtml:link rel="alternate" hreflang="gu"        href="https://bandhan.app/gujarati-biodata-maker"/>
     <image:image>
       <image:loc>https://bandhan.app/og-image.png</image:loc>
       <image:title>Bandhan — Free Indian Marriage Biodata Maker with 19 premium designs</image:title>
       <image:caption>Create a beautiful marriage biodata PDF in minutes. Free, private, no sign-up. 19 designs for Hindu, Muslim, Sikh, Christian, Jain, and Buddhist families.</image:caption>
     </image:image>
   </url>
+
+  <!-- Hindi -->
+  <url>
+    <loc>https://bandhan.app/hindi-biodata-maker</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="hi"        href="https://bandhan.app/hindi-biodata-maker"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://bandhan.app/"/>
+  </url>
+
+  <!-- Telugu -->
+  <url>
+    <loc>https://bandhan.app/telugu-biodata-maker</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="te"        href="https://bandhan.app/telugu-biodata-maker"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://bandhan.app/"/>
+  </url>
+
+  <!-- Tamil -->
+  <url>
+    <loc>https://bandhan.app/tamil-biodata-maker</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="ta"        href="https://bandhan.app/tamil-biodata-maker"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://bandhan.app/"/>
+  </url>
+
+  <!-- Kannada -->
+  <url>
+    <loc>https://bandhan.app/kannada-biodata-maker</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="kn"        href="https://bandhan.app/kannada-biodata-maker"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://bandhan.app/"/>
+  </url>
+
+  <!-- Malayalam -->
+  <url>
+    <loc>https://bandhan.app/malayalam-biodata-maker</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="ml"        href="https://bandhan.app/malayalam-biodata-maker"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://bandhan.app/"/>
+  </url>
+
+  <!-- Bengali -->
+  <url>
+    <loc>https://bandhan.app/bengali-biodata-maker</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="bn"        href="https://bandhan.app/bengali-biodata-maker"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://bandhan.app/"/>
+  </url>
+
+  <!-- Marathi -->
+  <url>
+    <loc>https://bandhan.app/marathi-biodata-maker</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="mr"        href="https://bandhan.app/marathi-biodata-maker"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://bandhan.app/"/>
+  </url>
+
+  <!-- Gujarati -->
+  <url>
+    <loc>https://bandhan.app/gujarati-biodata-maker</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bandhan.app/"/>
+    <xhtml:link rel="alternate" hreflang="gu"        href="https://bandhan.app/gujarati-biodata-maker"/>
+    <xhtml:link rel="alternate" hreflang="en"        href="https://bandhan.app/"/>
+  </url>
+
 </urlset>
