@@ -646,7 +646,7 @@ export default function PanIndiaTemplate({ data }) {
 
       <Border outer={outer} gold={gold} />
 
-      <div style={{ padding: '48px 52px 28px 52px', position: 'relative', zIndex: 1 }}>
+      <div style={{ padding: '48px 52px 28px 90px', position: 'relative', zIndex: 1 }}>
 
         {getSlogan(religion, motherTongue, sloganLanguage) && (
           <header style={{ textAlign: 'center', marginBottom: 16 }}>

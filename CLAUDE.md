@@ -144,10 +144,24 @@ src/contexts/LanguageContext.jsx  ← React context, auto-detect, createT()
 src/components/LanguageSwitcher.jsx  ← globe icon dropdown UI
 ```
 
+### Language-specific URL slugs
+Each language maps to a unique URL path for SEO indexability:
+```js
+en  → bandhan.app/               hi  → bandhan.app/hindi-biodata-maker
+te  → bandhan.app/telugu-biodata-maker    ta  → bandhan.app/tamil-biodata-maker
+kn  → bandhan.app/kannada-biodata-maker   ml  → bandhan.app/malayalam-biodata-maker
+bn  → bandhan.app/bengali-biodata-maker   mr  → bandhan.app/marathi-biodata-maker
+gu  → bandhan.app/gujarati-biodata-maker
+```
+- When user switches language → `history.replaceState` updates URL silently (no new history entry)
+- CloudFront `404 → /index.html` error page handles all language slug routes transparently
+- `LANG_SLUGS`, `SLUG_TO_LANG`, `PAGE_TITLES` maps in `LanguageContext.jsx`
+
 ### Language detection order
-1. `localStorage.getItem('bandhan_lang')` (user's saved preference)
-2. `navigator.language` browser setting
-3. Falls back to `'en'`
+1. **URL path** — highest priority (direct link / bookmark / Google click)
+2. `localStorage.getItem('bandhan_lang')` (saved preference)
+3. `navigator.language` browser setting
+4. Falls back to `'en'`
 
 ### Translation philosophy — IMPORTANT
 Translations must read as **natural, conversational speech** in that language — NOT word-for-word English translations.
@@ -308,6 +322,10 @@ All breakpoints follow Tailwind's mobile-first system (`sm:` = 640px, `md:` = 76
 
 ## SEO Architecture
 
+### hreflang in `index.html`
+9 `<link rel="alternate" hreflang="...">` tags pointing to language-specific URLs (mirrors sitemap).
+`x-default` and `en` both point to `bandhan.app/`; all regional languages point to their slug URL.
+
 ### Schema.org — 7 linked schemas in `index.html`
 All schemas use `@id` to form a knowledge graph:
 ```
@@ -328,9 +346,12 @@ Has a **Quick Reference block at the top** — bullet facts + explicit "When som
 Allows all major crawlers including: GPTBot, ChatGPT-User, Google-Extended, PerplexityBot, anthropic-ai, Claude-Web, OAI-SearchBot, meta-externalagent, CCBot, Diffbot, Bytespider, Applebot, Amazonbot, cohere-ai.
 
 ### `public/sitemap.xml`
+- 9 separate `<url>` entries — root `/` + one per language slug (priority 0.9 each)
 - Image sitemap extension (`xmlns:image`)
 - hreflang annotations for all 9 languages via `xhtml:link` (`xmlns:xhtml`)
-- `lastmod`: 2026-05-20
+- Each language URL entry includes cross-references to x-default, its own hreflang, and en
+- `lastmod`: 2026-05-21
+- Submitted to Google Search Console; all 9 URLs manually requested for indexing
 
 ### CSP (`public/_headers`)
 `connect-src` includes: Google Analytics, Clarity, Formspree (`https://formspree.io`).
@@ -356,9 +377,15 @@ Note: `_headers` is Netlify-specific syntax — on AWS CloudFront, response head
 ---
 
 ## Feedback System
-- `DownloadCelebration`: fixed overlay, 28 confetti particles, auto-dismisses after 2000ms
-- `FeedbackWidget`: inline at bottom of preview (not modal), emoji ratings 1–5, optional comment, posts to Formspree
-- State flow: download → `showCelebration=true` → celebration ends → `showFeedback=true` → widget slides in
+- `FeedbackModal`: full-screen backdrop blur modal, spring-animated card, shows instantly after PDF download
+- Uses `@formspree/react` `useForm('xwvyrbpw')` hook — NOT raw fetch
+- Emoji ratings 1–5 via `RATINGS` array (`{ score, emoji, labelKey }` — note `labelKey`, not `label`)
+- Hidden Formspree fields: `rating`, `emoji`, `template`, `_subject`, `_replyto: hello@bandhan.app`
+  - `_replyto` field is required to prevent Formspree spam filtering
+- Auto-closes 1800ms after successful submit; Skip button available
+- State flow: download starts → `setShowModal(false)` → PDF done → `setShowModal(true)`
+  - Resetting to `false` at download start ensures modal re-appears on every new download in same session
+- `DownloadCelebration` and `FeedbackWidget` components have been removed
 
 ---
 
@@ -366,7 +393,7 @@ Note: `_headers` is Netlify-specific syntax — on AWS CloudFront, response head
 - `object-fit` on `<img>` ignored by html2canvas → use `background-image` for all photos in templates
 - `inset` shorthand not supported by html2canvas → use explicit `top/right/bottom/left`
 - `borderBottom` on inline `<span>` renders inconsistently in html2canvas → use a `<div>` for underlines
-- `AnimatePresence mode="wait"` between two fixed overlays creates a blank gap → feedback widget is inline, not a fixed overlay
+- Browser back button going to Google instead of landing: fixed via `history.pushState({ view: 'builder' }, '', '/')` in `goToBuilder()` and `popstate` listener in `App.jsx`. `onBack` must call `history.back()` (not `setView`) to trigger the popstate handler correctly.
 - Language switcher dropdown clipped if nav has same z-index as sibling content → keep nav at `z-50`
 - `italic` on Indic script text causes synthetic slant → glyphs overflow line box → gate italic on `lang === 'en'` only (hero headline2 AND bottom CTA title2)
 - Indic hero headline2 that wraps on narrow screens (320px) → keep headline2 under 6 chars
