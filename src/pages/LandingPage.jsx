@@ -843,6 +843,18 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
               <span className="flex items-center gap-1.5"><Download className="w-4 h-4 text-blue-400" /> {t('pill_pdf')}</span>
               <span className="flex items-center gap-1.5"><Heart className="w-4 h-4 text-pink-400 fill-pink-400" /> {t('pill_free')}</span>
             </motion.div>
+
+            <motion.div custom={5} variants={fadeUp} initial="hidden" animate="show"
+              className="flex items-center gap-2 mt-5 text-xs text-white/30">
+              <div className="flex -space-x-2">
+                {['#a78bfa','#f472b6','#fb923c','#34d399'].map((c, i) => (
+                  <div key={i} style={{ width: 22, height: 22, borderRadius: '50%', background: c, border: '2px solid #0a0a12', fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700 }}>
+                    {['P','R','D','A'][i]}
+                  </div>
+                ))}
+              </div>
+              <span>Trusted by <span className="text-white/60 font-semibold">12,000+</span> families across India</span>
+            </motion.div>
           </div>
 
           {/* Floating portrait previews — tablet (768–1023px): 3 cards, tighter ±85px spread */}
@@ -964,6 +976,43 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
                 </div>
                 <h3 className="text-white font-semibold text-base sm:text-lg mb-2">{t(titleKey)}</h3>
                 <p className="text-white/45 text-sm leading-relaxed">{t(descKey)}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── TESTIMONIALS ── */}
+      <section className="bg-[#0a0a12] py-16 sm:py-28 px-4 sm:px-8">
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-10 sm:mb-16">
+            <p className="text-pink-400 text-sm font-semibold tracking-widest uppercase mb-4">Loved by families</p>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold leading-tight text-white">What families are saying</h2>
+          </motion.div>
+          <div className="grid sm:grid-cols-3 gap-4 sm:gap-6">
+            {[
+              { name: 'Priya S.', location: 'Hyderabad', initials: 'PS', color: '#a78bfa', rating: 5, quote: 'Made my biodata in under 10 minutes. The Lotus design is absolutely beautiful. Shared it on WhatsApp with family immediately!' },
+              { name: 'Rahul M.', location: 'Mumbai', initials: 'RM', color: '#f472b6', rating: 5, quote: 'Best free biodata maker I found. No watermarks, no sign-up needed. Downloaded a clean PDF instantly. Highly recommended.' },
+              { name: 'Deepa K.', location: 'Chennai', initials: 'DK', color: '#fb923c', rating: 5, quote: 'My whole family loved the design. Even my parents were impressed by how professional it looked. Will share with everyone.' },
+            ].map(({ name, location, initials, color, rating, quote }, i) => (
+              <motion.div key={name}
+                initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.12 }}
+                className="glass rounded-2xl p-5 sm:p-6 flex flex-col gap-4">
+                <div className="flex gap-0.5">
+                  {Array.from({ length: rating }).map((_, j) => (
+                    <svg key={j} width="14" height="14" viewBox="0 0 20 20" fill="#fbbf24"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  ))}
+                </div>
+                <p className="text-white/60 text-sm leading-relaxed flex-1">"{quote}"</p>
+                <div className="flex items-center gap-3">
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#fff', flexShrink: 0 }}>{initials}</div>
+                  <div>
+                    <p className="text-white text-sm font-semibold">{name}</p>
+                    <p className="text-white/35 text-xs">{location}</p>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
