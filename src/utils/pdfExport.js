@@ -19,6 +19,19 @@ async function buildPDF(element, name) {
     scale: 2,
     useCORS: true,
     logging: false,
+    onclone: (_doc, clonedElement) => {
+      // The element lives inside a position:fixed container at left:-9999.
+      // Move it to 0,0 so child elements are inside the viewport and
+      // html2canvas computes their dimensions correctly.
+      let node = clonedElement.parentElement
+      while (node && node !== _doc.body) {
+        if (node.style.position === 'fixed' || node.style.position === 'absolute') {
+          node.style.left = '0px'
+          node.style.top = '0px'
+        }
+        node = node.parentElement
+      }
+    },
   })
 
   const MM_PER_CSS_PX = 25.4 / 96

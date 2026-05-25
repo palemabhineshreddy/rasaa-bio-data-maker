@@ -758,12 +758,12 @@ export default function PanIndiaTemplate({ data }) {
 
       {/* Footer ornament — absolutely pinned to the bottom of the card in live preview;
           in PDF export the parent has no explicit height so it sits just after the content */}
-      <div style={{ position: 'absolute', bottom: 28, left: 90, right: 52, zIndex: 1, display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
-        <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, transparent, ${gold})` }} />
+      <div style={{ position: 'absolute', bottom: 28, left: 90, width: 618, zIndex: 1, display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
+        <div style={{ flex: 1, height: 1, backgroundImage: `linear-gradient(to right, transparent, ${gold})`, backgroundRepeat: 'no-repeat' }} />
         <svg width="14" height="14" viewBox="0 0 14 14" fill={gold}>
           <rect x="3.5" y="3.5" width="7" height="7" transform="rotate(45 7 7)" />
         </svg>
-        <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${gold})` }} />
+        <div style={{ flex: 1, height: 1, backgroundImage: `linear-gradient(to left, transparent, ${gold})`, backgroundRepeat: 'no-repeat' }} />
       </div>
 
     </div>

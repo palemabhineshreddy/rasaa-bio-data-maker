@@ -112,7 +112,7 @@ export function NoirTemplate({ data }) {
   return (
     <div className="pdf-area" style={{ background: BG, fontFamily: 'Inter, sans-serif', position: 'relative', minHeight: '100%' }}>
       {/* Amber top accent */}
-      <div style={{ height: 3, background: `linear-gradient(90deg, ${AMBER} 0%, rgba(232,168,32,0) 100%)` }} />
+      <div style={{ height: 3, backgroundImage: `linear-gradient(90deg, ${AMBER} 0%, rgba(232,168,32,0) 100%)`, backgroundRepeat: 'no-repeat' }} />
 
       <div style={{ padding: '42px 52px 32px 52px' }}>
         {/* Name block */}
@@ -207,7 +207,9 @@ export function AuroraTemplate({ data }) {
 
   return (
     <div className="pdf-area" style={{
-      background: 'linear-gradient(145deg, #1a0040 0%, #080c40 45%, #002840 100%)',
+      backgroundImage: 'linear-gradient(145deg, #1a0040 0%, #080c40 45%, #002840 100%)',
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: '100% 100%',
       fontFamily: 'Inter, sans-serif',
       position: 'relative',
       overflow: 'hidden',
@@ -217,13 +219,17 @@ export function AuroraTemplate({ data }) {
       <div style={{
         position: 'absolute', top: -100, left: -60,
         width: 300, height: 300, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(120,40,220,0.25) 0%, transparent 70%)',
+        backgroundImage: 'radial-gradient(circle, rgba(120,40,220,0.25) 0%, transparent 70%)',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: '100% 100%',
         pointerEvents: 'none',
       }} />
       <div style={{
         position: 'absolute', bottom: -80, right: -40,
         width: 280, height: 280, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(0,120,180,0.2) 0%, transparent 70%)',
+        backgroundImage: 'radial-gradient(circle, rgba(0,120,180,0.2) 0%, transparent 70%)',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: '100% 100%',
         pointerEvents: 'none',
       }} />
 
@@ -415,7 +421,9 @@ export function BloomTemplate({ data }) {
       {/* Left vertical accent bar */}
       <div style={{
         width: 5, flexShrink: 0,
-        background: 'linear-gradient(180deg, #f9a8d4 0%, #c084fc 50%, #818cf8 100%)',
+        backgroundImage: 'linear-gradient(180deg, #f9a8d4 0%, #c084fc 50%, #818cf8 100%)',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: '100% 100%',
       }} />
 
       {/* Main content */}
