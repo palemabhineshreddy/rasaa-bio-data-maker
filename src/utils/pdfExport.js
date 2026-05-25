@@ -20,14 +20,15 @@ async function buildPDF(element, name) {
     useCORS: true,
     logging: false,
     onclone: (_doc, clonedElement) => {
-      // The element lives inside a position:fixed container at left:-9999.
-      // Move it to 0,0 so child elements are inside the viewport and
-      // html2canvas computes their dimensions correctly.
+      // The container uses transform:translateX(-9999px) to hide off-screen while
+      // keeping layout-position at (0,0) so Chrome always computes child dimensions.
+      // Strip the transform here so html2canvas renders the clone at (0,0).
       let node = clonedElement.parentElement
       while (node && node !== _doc.body) {
         if (node.style.position === 'fixed' || node.style.position === 'absolute') {
           node.style.left = '0px'
           node.style.top = '0px'
+          node.style.transform = 'none'
         }
         node = node.parentElement
       }

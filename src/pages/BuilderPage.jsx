@@ -1618,7 +1618,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
       </AnimatePresence>
 
       {/* Hidden A4-sized template used for PDF export from every step */}
-      <div style={{ position: 'fixed', left: -9999, top: 0, pointerEvents: 'none' }}>
+      <div style={{ position: 'fixed', left: 0, top: 0, transform: 'translateX(-9999px)', pointerEvents: 'none' }}>
         <div ref={downloadRef} style={{ width: 760, height: Math.round(760 * 1.414), overflow: 'hidden', position: 'relative' }}>
           <BioTemplate data={formData} />
         </div>
