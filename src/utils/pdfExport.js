@@ -19,8 +19,6 @@ async function buildPDF(element, name) {
     scale: 2,
     useCORS: true,
     logging: false,
-    windowWidth: element.scrollWidth,
-    windowHeight: element.scrollHeight,
   })
 
   const MM_PER_CSS_PX = 25.4 / 96
