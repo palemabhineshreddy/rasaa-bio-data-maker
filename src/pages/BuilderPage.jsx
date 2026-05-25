@@ -1153,7 +1153,6 @@ const WA_FALLBACK_TEXT = encodeURIComponent(
 
 function PreviewStep({ formData, onBack, onEditStep, steps, exportRef }) {
   const { t } = useLanguage()
-  const previewRef = useRef()
   const [loading, setLoading] = useState(false)
   const [sharing, setSharing] = useState(false)
   const [downloaded, setDownloaded] = useState(false)
@@ -1263,11 +1262,9 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef }) {
         ))}
       </div>
 
-      {/* Biodata preview — scrollable on mobile so full template is visible */}
-      <div className="overflow-x-auto rounded-2xl border border-white/10 shadow-2xl -mx-3 sm:mx-0 px-0">
-        <div ref={previewRef} style={{ minWidth: 760, position: 'relative' }}>
-          <BioTemplate data={formData} />
-        </div>
+      {/* Biodata preview — same card view as the live preview panel */}
+      <div className="flex justify-center">
+        <SidePanelPreview formData={formData} />
       </div>
 
       <div className="flex gap-4 flex-wrap">
