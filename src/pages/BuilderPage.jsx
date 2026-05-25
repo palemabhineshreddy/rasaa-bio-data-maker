@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Check, Download, Heart, RotateCcw, Search, Plus, Trash2, MessageCircle } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, Download, Heart, RotateCcw, Search, Plus, Trash2, MessageCircle, LayoutTemplate } from 'lucide-react'
 import { useForm } from '@formspree/react'
 import BioTemplate from '../components/BioTemplate'
 import LanguageSwitcher from '../components/LanguageSwitcher'
@@ -93,7 +93,7 @@ function CustomFieldEditor({ field, index, formData, updateForm }) {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {field.section === 'custom' && (
-          <div className="md:col-span-2">
+          <div >
             <label className="form-label">{t('custom_sec_name')}</label>
             <input
               name={`customFields.${index}.customTitle`}
@@ -129,28 +129,25 @@ function CustomFieldEditor({ field, index, formData, updateForm }) {
   )
 }
 
-function InlineCustomFields({ section, titleKey, helpKey, formData, updateForm }) {
+function InlineCustomFields({ section, titleKey, formData, updateForm }) {
   const { t } = useLanguage()
   const sectionFields = getCustomFields(formData).filter(field => field.section === section)
 
   return (
-    <div className="space-y-4 rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-5">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h4 className="text-sm font-semibold uppercase tracking-widest text-purple-300">{t(titleKey)}</h4>
-          {helpKey && <p className="mt-1 text-sm text-white/45">{t(helpKey)}</p>}
-        </div>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-semibold uppercase tracking-widest text-white/30">{t(titleKey)}</span>
         <button
           type="button"
           onClick={() => addCustomField(formData, updateForm, section)}
-          className="btn-ghost justify-center border-dashed px-4 py-2 text-sm"
+          className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 transition-colors"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0' }}
         >
-          <Plus className="h-4 w-4" /> {t('add_field')}
+          <Plus className="h-3 w-3" /> {t('add_field')}
         </button>
       </div>
-
       {sectionFields.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {sectionFields.map((field, index) => (
             <CustomFieldEditor
               key={field.id}
@@ -172,8 +169,8 @@ function Step1({ formData, updateForm }) {
   return (
     <div className="space-y-5">
       <StepHeading title={t('b_s1_title')} sub={t('b_s1_sub')} />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div className="md:col-span-2">
+      <div className="grid grid-cols-2 gap-5">
+        <div className="col-span-2">
           <Field label={t('f_fullName')} name="fullName" formData={formData} updateForm={updateForm} placeholder={t('ph_fullName')} />
         </div>
         <Field label={t('f_gender')} name="gender" formData={formData} updateForm={updateForm} options={['', 'Male', 'Female']} />
@@ -187,7 +184,36 @@ function Step1({ formData, updateForm }) {
         <Field label={t('f_caste')} name="caste" formData={formData} updateForm={updateForm} placeholder={t('ph_caste')} />
         <Field label={t('f_subCaste')} name="subCaste" formData={formData} updateForm={updateForm} placeholder={t('ph_subCaste')} />
       </div>
-      <InlineCustomFields section="personal" titleKey="extra_personal_t" helpKey="extra_personal_h" formData={formData} updateForm={updateForm} />
+      <InlineCustomFields section="personal" titleKey="extra_personal_t" formData={formData} updateForm={updateForm} />
+
+      <div className="space-y-4 pt-2">
+        <SectionTitle>{t('sec_horoscope')} <span className="text-white/30 text-sm font-normal">({t('sec_optional')})</span></SectionTitle>
+        <div className="grid grid-cols-2 gap-5">
+          <Field label={t('f_rashi')} name="rashi" formData={formData} updateForm={updateForm} placeholder={t('ph_rashi')} />
+          <Field label={t('f_nakshatra')} name="nakshatra" formData={formData} updateForm={updateForm} placeholder={t('ph_nakshatra')} />
+          <Field label={t('f_gotra')} name="gotra" formData={formData} updateForm={updateForm} placeholder={t('ph_gotra')} />
+          <Field label={t('f_manglik')} name="manglik" formData={formData} updateForm={updateForm} options={['', 'No', 'Yes', 'Partial']} />
+        </div>
+        <InlineCustomFields section="horoscope" titleKey="extra_horoscope_t" formData={formData} updateForm={updateForm} />
+      </div>
+
+      <div className="space-y-4 pt-2">
+        <SectionTitle>About & Expectations</SectionTitle>
+        <div className="space-y-4">
+          <div>
+            <label className="form-label">About Yourself</label>
+            <textarea name="about" className="form-input resize-none" rows={3}
+              placeholder="Share a little about your personality, values, and interests…"
+              value={formData.about} onChange={e => updateForm({ about: e.target.value })} />
+          </div>
+          <div>
+            <label className="form-label">Partner Expectations</label>
+            <textarea name="partnerExpectations" className="form-input resize-none" rows={3}
+              placeholder="What are you looking for in a life partner?"
+              value={formData.partnerExpectations || ''} onChange={e => updateForm({ partnerExpectations: e.target.value })} />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -198,19 +224,19 @@ function Step2({ formData, updateForm }) {
   return (
     <div className="space-y-5">
       <StepHeading title={t('b_s2_title')} sub={t('b_s2_sub')} />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div className="md:col-span-2">
+      <div className="grid grid-cols-2 gap-5">
+        <div className="col-span-2">
           <Field label={t('f_education')} name="education" formData={formData} updateForm={updateForm} placeholder={t('ph_education')} />
         </div>
         <Field label={t('f_college')} name="college" formData={formData} updateForm={updateForm} placeholder={t('ph_college')} />
         <Field label={t('f_occupation')} name="occupation" formData={formData} updateForm={updateForm} placeholder={t('ph_occupation')} />
         <Field label={t('f_company')} name="company" formData={formData} updateForm={updateForm} placeholder={t('ph_company')} />
         <Field label={t('f_income')} name="income" formData={formData} updateForm={updateForm} placeholder={t('ph_income')} />
-        <div className="md:col-span-2">
+        <div className="col-span-2">
           <Field label={t('f_workLocation')} name="workLocation" formData={formData} updateForm={updateForm} placeholder={t('ph_workLocation')} />
         </div>
       </div>
-      <InlineCustomFields section="career" titleKey="extra_career_t" helpKey="extra_career_h" formData={formData} updateForm={updateForm} />
+      <InlineCustomFields section="career" titleKey="extra_career_t" formData={formData} updateForm={updateForm} />
     </div>
   )
 }
@@ -221,7 +247,7 @@ function Step3({ formData, updateForm }) {
   return (
     <div className="space-y-5">
       <StepHeading title={t('b_s3_title')} sub={t('b_s3_sub')} />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-2 gap-5">
         <Field label={t('f_fatherName')} name="fatherName" formData={formData} updateForm={updateForm} placeholder={t('ph_fatherName')} />
         <Field label={t('f_fatherOcc')} name="fatherOccupation" formData={formData} updateForm={updateForm} placeholder={t('ph_fatherOcc')} />
         <Field label={t('f_motherName')} name="motherName" formData={formData} updateForm={updateForm} placeholder={t('ph_motherName')} />
@@ -230,63 +256,31 @@ function Step3({ formData, updateForm }) {
         <Field label={t('f_sisters')} name="sisters" formData={formData} updateForm={updateForm} placeholder={t('ph_sisters')} />
         <Field label={t('f_familyType')} name="familyType" formData={formData} updateForm={updateForm} options={['', 'Nuclear', 'Joint', 'Extended']} />
         <Field label={t('f_familyStatus')} name="familyStatus" formData={formData} updateForm={updateForm} options={['', 'Middle Class', 'Upper Middle Class', 'Business Family', 'Affluent']} />
-        <div className="md:col-span-2">
+        <div className="col-span-2">
           <Field label={t('f_nativePlace')} name="nativePlace" formData={formData} updateForm={updateForm} placeholder={t('ph_nativePlace')} />
         </div>
       </div>
-      <InlineCustomFields section="family" titleKey="extra_family_t" helpKey="extra_family_h" formData={formData} updateForm={updateForm} />
+      <InlineCustomFields section="family" titleKey="extra_family_t" formData={formData} updateForm={updateForm} />
     </div>
   )
 }
 
-/* ── Step 4: About + Horoscope + Contact ── */
+/* ── Step 4: Contact ── */
 function Step4({ formData, updateForm }) {
   const { t } = useLanguage()
   return (
-    <div className="space-y-8">
-      <StepHeading title={t('b_s4_title')} sub={t('b_s4_sub')} />
-
-      <div className="space-y-5">
-        <SectionTitle>{t('sec_about')}</SectionTitle>
-        <div className="grid grid-cols-1 gap-5">
-          <div>
-            <label className="form-label">{t('f_hobbies')}</label>
-            <input name="hobbies" className="form-input" placeholder={t('ph_hobbies')}
-              value={formData.hobbies} onChange={e => updateForm({ hobbies: e.target.value })} />
-          </div>
-          <div>
-            <label className="form-label">{t('f_about')}</label>
-            <textarea name="about" className="form-input resize-none" rows={3} placeholder={t('ph_about')}
-              value={formData.about} onChange={e => updateForm({ about: e.target.value })} />
-          </div>
+    <div className="space-y-5">
+      <StepHeading title="Contact Information" sub="How families can reach you" />
+      <div className="grid grid-cols-2 gap-5">
+        <Field label={t('f_phone')} name="phone" formData={formData} updateForm={updateForm} placeholder={t('ph_phone')} />
+        <Field label={t('f_email')} name="email" formData={formData} updateForm={updateForm} type="email" placeholder={t('ph_email')} />
+        <Field label={t('f_city')} name="city" formData={formData} updateForm={updateForm} placeholder={t('ph_city')} />
+        <Field label={t('f_state')} name="state" formData={formData} updateForm={updateForm} placeholder={t('ph_state')} />
+        <div className="col-span-2">
+          <Field label={t('f_address')} name="address" formData={formData} updateForm={updateForm} placeholder={t('ph_address')} />
         </div>
-        <InlineCustomFields section="custom" titleKey="extra_custom_t" helpKey="extra_custom_h" formData={formData} updateForm={updateForm} />
       </div>
-
-      <div className="space-y-5">
-        <SectionTitle>{t('sec_horoscope')} <span className="text-white/30 text-sm font-normal">({t('sec_optional')})</span></SectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <Field label={t('f_rashi')} name="rashi" formData={formData} updateForm={updateForm} placeholder={t('ph_rashi')} />
-          <Field label={t('f_nakshatra')} name="nakshatra" formData={formData} updateForm={updateForm} placeholder={t('ph_nakshatra')} />
-          <Field label={t('f_gotra')} name="gotra" formData={formData} updateForm={updateForm} placeholder={t('ph_gotra')} />
-          <Field label={t('f_manglik')} name="manglik" formData={formData} updateForm={updateForm} options={['', 'No', 'Yes', 'Partial']} />
-        </div>
-        <InlineCustomFields section="horoscope" titleKey="extra_horoscope_t" helpKey="extra_horoscope_h" formData={formData} updateForm={updateForm} />
-      </div>
-
-      <div className="space-y-5">
-        <SectionTitle>{t('sec_contact')}</SectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <Field label={t('f_phone')} name="phone" formData={formData} updateForm={updateForm} placeholder={t('ph_phone')} />
-          <Field label={t('f_email')} name="email" formData={formData} updateForm={updateForm} type="email" placeholder={t('ph_email')} />
-          <Field label={t('f_city')} name="city" formData={formData} updateForm={updateForm} placeholder={t('ph_city')} />
-          <Field label={t('f_state')} name="state" formData={formData} updateForm={updateForm} placeholder={t('ph_state')} />
-          <div className="md:col-span-2">
-            <Field label={t('f_address')} name="address" formData={formData} updateForm={updateForm} placeholder={t('ph_address')} />
-          </div>
-        </div>
-        <InlineCustomFields section="contact" titleKey="extra_contact_t" helpKey="extra_contact_h" formData={formData} updateForm={updateForm} />
-      </div>
+      <InlineCustomFields section="contact" titleKey="extra_contact_t" formData={formData} updateForm={updateForm} />
     </div>
   )
 }
@@ -449,31 +443,29 @@ function TemplateMiniPreview({ formData, containerW = 144, visibleH = 200 }) {
 }
 
 function TemplateCard({ style, isSelected, formData, onSelect }) {
-  // Use sample data when user hasn't filled their name yet — blank cards look bad
-  const base = formData.fullName ? formData : DESIGN_SAMPLE
-  const previewData = { ...base, template: style.id }
+  const previewData = { ...DESIGN_SAMPLE, template: style.id }
   return (
     <div
       onClick={() => style.live && onSelect(style.id)}
-      style={{ width: 144, flexShrink: 0, cursor: style.live ? 'pointer' : 'default' }}
+      style={{ width: 180, flexShrink: 0, cursor: style.live ? 'pointer' : 'default' }}
     >
       <div style={{
-        height: 200, borderRadius: 14, overflow: 'hidden', position: 'relative',
+        height: 252, borderRadius: 16, overflow: 'hidden', position: 'relative',
         border: isSelected ? '2px solid #a855f7' : '1.5px solid rgba(255,255,255,0.1)',
-        boxShadow: isSelected ? '0 0 0 3px rgba(168,85,247,0.2), 0 8px 24px rgba(0,0,0,0.35)' : '0 4px 16px rgba(0,0,0,0.3)',
+        boxShadow: isSelected ? '0 0 0 3px rgba(168,85,247,0.2), 0 12px 32px rgba(0,0,0,0.45)' : '0 4px 20px rgba(0,0,0,0.35)',
         transition: 'border 0.2s, box-shadow 0.2s',
       }}>
         {style.live ? (
-          <TemplateMiniPreview formData={previewData} containerW={144} visibleH={200} />
+          <TemplateMiniPreview formData={previewData} containerW={180} visibleH={252} />
         ) : (
           <div style={{ width: '100%', height: '100%', background: style.gradient, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: 0.6 }}>
-            <span style={{ fontSize: 36 }}>{style.symbol}</span>
+            <span style={{ fontSize: 40 }}>{style.symbol}</span>
             <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.75)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Coming Soon</span>
           </div>
         )}
         {isSelected && (
-          <div style={{ position: 'absolute', top: 8, right: 8, width: 22, height: 22, borderRadius: '50%', background: '#a855f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Check className="w-3 h-3 text-white" />
+          <div style={{ position: 'absolute', top: 10, right: 10, width: 24, height: 24, borderRadius: '50%', background: '#a855f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Check className="w-3.5 h-3.5 text-white" />
           </div>
         )}
       </div>
@@ -493,7 +485,7 @@ function BuilderTemplateRow({ styles, formData, onSelect }) {
   const scrollRef = useRef(null)
   const [canLeft, setCanLeft] = useState(false)
   const [canRight, setCanRight] = useState(true)
-  const SCROLL_STEP = 308 // 2 columns at a time
+  const SCROLL_STEP = 380 // 2 columns at a time
 
   const scrollTo = useCallback((dir) => {
     const el = scrollRef.current
@@ -549,10 +541,10 @@ function BuilderTemplateRow({ styles, formData, onSelect }) {
         className="[&::-webkit-scrollbar]:hidden">
         <div style={{
           display: 'grid',
-          gridAutoFlow: 'column',
-          gridTemplateRows: 'repeat(2, auto)',
+          gridTemplateColumns: 'repeat(4, 180px)',
           gap: 10,
           padding: '4px 6px 12px',
+          width: 'max-content',
         }}>
           {styles.map(s => (
             <TemplateCard key={s.id} style={s} isSelected={formData.template === s.id}
@@ -603,8 +595,8 @@ const DESIGN_SAMPLE = {
   motherName: 'Sunita Sharma', motherOccupation: 'Homemaker',
   brothers: '1 Elder Brother (Married)', sisters: 'None',
   familyType: 'Nuclear', familyStatus: 'Middle Class', nativePlace: 'Tirupati, Andhra Pradesh',
-  hobbies: 'Classical Dance, Reading, Cooking',
-  about: 'Family-oriented and calm — loves to travel and explore new places.',
+  about: 'Family-oriented and calm — loves classical dance, reading, and exploring new places.',
+  partnerExpectations: 'Looking for a well-educated, caring partner between 27–32.',
   rashi: 'Vrishabha', nakshatra: 'Rohini', gotra: 'Kashyapa', manglik: 'No',
   address: '12, MG Road, Koramangala', city: 'Bengaluru', state: 'Karnataka',
   phone: '+91 90000 00000', email: 'priya.sharma@email.com',
@@ -796,6 +788,135 @@ function DesignLivePreview({ formData }) {
   )
 }
 
+/* ── Side panel preview — fixed A4 card, template border corners always fill the card ── */
+function SidePanelPreview({ formData }) {
+  const naturalW = 760
+  const panelW = 420
+  const scale = panelW / naturalW
+  const cardH = Math.round(panelW * 1.414) // A4 ratio ~595px
+
+  return (
+    <div style={{ width: panelW }}>
+      <div style={{
+        width: panelW,
+        height: cardH,
+        overflow: 'hidden',
+        borderRadius: 10,
+        border: '1.5px solid rgba(255,255,255,0.12)',
+        boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
+        isolation: 'isolate',
+      }}>
+        {/* Explicit A4 height — template root uses minHeight:100% to fill it,
+            pushing border corners to all 4 edges of this card */}
+        <div style={{
+          width: naturalW,
+          height: Math.round(naturalW * 1.414),
+          overflow: 'hidden',
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          pointerEvents: 'none',
+          position: 'relative',
+        }}>
+          <BioTemplate data={formData} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Template picker popup — shown when user clicks "Change design" ── */
+function TemplatePickerModal({ formData, updateForm, onClose }) {
+  const [activeGroup, setActiveGroup] = useState(() => {
+    const cur = formData.template || 'lotus'
+    const idx = TEMPLATE_GROUPS.findIndex(g => g.ids.includes(cur))
+    return idx >= 0 ? idx : 0
+  })
+
+  const groupStyles = TEMPLATE_STYLES.filter(s =>
+    TEMPLATE_GROUPS[activeGroup].ids.includes(s.id)
+  )
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 300,
+        background: 'rgba(0,0,0,0.78)', backdropFilter: 'blur(5px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: 16,
+      }}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.92, opacity: 0, y: 12 }}
+        transition={{ type: 'spring', damping: 24, stiffness: 280 }}
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: 'linear-gradient(145deg, #120828 0%, #0a0a18 100%)',
+          border: '1px solid rgba(168,85,247,0.25)',
+          borderRadius: 24, padding: '28px 28px 20px',
+          maxWidth: 920, width: '100%',
+          boxShadow: '0 24px 72px rgba(0,0,0,0.7)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <p style={{ color: 'white', fontWeight: 700, fontSize: 15, margin: 0 }}>Choose Design</p>
+          <button
+            onClick={onClose}
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, cursor: 'pointer', color: 'rgba(255,255,255,0.5)', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}
+          >✕</button>
+        </div>
+
+        {/* Group tabs */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
+          {TEMPLATE_GROUPS.map((group, gi) => (
+            <button key={group.label} onClick={() => setActiveGroup(gi)} style={{
+              padding: '6px 14px', borderRadius: 100, fontSize: 12, fontWeight: 600,
+              cursor: 'pointer', whiteSpace: 'nowrap',
+              background: activeGroup === gi ? 'rgba(168,85,247,0.15)' : 'transparent',
+              color: activeGroup === gi ? '#c084fc' : 'rgba(255,255,255,0.4)',
+              border: `1px solid ${activeGroup === gi ? 'rgba(168,85,247,0.4)' : 'rgba(255,255,255,0.1)'}`,
+              transition: 'all 0.15s',
+            }}>
+              {group.label}
+              <span style={{ marginLeft: 6, fontSize: 10, opacity: 0.5,
+                background: activeGroup === gi ? 'rgba(192,132,252,0.12)' : 'rgba(255,255,255,0.05)',
+                padding: '1px 5px', borderRadius: 8 }}>
+                {TEMPLATE_GROUPS[gi].ids.length}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Template row */}
+        <AnimatePresence mode="wait">
+          <motion.div key={activeGroup}
+            initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.18 }}>
+            <BuilderTemplateRow
+              styles={groupStyles}
+              formData={formData}
+              onSelect={id => {
+                const s = TEMPLATE_STYLES.find(t => t.id === id)
+                track.templateSelected(id, s?.name)
+                updateForm({ template: id })
+                onClose()
+              }}
+            />
+          </motion.div>
+        </AnimatePresence>
+
+        <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.2)', marginTop: 8 }}>
+          Click a design to apply · click outside to close
+        </p>
+      </motion.div>
+    </motion.div>
+  )
+}
+
 function Step6({ formData, updateForm }) {
   const { t } = useLanguage()
   const [activeGroup, setActiveGroup] = useState(0)
@@ -888,7 +1009,7 @@ function Step6({ formData, updateForm }) {
 
 
 /* ── Steps config — labels resolved via t() at render time ── */
-const STEP_KEYS = ['s_personal','s_career','s_family','s_about','s_photo','s_design']
+const STEP_KEYS = ['s_personal','s_career','s_family','s_about','s_photo']
 
 /* ── Feedback ── */
 const RATINGS = [
@@ -1030,7 +1151,7 @@ const WA_FALLBACK_TEXT = encodeURIComponent(
   'I just created my marriage biodata on Bandhan — free, no sign-up, takes 5 minutes! Try it: https://bandhan.app'
 )
 
-function PreviewStep({ formData, onBack, onEditStep, steps }) {
+function PreviewStep({ formData, onBack, onEditStep, steps, exportRef }) {
   const { t } = useLanguage()
   const previewRef = useRef()
   const [loading, setLoading] = useState(false)
@@ -1043,7 +1164,7 @@ function PreviewStep({ formData, onBack, onEditStep, steps }) {
     setLoading(true)
     setShowModal(false)
     try {
-      const { blob } = await exportPDF(previewRef.current, formData.fullName || 'biodata')
+      const { blob } = await exportPDF(exportRef.current, formData.fullName || 'biodata')
       pdfBlobRef.current = blob
       setDownloaded(true)
       setShowModal(true)
@@ -1061,7 +1182,7 @@ function PreviewStep({ formData, onBack, onEditStep, steps }) {
     if (!blob) {
       setSharing(true)
       try {
-        const result = await exportPDF(previewRef.current, formData.fullName || 'biodata')
+        const result = await exportPDF(exportRef.current, formData.fullName || 'biodata')
         blob = result.blob
         fileName = result.fileName
         pdfBlobRef.current = blob
@@ -1144,7 +1265,7 @@ function PreviewStep({ formData, onBack, onEditStep, steps }) {
 
       {/* Biodata preview — scrollable on mobile so full template is visible */}
       <div className="overflow-x-auto rounded-2xl border border-white/10 shadow-2xl -mx-3 sm:mx-0 px-0">
-        <div ref={previewRef} style={{ minWidth: 760 }}>
+        <div ref={previewRef} style={{ minWidth: 760, position: 'relative' }}>
           <BioTemplate data={formData} />
         </div>
       </div>
@@ -1208,11 +1329,12 @@ const FIELD_JUMPS = [
   { label: 'Family: Father details', name: 'fatherName', step: 2 },
   { label: 'Family: Mother details', name: 'motherName', step: 2 },
   { label: 'Family: Siblings', name: 'brothers', step: 2 },
-  { label: 'About: Hobbies', name: 'hobbies', step: 3 },
-  { label: 'About: Horoscope', name: 'rashi', step: 3 },
+  { label: 'Personal: Horoscope (Rashi)', name: 'rashi', step: 0 },
+  { label: 'Personal: About yourself', name: 'about', step: 0 },
+  { label: 'Personal: Partner expectations', name: 'partnerExpectations', step: 0 },
   { label: 'Contact: Phone', name: 'phone', step: 3 },
-  { label: 'Photo: Upload photo', name: 'template', step: 4 },
-  { label: 'Design: Template style', name: 'sloganLanguage', step: 5 },
+  { label: 'Photo: Upload photo', name: 'photo', step: 4 },
+  { label: 'Photo: Invocation slogan', name: 'sloganLanguage', step: 4 },
 ]
 
 /* ── Main BuilderPage ── */
@@ -1220,6 +1342,23 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
   const { t } = useLanguage()
   const [step, setStep] = useState(0)
   const [pendingFocus, setPendingFocus] = useState('')
+  const [showDesignModal, setShowDesignModal] = useState(false)
+  const [downloading, setDownloading] = useState(false)
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false)
+  const downloadRef = useRef(null)
+
+  const handleQuickDownload = async () => {
+    if (!downloadRef.current) return
+    setDownloading(true)
+    setShowFeedbackModal(false)
+    try {
+      await exportPDF(downloadRef.current, formData.fullName || 'biodata')
+      track.pdfDownloaded(formData.template || 'lotus')
+      setShowFeedbackModal(true)
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   const STEPS = STEP_KEYS.map(k => ({ label: t(k) }))
   const totalSteps = STEPS.length
@@ -1265,10 +1404,10 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
 
   const isPreview = step === totalSteps
 
-  const previewFormData = {
-    ...(formData.fullName ? formData : DESIGN_SAMPLE),
+  const previewFormData = useMemo(() => ({
+    ...formData,
     template: formData.template || 'lotus',
-  }
+  }), [formData])
 
   const jumpToField = (fieldName) => {
     const target = FIELD_JUMPS.find(field => field.name === fieldName)
@@ -1306,7 +1445,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-10">
+      <main className="max-w-6xl mx-auto px-2 sm:px-4 py-6 sm:py-10">
         {!isPreview && (
           <div className="sticky top-0 z-20 -mx-3 sm:-mx-6 mb-6 sm:mb-8 border-b border-white/10 bg-[#0a0a12]/95 px-3 sm:px-6 py-3 sm:py-4 backdrop-blur">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -1324,6 +1463,14 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                     {section.label}
                   </button>
                 ))}
+                {/* Templates button — mobile only, desktop uses right panel popup */}
+                <button
+                  onClick={() => setShowDesignModal(true)}
+                  className="sm:hidden flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 transition-colors"
+                >
+                  <LayoutTemplate className="w-3 h-3" />
+                  Templates
+                </button>
               </div>
               <label className="relative block md:w-72">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
@@ -1372,13 +1519,13 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
               exit={{ opacity: 0, x: -24 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             >
-              <PreviewStep formData={formData} onBack={() => setStep(5)} onEditStep={setStep} steps={STEPS.map(s => s.label)} />
+              <PreviewStep formData={formData} onBack={() => setStep(4)} onEditStep={setStep} steps={STEPS.map(s => s.label)} exportRef={downloadRef} />
             </motion.div>
           </AnimatePresence>
         ) : (
-          <div className="flex gap-8 lg:gap-10 items-start">
+          <div className="flex gap-6 lg:gap-8 items-start">
 
-            {/* LEFT: step form + nav */}
+            {/* LEFT: form fills all remaining space */}
             <div className="flex-1 min-w-0">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -1393,7 +1540,6 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                   {step === 2 && <Step3 formData={formData} updateForm={updateForm} />}
                   {step === 3 && <Step4 formData={formData} updateForm={updateForm} />}
                   {step === 4 && <Step5 formData={formData} updateForm={updateForm} />}
-                  {step === 5 && <Step6 formData={formData} updateForm={updateForm} />}
                 </motion.div>
               </AnimatePresence>
 
@@ -1416,19 +1562,25 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
               </div>
             </div>
 
-            {/* RIGHT: live preview panel — desktop/tablet only */}
-            <div className="hidden sm:block w-56 lg:w-64 shrink-0 sticky top-20 self-start">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Live Preview</p>
-                {step !== 5 && (
-                  <button
-                    onClick={() => setStep(5)}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                    className="text-[11px] text-purple-400 hover:text-purple-300 transition-colors"
-                  >
-                    Change design →
-                  </button>
-                )}
+            {/* RIGHT: live preview — exactly card width, no extra space */}
+            <div className="hidden sm:flex flex-col items-end sticky top-20 self-start" style={{ width: 420, flexShrink: 0 }}>
+              <div className="flex items-center gap-2 mb-3" style={{ width: 420 }}>
+                <button
+                  onClick={() => setShowDesignModal(true)}
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 hover:text-purple-300 transition-colors"
+                >
+                  <LayoutTemplate className="w-3.5 h-3.5" />
+                  Templates
+                </button>
+                <button
+                  onClick={handleQuickDownload}
+                  disabled={downloading}
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 hover:text-green-300 transition-colors disabled:opacity-50"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  {downloading ? 'Saving…' : 'Download'}
+                </button>
+                <p className="ml-auto text-[10px] font-semibold uppercase tracking-widest text-white/30">Live Preview</p>
               </div>
               <motion.div
                 key={formData.template || 'lotus'}
@@ -1436,13 +1588,44 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
               >
-                <DesignLivePreview formData={previewFormData} />
+                <SidePanelPreview formData={previewFormData} />
               </motion.div>
+              <p className="text-[10px] text-white/20 mt-2">
+                {TEMPLATE_STYLES.find(s => s.id === (formData.template || 'lotus'))?.name} template
+              </p>
             </div>
 
           </div>
         )}
       </main>
+
+      {/* Feedback modal — shown after quick download from preview panel */}
+      <AnimatePresence>
+        {showFeedbackModal && (
+          <FeedbackModal
+            template={formData.template || 'lotus'}
+            onClose={() => setShowFeedbackModal(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Template picker modal */}
+      <AnimatePresence>
+        {showDesignModal && (
+          <TemplatePickerModal
+            formData={formData}
+            updateForm={updateForm}
+            onClose={() => setShowDesignModal(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Hidden A4-sized template used for PDF export from every step */}
+      <div style={{ position: 'fixed', left: -9999, top: 0, pointerEvents: 'none', zIndex: -1 }}>
+        <div ref={downloadRef} style={{ width: 760, height: Math.round(760 * 1.414), overflow: 'hidden', position: 'relative' }}>
+          <BioTemplate data={formData} />
+        </div>
+      </div>
     </div>
   )
 }

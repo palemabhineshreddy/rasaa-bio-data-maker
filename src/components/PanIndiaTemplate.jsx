@@ -602,7 +602,7 @@ export default function PanIndiaTemplate({ data }) {
     education, college, occupation, company, income, workLocation,
     fatherName, fatherOccupation, motherName, motherOccupation,
     brothers, sisters, familyType, familyStatus, nativePlace,
-    hobbies, about,
+    about, partnerExpectations,
     rashi, nakshatra, gotra, manglik,
     address, city, state, phone, email,
     photo, photoPosition = { x: 50, y: 20 },
@@ -618,6 +618,19 @@ export default function PanIndiaTemplate({ data }) {
   }, {})
   const hasHoroscope = rashi || nakshatra || gotra ||
     (manglik && manglik !== 'No') || bySection('horoscope').length > 0
+
+  const hasPersonal = [fullName, dateOfBirth, age, height, weight, bloodGroup,
+    religion, caste, subCaste, motherTongue, gender,
+    education, college, occupation, company, income, workLocation,
+    about, partnerExpectations].some(Boolean) ||
+    bySection('personal').length > 0 || bySection('career').length > 0
+
+  const hasFamily = [fatherName, fatherOccupation, motherName, motherOccupation,
+    brothers, sisters, familyType, familyStatus, nativePlace].some(Boolean) ||
+    bySection('family').length > 0 || hasHoroscope
+
+  const hasContact = [phone, email, city, state, address].some(Boolean) ||
+    bySection('contact').length > 0
 
   /* Row and Divider close over theme colors */
   function Divider({ title }) {
@@ -642,11 +655,12 @@ export default function PanIndiaTemplate({ data }) {
   }
 
   return (
-    <div className="pdf-area" style={{ background: bg, fontFamily: 'Inter, sans-serif', position: 'relative' }}>
+    <div className="pdf-area" style={{ background: bg, fontFamily: 'Inter, sans-serif', position: 'relative', minHeight: '100%' }}>
 
       <Border outer={outer} gold={gold} />
 
-      <div style={{ padding: '48px 52px 28px 90px', position: 'relative', zIndex: 1 }}>
+      {/* Content — bottom padding reserves space so footer never overlaps */}
+      <div style={{ padding: '48px 52px 56px 90px', position: 'relative', zIndex: 1 }}>
 
         {getSlogan(religion, motherTongue, sloganLanguage) && (
           <header style={{ textAlign: 'center', marginBottom: 16 }}>
@@ -656,69 +670,81 @@ export default function PanIndiaTemplate({ data }) {
           </header>
         )}
 
-        {/* Personal Details */}
-        <Divider title={t('pdf_personal')} />
-        <div style={{ display: 'grid', gridTemplateColumns: photo ? '1fr 160px' : '1fr', gap: 12, alignItems: 'flex-start' }}>
-          <div>
-            <Row label={t('pdf_name')}       value={fullName} />
-            <Row label={t('pdf_dob')}        value={formatDate(dateOfBirth)} />
-            <Row label={t('pdf_age')}        value={age ? `${age} Years` : null} />
-            <Row label={t('pdf_height')}     value={height} />
-            <Row label={t('pdf_weight')}     value={weight} />
-            <Row label={t('pdf_blood')}      value={bloodGroup} />
-            <Row label={t('pdf_religion')}   value={religion} />
-            <Row label={t('pdf_community')}  value={[caste, subCaste].filter(Boolean).join(' / ')} />
-            <Row label={t('pdf_tongue')}     value={motherTongue} />
-            <Row label={t('pdf_gender')}     value={gender} />
-            {bySection('personal').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
-            <Row label={t('pdf_education')}  value={education} />
-            <Row label={t('pdf_college')}    value={college} />
-            <Row label={t('pdf_occupation')} value={occupation} />
-            <Row label={t('pdf_org')}        value={company} />
-            <Row label={t('pdf_income')}     value={income} />
-            <Row label={t('pdf_work')}       value={workLocation} />
-            {bySection('career').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
-          </div>
-          {photo && (
-            <div style={{
-              width: 152, height: 192,
-              backgroundImage: `url(${photo})`,
-              backgroundSize: 'cover',
-              backgroundPosition: `${photoPosition.x}% ${photoPosition.y}%`,
-              backgroundRepeat: 'no-repeat',
-            }} />
-          )}
-        </div>
-
-        {/* Family Details */}
-        <Divider title={t('pdf_family')} />
-        <Row label={t('pdf_father')}        value={fatherName && fatherOccupation ? `${fatherName} (${fatherOccupation})` : fatherName || fatherOccupation} />
-        <Row label={t('pdf_mother')}        value={motherName && motherOccupation ? `${motherName} (${motherOccupation})` : motherName || motherOccupation} />
-        <Row label={t('pdf_brothers')}      value={brothers} />
-        <Row label={t('pdf_sisters')}       value={sisters} />
-        <Row label={t('pdf_family_type')}   value={familyType} />
-        <Row label={t('pdf_family_status')} value={familyStatus} />
-        <Row label={t('pdf_native')}        value={nativePlace} />
-        {bySection('family').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
-        {hasHoroscope && (
+        {/* Personal Details — only shown when there is data */}
+        {hasPersonal && (
           <>
-            <Row label={t('pdf_rashi')}     value={rashi} />
-            <Row label={t('pdf_nakshatra')} value={nakshatra} />
-            <Row label={t('pdf_gotra')}     value={gotra} />
-            <Row label={t('pdf_manglik')}   value={manglik} />
-            {bySection('horoscope').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+            <Divider title={t('pdf_personal')} />
+            <div style={{ display: 'grid', gridTemplateColumns: photo ? '1fr 160px' : '1fr', gap: 12, alignItems: 'flex-start' }}>
+              <div>
+                <Row label={t('pdf_name')}       value={fullName} />
+                <Row label={t('pdf_dob')}        value={formatDate(dateOfBirth)} />
+                <Row label={t('pdf_age')}        value={age ? `${age} Years` : null} />
+                <Row label={t('pdf_height')}     value={height} />
+                <Row label={t('pdf_weight')}     value={weight} />
+                <Row label={t('pdf_blood')}      value={bloodGroup} />
+                <Row label={t('pdf_religion')}   value={religion} />
+                <Row label={t('pdf_community')}  value={[caste, subCaste].filter(Boolean).join(' / ')} />
+                <Row label={t('pdf_tongue')}     value={motherTongue} />
+                <Row label={t('pdf_gender')}     value={gender} />
+                {bySection('personal').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+                <Row label="About Me"             value={about} />
+                <Row label="Partner Expectations" value={partnerExpectations} />
+                <Row label={t('pdf_education')}  value={education} />
+                <Row label={t('pdf_college')}    value={college} />
+                <Row label={t('pdf_occupation')} value={occupation} />
+                <Row label={t('pdf_org')}        value={company} />
+                <Row label={t('pdf_income')}     value={income} />
+                <Row label={t('pdf_work')}       value={workLocation} />
+                {bySection('career').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+              </div>
+              {photo && (
+                <div style={{
+                  width: 152, height: 192,
+                  backgroundImage: `url(${photo})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: `${photoPosition.x}% ${photoPosition.y}%`,
+                  backgroundRepeat: 'no-repeat',
+                }} />
+              )}
+            </div>
           </>
         )}
 
-        {/* Contact & About */}
-        <Divider title={t('pdf_contact')} />
-        <Row label={t('pdf_phone')}    value={phone} />
-        <Row label={t('pdf_email')}    value={email} />
-        <Row label="City / State"      value={[city, state].filter(Boolean).join(', ')} />
-        <Row label={t('pdf_address')}  value={address} />
-        {bySection('contact').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
-        <Row label={t('pdf_hobbies')}  value={hobbies} />
-        <Row label={t('pdf_about')}    value={about} />
+        {/* Family Details — only shown when there is data */}
+        {hasFamily && (
+          <>
+            <Divider title={t('pdf_family')} />
+            <Row label={t('pdf_father')}        value={fatherName && fatherOccupation ? `${fatherName} (${fatherOccupation})` : fatherName || fatherOccupation} />
+            <Row label={t('pdf_mother')}        value={motherName && motherOccupation ? `${motherName} (${motherOccupation})` : motherName || motherOccupation} />
+            <Row label={t('pdf_brothers')}      value={brothers} />
+            <Row label={t('pdf_sisters')}       value={sisters} />
+            <Row label={t('pdf_family_type')}   value={familyType} />
+            <Row label={t('pdf_family_status')} value={familyStatus} />
+            <Row label={t('pdf_native')}        value={nativePlace} />
+            {bySection('family').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+            {hasHoroscope && (
+              <>
+                <Row label={t('pdf_rashi')}     value={rashi} />
+                <Row label={t('pdf_nakshatra')} value={nakshatra} />
+                <Row label={t('pdf_gotra')}     value={gotra} />
+                <Row label={t('pdf_manglik')}   value={manglik} />
+                {bySection('horoscope').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+              </>
+            )}
+          </>
+        )}
+
+        {/* Contact — only shown when there is data */}
+        {hasContact && (
+          <>
+            <Divider title={t('pdf_contact')} />
+            <Row label={t('pdf_phone')}    value={phone} />
+            <Row label={t('pdf_email')}    value={email} />
+            <Row label="City / State"      value={[city, state].filter(Boolean).join(', ')} />
+            <Row label={t('pdf_address')}  value={address} />
+            {bySection('contact').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+          </>
+        )}
 
         {/* Custom sections */}
         {Object.entries(grouped).map(([title, rows]) => (
@@ -728,16 +754,18 @@ export default function PanIndiaTemplate({ data }) {
           </div>
         ))}
 
-        {/* Footer ornament */}
-        <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
-          <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, transparent, ${gold})` }} />
-          <svg width="14" height="14" viewBox="0 0 14 14" fill={gold}>
-            <rect x="3.5" y="3.5" width="7" height="7" transform="rotate(45 7 7)" />
-          </svg>
-          <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${gold})` }} />
-        </div>
-
       </div>
+
+      {/* Footer ornament — absolutely pinned to the bottom of the card in live preview;
+          in PDF export the parent has no explicit height so it sits just after the content */}
+      <div style={{ position: 'absolute', bottom: 28, left: 90, right: 52, zIndex: 1, display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
+        <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, transparent, ${gold})` }} />
+        <svg width="14" height="14" viewBox="0 0 14 14" fill={gold}>
+          <rect x="3.5" y="3.5" width="7" height="7" transform="rotate(45 7 7)" />
+        </svg>
+        <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${gold})` }} />
+      </div>
+
     </div>
   )
 }

@@ -64,8 +64,9 @@ body {
 
 /* Input styling */
 .form-input {
-  @apply w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/60 focus:bg-white/[0.08] transition-all duration-200;
+  @apply w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/60 focus:bg-white/[0.08] transition-all duration-200;
   font-family: 'Inter', sans-serif;
+  font-size: 15px;
 }
 
 .form-input:focus {
@@ -73,14 +74,16 @@ body {
 }
 
 .form-label {
-  @apply block text-sm font-medium text-white/60 mb-1.5;
+  @apply block font-medium text-white/60 mb-2;
+  font-size: 13px;
 }
 
 .form-select {
-  @apply w-full px-4 py-3 rounded-xl border text-white focus:outline-none transition-all duration-200;
+  @apply w-full px-4 py-3.5 rounded-xl border text-white focus:outline-none transition-all duration-200;
   background: rgba(255,255,255,0.05);
   border-color: rgba(255,255,255,0.1);
   font-family: 'Inter', sans-serif;
+  font-size: 15px;
 }
 
 .form-select:focus {

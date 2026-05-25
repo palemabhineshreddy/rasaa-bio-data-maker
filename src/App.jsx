@@ -18,8 +18,8 @@ const EMPTY_FORM = {
   motherName: '', motherOccupation: '',
   brothers: '', sisters: '',
   familyType: '', familyStatus: '', nativePlace: '',
-  // About & Horoscope
-  hobbies: '', about: '',
+  // About & Expectations
+  about: '', partnerExpectations: '',
   rashi: '', nakshatra: '', gotra: '', manglik: '',
   // Contact
   address: '', city: '', state: '', phone: '', email: '',

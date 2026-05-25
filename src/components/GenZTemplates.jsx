@@ -10,7 +10,7 @@ function extractRows(data) {
     education, college, occupation, company, income, workLocation,
     fatherName, fatherOccupation, motherName, motherOccupation,
     brothers, sisters, familyType, familyStatus, nativePlace,
-    hobbies, about, rashi, nakshatra, gotra, manglik,
+    about, partnerExpectations, rashi, nakshatra, gotra, manglik,
     address, city, state, phone, email,
     customFields = [],
   } = data
@@ -33,6 +33,8 @@ function extractRows(data) {
     ['Community', [caste, subCaste].filter(Boolean).join(' / ') || null],
     ['Mother Tongue', motherTongue], ['Gender', gender],
     ...bySec('personal').map(f => [f.label, f.value]),
+    ['About Me', about],
+    ['Partner Expectations', partnerExpectations],
     ['Education', education], ['College / University', college],
     ['Occupation', occupation], ['Organisation', company],
     ['Annual Income', income], ['Work Location', workLocation],
@@ -62,8 +64,6 @@ function extractRows(data) {
     ['City / State', [city, state].filter(Boolean).join(', ') || null],
     ['Address', address],
     ...bySec('contact').map(f => [f.label, f.value]),
-    ['Interests & Hobbies', hobbies],
-    ['About Me', about],
   ].filter(([, v]) => v)
 
   return { personal, family, contact, customGrouped }
@@ -110,7 +110,7 @@ export function NoirTemplate({ data }) {
   const subtitle = [occupation, city].filter(Boolean).join(' · ')
 
   return (
-    <div className="pdf-area" style={{ background: BG, fontFamily: 'Inter, sans-serif', position: 'relative' }}>
+    <div className="pdf-area" style={{ background: BG, fontFamily: 'Inter, sans-serif', position: 'relative', minHeight: '100%' }}>
       {/* Amber top accent */}
       <div style={{ height: 3, background: `linear-gradient(90deg, ${AMBER} 0%, rgba(232,168,32,0) 100%)` }} />
 
@@ -211,6 +211,7 @@ export function AuroraTemplate({ data }) {
       fontFamily: 'Inter, sans-serif',
       position: 'relative',
       overflow: 'hidden',
+      minHeight: '100%',
     }}>
       {/* Atmospheric orbs */}
       <div style={{
@@ -312,7 +313,7 @@ export function EditorialTemplate({ data }) {
   const subtitle = [occupation, city].filter(Boolean).join('  ·  ')
 
   return (
-    <div className="pdf-area" style={{ background: '#ffffff', fontFamily: 'Inter, sans-serif' }}>
+    <div className="pdf-area" style={{ background: '#ffffff', fontFamily: 'Inter, sans-serif', minHeight: '100%' }}>
       {/* Header band */}
       <div style={{
         background: NAVY,
@@ -410,7 +411,7 @@ export function BloomTemplate({ data }) {
   const subtitle = [occupation, city].filter(Boolean).join(' · ')
 
   return (
-    <div className="pdf-area" style={{ background: '#fdf6ef', fontFamily: 'Inter, sans-serif', display: 'flex' }}>
+    <div className="pdf-area" style={{ background: '#fdf6ef', fontFamily: 'Inter, sans-serif', display: 'flex', minHeight: '100%' }}>
       {/* Left vertical accent bar */}
       <div style={{
         width: 5, flexShrink: 0,
@@ -503,7 +504,7 @@ export function NeoTemplate({ data }) {
   const subtitle = [occupation, city].filter(Boolean).join(' · ')
 
   return (
-    <div className="pdf-area" style={{ background: '#f5f4f0', fontFamily: 'Inter, sans-serif', border: `2px solid ${BLACK}` }}>
+    <div className="pdf-area" style={{ background: '#f5f4f0', fontFamily: 'Inter, sans-serif', border: `2px solid ${BLACK}`, minHeight: '100%' }}>
       {/* Yellow header block */}
       <div style={{
         background: YELLOW,
