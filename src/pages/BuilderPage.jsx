@@ -2,11 +2,15 @@ import { useEffect, useLayoutEffect, useMemo, useState, useRef, useCallback } fr
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Check, Download, Heart, RotateCcw, Search, Plus, Trash2, MessageCircle, LayoutTemplate } from 'lucide-react'
 import { useForm } from '@formspree/react'
+import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import BioTemplate from '../components/BioTemplate'
+import SortableFieldRow from '../components/SortableFieldRow'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useLanguage } from '../contexts/LanguageContext'
 import { exportPDF } from '../utils/pdfExport'
 import { track } from '../utils/analytics'
+import { DEFAULT_FIELD_ORDER, getFieldOrder } from '../utils/fieldGroups'
 
 /* ── field helpers ── */
 const Field = ({ label, name, formData, updateForm, type = 'text', placeholder, options }) => (
@@ -163,57 +167,100 @@ function InlineCustomFields({ section, titleKey, formData, updateForm }) {
   )
 }
 
+/* ── Shared DnD helper ── */
+function useSectionSort(formData, updateForm, section) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+  const order = getFieldOrder(formData, section)
+  const onDragEnd = ({ active, over }) => {
+    if (!over || active.id === over.id) return
+    const oldIdx = order.indexOf(active.id)
+    const newIdx = order.indexOf(over.id)
+    updateForm({
+      fieldOrder: {
+        ...(formData.fieldOrder || DEFAULT_FIELD_ORDER),
+        [section]: arrayMove(order, oldIdx, newIdx),
+      },
+    })
+  }
+  return { sensors, order, onDragEnd }
+}
+
 /* ── Step 1: Personal ── */
 function Step1({ formData, updateForm }) {
   const { t } = useLanguage()
+  const personal = useSectionSort(formData, updateForm, 'personal')
+  const horoscope = useSectionSort(formData, updateForm, 'horoscope')
+
+  const personalFields = {
+    fullName:            <Field label={t('f_fullName')}    name="fullName"    formData={formData} updateForm={updateForm} placeholder={t('ph_fullName')} />,
+    gender:              <Field label={t('f_gender')}      name="gender"      formData={formData} updateForm={updateForm} options={['', 'Male', 'Female']} />,
+    dateOfBirth:         <Field label={t('f_dob')}         name="dateOfBirth" formData={formData} updateForm={updateForm} type="date" />,
+    age:                 <Field label={t('f_age')}         name="age"         formData={formData} updateForm={updateForm} placeholder={t('ph_age')} />,
+    height:              <Field label={t('f_height')}      name="height"      formData={formData} updateForm={updateForm} placeholder={t('ph_height')} />,
+    weight:              <Field label={t('f_weight')}      name="weight"      formData={formData} updateForm={updateForm} placeholder={t('ph_weight')} />,
+    bloodGroup:          <Field label={t('f_bloodGroup')}  name="bloodGroup"  formData={formData} updateForm={updateForm} options={['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']} />,
+    religion:            <Field label={t('f_religion')}    name="religion"    formData={formData} updateForm={updateForm} placeholder={t('ph_religion')} />,
+    caste:               <Field label={t('f_caste')}       name="caste"       formData={formData} updateForm={updateForm} placeholder={t('ph_caste')} />,
+    subCaste:            <Field label={t('f_subCaste')}    name="subCaste"    formData={formData} updateForm={updateForm} placeholder={t('ph_subCaste')} />,
+    motherTongue:        <Field label={t('f_motherTongue')} name="motherTongue" formData={formData} updateForm={updateForm} placeholder={t('ph_motherTongue')} />,
+    about: (
+      <div>
+        <label className="form-label">About Yourself</label>
+        <textarea name="about" className="form-input resize-none" rows={3}
+          placeholder="Share a little about your personality, values, and interests…"
+          value={formData.about} onChange={e => updateForm({ about: e.target.value })} />
+      </div>
+    ),
+    partnerExpectations: (
+      <div>
+        <label className="form-label">Partner Expectations</label>
+        <textarea name="partnerExpectations" className="form-input resize-none" rows={3}
+          placeholder="What are you looking for in a life partner?"
+          value={formData.partnerExpectations || ''} onChange={e => updateForm({ partnerExpectations: e.target.value })} />
+      </div>
+    ),
+  }
+
+  const horoscopeFields = {
+    rashi:    <Field label={t('f_rashi')}     name="rashi"     formData={formData} updateForm={updateForm} placeholder={t('ph_rashi')} />,
+    nakshatra:<Field label={t('f_nakshatra')} name="nakshatra" formData={formData} updateForm={updateForm} placeholder={t('ph_nakshatra')} />,
+    gotra:    <Field label={t('f_gotra')}     name="gotra"     formData={formData} updateForm={updateForm} placeholder={t('ph_gotra')} />,
+    manglik:  <Field label={t('f_manglik')}   name="manglik"   formData={formData} updateForm={updateForm} options={['', 'No', 'Yes', 'Partial']} />,
+  }
+
   return (
     <div className="space-y-5">
       <StepHeading title={t('b_s1_title')} sub={t('b_s1_sub')} />
-      <div className="grid grid-cols-2 gap-5">
-        <div className="col-span-2">
-          <Field label={t('f_fullName')} name="fullName" formData={formData} updateForm={updateForm} placeholder={t('ph_fullName')} />
-        </div>
-        <Field label={t('f_gender')} name="gender" formData={formData} updateForm={updateForm} options={['', 'Male', 'Female']} />
-        <Field label={t('f_dob')} name="dateOfBirth" formData={formData} updateForm={updateForm} type="date" />
-        <Field label={t('f_age')} name="age" formData={formData} updateForm={updateForm} placeholder={t('ph_age')} />
-        <Field label={t('f_height')} name="height" formData={formData} updateForm={updateForm} placeholder={t('ph_height')} />
-        <Field label={t('f_weight')} name="weight" formData={formData} updateForm={updateForm} placeholder={t('ph_weight')} />
-        <Field label={t('f_bloodGroup')} name="bloodGroup" formData={formData} updateForm={updateForm} options={['', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']} />
-        <Field label={t('f_motherTongue')} name="motherTongue" formData={formData} updateForm={updateForm} placeholder={t('ph_motherTongue')} />
-        <Field label={t('f_religion')} name="religion" formData={formData} updateForm={updateForm} placeholder={t('ph_religion')} />
-        <Field label={t('f_caste')} name="caste" formData={formData} updateForm={updateForm} placeholder={t('ph_caste')} />
-        <Field label={t('f_subCaste')} name="subCaste" formData={formData} updateForm={updateForm} placeholder={t('ph_subCaste')} />
-      </div>
+
+      <DndContext sensors={personal.sensors} collisionDetection={closestCenter} onDragEnd={personal.onDragEnd}>
+        <SortableContext items={personal.order} strategy={verticalListSortingStrategy}>
+          <div className="space-y-4">
+            {personal.order.map(id => (
+              <SortableFieldRow key={id} id={id}>
+                {personalFields[id]}
+              </SortableFieldRow>
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
+
       <InlineCustomFields section="personal" titleKey="extra_personal_t" formData={formData} updateForm={updateForm} />
 
-      <div className="space-y-4 pt-2">
-        <SectionTitle>{t('sec_horoscope')} <span className="text-white/30 text-sm font-normal">({t('sec_optional')})</span></SectionTitle>
-        <div className="grid grid-cols-2 gap-5">
-          <Field label={t('f_rashi')} name="rashi" formData={formData} updateForm={updateForm} placeholder={t('ph_rashi')} />
-          <Field label={t('f_nakshatra')} name="nakshatra" formData={formData} updateForm={updateForm} placeholder={t('ph_nakshatra')} />
-          <Field label={t('f_gotra')} name="gotra" formData={formData} updateForm={updateForm} placeholder={t('ph_gotra')} />
-          <Field label={t('f_manglik')} name="manglik" formData={formData} updateForm={updateForm} options={['', 'No', 'Yes', 'Partial']} />
-        </div>
-        <InlineCustomFields section="horoscope" titleKey="extra_horoscope_t" formData={formData} updateForm={updateForm} />
-      </div>
-
-      <div className="space-y-4 pt-2">
-        <SectionTitle>About & Expectations</SectionTitle>
-        <div className="space-y-4">
-          <div>
-            <label className="form-label">About Yourself</label>
-            <textarea name="about" className="form-input resize-none" rows={3}
-              placeholder="Share a little about your personality, values, and interests…"
-              value={formData.about} onChange={e => updateForm({ about: e.target.value })} />
+      <DndContext sensors={horoscope.sensors} collisionDetection={closestCenter} onDragEnd={horoscope.onDragEnd}>
+        <SortableContext items={horoscope.order} strategy={verticalListSortingStrategy}>
+          <div className="space-y-4">
+            {horoscope.order.map(id => (
+              <SortableFieldRow key={id} id={id}>
+                {horoscopeFields[id]}
+              </SortableFieldRow>
+            ))}
           </div>
-          <div>
-            <label className="form-label">Partner Expectations</label>
-            <textarea name="partnerExpectations" className="form-input resize-none" rows={3}
-              placeholder="What are you looking for in a life partner?"
-              value={formData.partnerExpectations || ''} onChange={e => updateForm({ partnerExpectations: e.target.value })} />
-          </div>
-        </div>
-      </div>
+        </SortableContext>
+      </DndContext>
+      <InlineCustomFields section="horoscope" titleKey="extra_horoscope_t" formData={formData} updateForm={updateForm} />
     </div>
   )
 }
@@ -221,21 +268,31 @@ function Step1({ formData, updateForm }) {
 /* ── Step 2: Education & Career ── */
 function Step2({ formData, updateForm }) {
   const { t } = useLanguage()
+  const career = useSectionSort(formData, updateForm, 'career')
+
+  const careerContent = {
+    education:   <Field label={t('f_education')}    name="education"   formData={formData} updateForm={updateForm} placeholder={t('ph_education')} />,
+    college:     <Field label={t('f_college')}      name="college"     formData={formData} updateForm={updateForm} placeholder={t('ph_college')} />,
+    occupation:  <Field label={t('f_occupation')}   name="occupation"  formData={formData} updateForm={updateForm} placeholder={t('ph_occupation')} />,
+    company:     <Field label={t('f_company')}      name="company"     formData={formData} updateForm={updateForm} placeholder={t('ph_company')} />,
+    income:      <Field label={t('f_income')}       name="income"      formData={formData} updateForm={updateForm} placeholder={t('ph_income')} />,
+    workLocation:<Field label={t('f_workLocation')} name="workLocation" formData={formData} updateForm={updateForm} placeholder={t('ph_workLocation')} />,
+  }
+
   return (
     <div className="space-y-5">
       <StepHeading title={t('b_s2_title')} sub={t('b_s2_sub')} />
-      <div className="grid grid-cols-2 gap-5">
-        <div className="col-span-2">
-          <Field label={t('f_education')} name="education" formData={formData} updateForm={updateForm} placeholder={t('ph_education')} />
-        </div>
-        <Field label={t('f_college')} name="college" formData={formData} updateForm={updateForm} placeholder={t('ph_college')} />
-        <Field label={t('f_occupation')} name="occupation" formData={formData} updateForm={updateForm} placeholder={t('ph_occupation')} />
-        <Field label={t('f_company')} name="company" formData={formData} updateForm={updateForm} placeholder={t('ph_company')} />
-        <Field label={t('f_income')} name="income" formData={formData} updateForm={updateForm} placeholder={t('ph_income')} />
-        <div className="col-span-2">
-          <Field label={t('f_workLocation')} name="workLocation" formData={formData} updateForm={updateForm} placeholder={t('ph_workLocation')} />
-        </div>
-      </div>
+      <DndContext sensors={career.sensors} collisionDetection={closestCenter} onDragEnd={career.onDragEnd}>
+        <SortableContext items={career.order} strategy={verticalListSortingStrategy}>
+          <div className="space-y-4">
+            {career.order.map(id => (
+              <SortableFieldRow key={id} id={id}>
+                {careerContent[id]}
+              </SortableFieldRow>
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
       <InlineCustomFields section="career" titleKey="extra_career_t" formData={formData} updateForm={updateForm} />
     </div>
   )
@@ -244,22 +301,34 @@ function Step2({ formData, updateForm }) {
 /* ── Step 3: Family ── */
 function Step3({ formData, updateForm }) {
   const { t } = useLanguage()
+  const family = useSectionSort(formData, updateForm, 'family')
+
+  const familyContent = {
+    fatherName:      <Field label={t('f_fatherName')}   name="fatherName"      formData={formData} updateForm={updateForm} placeholder={t('ph_fatherName')} />,
+    fatherOccupation:<Field label={t('f_fatherOcc')}    name="fatherOccupation" formData={formData} updateForm={updateForm} placeholder={t('ph_fatherOcc')} />,
+    motherName:      <Field label={t('f_motherName')}   name="motherName"      formData={formData} updateForm={updateForm} placeholder={t('ph_motherName')} />,
+    motherOccupation:<Field label={t('f_motherOcc')}    name="motherOccupation" formData={formData} updateForm={updateForm} placeholder={t('ph_motherOcc')} />,
+    brothers:        <Field label={t('f_brothers')}     name="brothers"        formData={formData} updateForm={updateForm} placeholder={t('ph_brothers')} />,
+    sisters:         <Field label={t('f_sisters')}      name="sisters"         formData={formData} updateForm={updateForm} placeholder={t('ph_sisters')} />,
+    familyType:      <Field label={t('f_familyType')}   name="familyType"      formData={formData} updateForm={updateForm} options={['', 'Nuclear', 'Joint', 'Extended']} />,
+    familyStatus:    <Field label={t('f_familyStatus')} name="familyStatus"    formData={formData} updateForm={updateForm} options={['', 'Middle Class', 'Upper Middle Class', 'Business Family', 'Affluent']} />,
+    nativePlace:     <Field label={t('f_nativePlace')}  name="nativePlace"     formData={formData} updateForm={updateForm} placeholder={t('ph_nativePlace')} />,
+  }
+
   return (
     <div className="space-y-5">
       <StepHeading title={t('b_s3_title')} sub={t('b_s3_sub')} />
-      <div className="grid grid-cols-2 gap-5">
-        <Field label={t('f_fatherName')} name="fatherName" formData={formData} updateForm={updateForm} placeholder={t('ph_fatherName')} />
-        <Field label={t('f_fatherOcc')} name="fatherOccupation" formData={formData} updateForm={updateForm} placeholder={t('ph_fatherOcc')} />
-        <Field label={t('f_motherName')} name="motherName" formData={formData} updateForm={updateForm} placeholder={t('ph_motherName')} />
-        <Field label={t('f_motherOcc')} name="motherOccupation" formData={formData} updateForm={updateForm} placeholder={t('ph_motherOcc')} />
-        <Field label={t('f_brothers')} name="brothers" formData={formData} updateForm={updateForm} placeholder={t('ph_brothers')} />
-        <Field label={t('f_sisters')} name="sisters" formData={formData} updateForm={updateForm} placeholder={t('ph_sisters')} />
-        <Field label={t('f_familyType')} name="familyType" formData={formData} updateForm={updateForm} options={['', 'Nuclear', 'Joint', 'Extended']} />
-        <Field label={t('f_familyStatus')} name="familyStatus" formData={formData} updateForm={updateForm} options={['', 'Middle Class', 'Upper Middle Class', 'Business Family', 'Affluent']} />
-        <div className="col-span-2">
-          <Field label={t('f_nativePlace')} name="nativePlace" formData={formData} updateForm={updateForm} placeholder={t('ph_nativePlace')} />
-        </div>
-      </div>
+      <DndContext sensors={family.sensors} collisionDetection={closestCenter} onDragEnd={family.onDragEnd}>
+        <SortableContext items={family.order} strategy={verticalListSortingStrategy}>
+          <div className="space-y-4">
+            {family.order.map(id => (
+              <SortableFieldRow key={id} id={id}>
+                {familyContent[id]}
+              </SortableFieldRow>
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
       <InlineCustomFields section="family" titleKey="extra_family_t" formData={formData} updateForm={updateForm} />
     </div>
   )
@@ -268,18 +337,30 @@ function Step3({ formData, updateForm }) {
 /* ── Step 4: Contact ── */
 function Step4({ formData, updateForm }) {
   const { t } = useLanguage()
+  const contact = useSectionSort(formData, updateForm, 'contact')
+
+  const contactContent = {
+    phone:   <Field label={t('f_phone')}   name="phone"   formData={formData} updateForm={updateForm} placeholder={t('ph_phone')} />,
+    email:   <Field label={t('f_email')}   name="email"   formData={formData} updateForm={updateForm} type="email" placeholder={t('ph_email')} />,
+    city:    <Field label={t('f_city')}    name="city"    formData={formData} updateForm={updateForm} placeholder={t('ph_city')} />,
+    state:   <Field label={t('f_state')}   name="state"   formData={formData} updateForm={updateForm} placeholder={t('ph_state')} />,
+    address: <Field label={t('f_address')} name="address" formData={formData} updateForm={updateForm} placeholder={t('ph_address')} />,
+  }
+
   return (
     <div className="space-y-5">
       <StepHeading title="Contact Information" sub="How families can reach you" />
-      <div className="grid grid-cols-2 gap-5">
-        <Field label={t('f_phone')} name="phone" formData={formData} updateForm={updateForm} placeholder={t('ph_phone')} />
-        <Field label={t('f_email')} name="email" formData={formData} updateForm={updateForm} type="email" placeholder={t('ph_email')} />
-        <Field label={t('f_city')} name="city" formData={formData} updateForm={updateForm} placeholder={t('ph_city')} />
-        <Field label={t('f_state')} name="state" formData={formData} updateForm={updateForm} placeholder={t('ph_state')} />
-        <div className="col-span-2">
-          <Field label={t('f_address')} name="address" formData={formData} updateForm={updateForm} placeholder={t('ph_address')} />
-        </div>
-      </div>
+      <DndContext sensors={contact.sensors} collisionDetection={closestCenter} onDragEnd={contact.onDragEnd}>
+        <SortableContext items={contact.order} strategy={verticalListSortingStrategy}>
+          <div className="space-y-4">
+            {contact.order.map(id => (
+              <SortableFieldRow key={id} id={id}>
+                {contactContent[id]}
+              </SortableFieldRow>
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
       <InlineCustomFields section="contact" titleKey="extra_contact_t" formData={formData} updateForm={updateForm} />
     </div>
   )
@@ -788,15 +869,28 @@ function DesignLivePreview({ formData }) {
   )
 }
 
-/* ── Side panel preview — fixed A4 card, template border corners always fill the card ── */
+/* ── Side panel preview — fixed A4 card, scrollable inside when content overflows ── */
 function SidePanelPreview({ formData }) {
+  const innerRef = useRef()
+  const [contentH, setContentH] = useState(0)
   const naturalW = 760
   const panelW = 420
   const scale = panelW / naturalW
-  const cardH = Math.round(panelW * 1.414) // A4 ratio ~595px
+  const a4H = Math.round(naturalW * 1.414)   // 1075px — template natural height
+  const cardH = Math.round(panelW * 1.414)   // 594px  — fixed outer card height
+
+  useLayoutEffect(() => {
+    if (!innerRef.current) return
+    const h = innerRef.current.scrollHeight
+    if (h > 0) setContentH(h)
+  })
+
+  // Scroll track height = visual (scaled) content height so scroll speed matches the template
+  const scrollTrackH = contentH > 0 ? Math.round(contentH * scale) : cardH
 
   return (
     <div style={{ width: panelW }}>
+      {/* Clip layer — hard clips at panelW, hides the scrollbar sitting 20px to the right */}
       <div style={{
         width: panelW,
         height: cardH,
@@ -806,18 +900,28 @@ function SidePanelPreview({ formData }) {
         boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
         isolation: 'isolate',
       }}>
-        {/* Explicit A4 height — template root uses minHeight:100% to fill it,
-            pushing border corners to all 4 edges of this card */}
+        {/* Scroll layer — 20px wider than clip so native scrollbar is hidden behind the clip */}
         <div style={{
-          width: naturalW,
-          height: Math.round(naturalW * 1.414),
-          overflow: 'hidden',
-          transform: `scale(${scale})`,
-          transformOrigin: 'top left',
-          pointerEvents: 'none',
-          position: 'relative',
+          width: panelW + 20,
+          height: cardH,
+          overflowY: 'scroll',
+          overflowX: 'hidden',
         }}>
-          <BioTemplate data={formData} />
+          {/* Scroll track — explicit height at scaled proportions so scroll distance is correct */}
+          <div style={{ width: panelW, height: scrollTrackH, position: 'relative' }}>
+            <div ref={innerRef} style={{
+              width: naturalW,
+              minHeight: a4H,
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
+              pointerEvents: 'none',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+            }}>
+              <BioTemplate data={formData} />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1617,9 +1721,9 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
         )}
       </AnimatePresence>
 
-      {/* Hidden A4-sized template used for PDF export from every step */}
+      {/* Hidden template used for PDF export — no fixed height so all content is captured */}
       <div style={{ position: 'fixed', left: 0, top: 0, transform: 'translateX(-9999px)', pointerEvents: 'none' }}>
-        <div ref={downloadRef} style={{ width: 760, height: Math.round(760 * 1.414), overflow: 'hidden', position: 'relative' }}>
+        <div ref={downloadRef} style={{ width: 760, minHeight: Math.round(760 * 1.414), position: 'relative' }}>
           <BioTemplate data={formData} />
         </div>
       </div>

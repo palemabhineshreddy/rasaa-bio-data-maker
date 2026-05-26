@@ -110,7 +110,7 @@ export function NoirTemplate({ data }) {
   const subtitle = [occupation, city].filter(Boolean).join(' · ')
 
   return (
-    <div className="pdf-area" style={{ background: BG, fontFamily: 'Inter, sans-serif', position: 'relative', minHeight: '100%' }}>
+    <div className="pdf-area" style={{ background: BG, fontFamily: 'Inter, sans-serif', position: 'relative', minHeight: 1075 }}>
       {/* Amber top accent */}
       <div style={{ height: 3, backgroundImage: `linear-gradient(90deg, ${AMBER} 0%, rgba(232,168,32,0) 100%)`, backgroundRepeat: 'no-repeat' }} />
 
@@ -213,7 +213,7 @@ export function AuroraTemplate({ data }) {
       fontFamily: 'Inter, sans-serif',
       position: 'relative',
       overflow: 'hidden',
-      minHeight: '100%',
+      minHeight: 1075,
     }}>
       {/* Atmospheric orbs */}
       <div style={{
@@ -319,7 +319,7 @@ export function EditorialTemplate({ data }) {
   const subtitle = [occupation, city].filter(Boolean).join('  ·  ')
 
   return (
-    <div className="pdf-area" style={{ background: '#ffffff', fontFamily: 'Inter, sans-serif', minHeight: '100%' }}>
+    <div className="pdf-area" style={{ background: '#ffffff', fontFamily: 'Inter, sans-serif', minHeight: 1075 }}>
       {/* Header band */}
       <div style={{
         background: NAVY,
@@ -417,7 +417,7 @@ export function BloomTemplate({ data }) {
   const subtitle = [occupation, city].filter(Boolean).join(' · ')
 
   return (
-    <div className="pdf-area" style={{ background: '#fdf6ef', fontFamily: 'Inter, sans-serif', display: 'flex', minHeight: '100%' }}>
+    <div className="pdf-area" style={{ background: '#fdf6ef', fontFamily: 'Inter, sans-serif', display: 'flex', minHeight: 1075 }}>
       {/* Left vertical accent bar */}
       <div style={{
         width: 5, flexShrink: 0,
@@ -512,7 +512,7 @@ export function NeoTemplate({ data }) {
   const subtitle = [occupation, city].filter(Boolean).join(' · ')
 
   return (
-    <div className="pdf-area" style={{ background: '#f5f4f0', fontFamily: 'Inter, sans-serif', border: `2px solid ${BLACK}`, minHeight: '100%' }}>
+    <div className="pdf-area" style={{ background: '#f5f4f0', fontFamily: 'Inter, sans-serif', border: `2px solid ${BLACK}`, minHeight: 1075 }}>
       {/* Yellow header block */}
       <div style={{
         background: YELLOW,

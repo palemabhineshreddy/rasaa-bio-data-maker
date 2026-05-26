@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import LandingPage from './pages/LandingPage'
 import BuilderPage from './pages/BuilderPage'
 import { track } from './utils/analytics'
+import { DEFAULT_FIELD_ORDER } from './utils/fieldGroups'
 
 const LS_KEY = 'bandhan_biodata_v1'
 
@@ -30,6 +31,8 @@ const EMPTY_FORM = {
   sloganLanguage: 'auto',
   // User-defined rows
   customFields: [],
+  // Field display order (per section) — drag to reorder in the builder
+  fieldOrder: DEFAULT_FIELD_ORDER,
 }
 
 function loadSaved() {

@@ -1,5 +1,6 @@
 import { formatDate } from '../utils/formatters'
 import { useLanguage } from '../contexts/LanguageContext'
+import { getFieldOrder } from '../utils/fieldGroups'
 
 /*
  * Bandhan — Biodata Template Engine
@@ -623,11 +624,11 @@ export default function PanIndiaTemplate({ data }) {
     religion, caste, subCaste, motherTongue, gender,
     education, college, occupation, company, income, workLocation,
     about, partnerExpectations].some(Boolean) ||
-    bySection('personal').length > 0 || bySection('career').length > 0
+    bySection('personal').length > 0 || bySection('career').length > 0 || hasHoroscope
 
   const hasFamily = [fatherName, fatherOccupation, motherName, motherOccupation,
     brothers, sisters, familyType, familyStatus, nativePlace].some(Boolean) ||
-    bySection('family').length > 0 || hasHoroscope
+    bySection('family').length > 0
 
   const hasContact = [phone, email, city, state, address].some(Boolean) ||
     bySection('contact').length > 0
@@ -655,7 +656,7 @@ export default function PanIndiaTemplate({ data }) {
   }
 
   return (
-    <div className="pdf-area" style={{ background: bg, fontFamily: 'Inter, sans-serif', position: 'relative', minHeight: '100%' }}>
+    <div className="pdf-area" style={{ background: bg, fontFamily: 'Inter, sans-serif', position: 'relative', minHeight: 1075 }}>
 
       <Border outer={outer} gold={gold} />
 
@@ -670,81 +671,102 @@ export default function PanIndiaTemplate({ data }) {
           </header>
         )}
 
-        {/* Personal Details — only shown when there is data */}
-        {hasPersonal && (
-          <>
-            <Divider title={t('pdf_personal')} />
-            <div style={{ display: 'grid', gridTemplateColumns: photo ? '1fr 160px' : '1fr', gap: 12, alignItems: 'flex-start' }}>
-              <div>
-                <Row label={t('pdf_name')}       value={fullName} />
-                <Row label={t('pdf_dob')}        value={formatDate(dateOfBirth)} />
-                <Row label={t('pdf_age')}        value={age ? `${age} Years` : null} />
-                <Row label={t('pdf_height')}     value={height} />
-                <Row label={t('pdf_weight')}     value={weight} />
-                <Row label={t('pdf_blood')}      value={bloodGroup} />
-                <Row label={t('pdf_religion')}   value={religion} />
-                <Row label={t('pdf_community')}  value={[caste, subCaste].filter(Boolean).join(' / ')} />
-                <Row label={t('pdf_tongue')}     value={motherTongue} />
-                <Row label={t('pdf_gender')}     value={gender} />
-                {bySection('personal').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
-                <Row label="About Me"             value={about} />
-                <Row label="Partner Expectations" value={partnerExpectations} />
-                <Row label={t('pdf_education')}  value={education} />
-                <Row label={t('pdf_college')}    value={college} />
-                <Row label={t('pdf_occupation')} value={occupation} />
-                <Row label={t('pdf_org')}        value={company} />
-                <Row label={t('pdf_income')}     value={income} />
-                <Row label={t('pdf_work')}       value={workLocation} />
-                {bySection('career').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+        {/* Personal + Career — one Row per field, in user-defined order */}
+        {hasPersonal && (() => {
+          const personalRowMap = {
+            fullName:            <Row key="fullName"    label={t('pdf_name')}       value={fullName} />,
+            gender:              <Row key="gender"      label={t('pdf_gender')}     value={gender} />,
+            dateOfBirth:         <Row key="dob"         label={t('pdf_dob')}        value={formatDate(dateOfBirth)} />,
+            age:                 <Row key="age"         label={t('pdf_age')}        value={age ? `${age} Years` : null} />,
+            height:              <Row key="height"      label={t('pdf_height')}     value={height} />,
+            weight:              <Row key="weight"      label={t('pdf_weight')}     value={weight} />,
+            bloodGroup:          <Row key="blood"       label={t('pdf_blood')}      value={bloodGroup} />,
+            religion:            <Row key="religion"    label={t('pdf_religion')}   value={religion} />,
+            caste:               <Row key="caste"       label={t('pdf_community')}  value={[caste, subCaste].filter(Boolean).join(' / ')} />,
+            subCaste:            null,
+            motherTongue:        <Row key="tongue"      label={t('pdf_tongue')}     value={motherTongue} />,
+            about:               <Row key="about"       label="About Me"            value={about} />,
+            partnerExpectations: <Row key="partnerExp"  label="Partner Expectations" value={partnerExpectations} />,
+          }
+          const careerRowMap = {
+            education:   <Row key="edu"    label={t('pdf_education')}  value={education} />,
+            college:     <Row key="col"    label={t('pdf_college')}    value={college} />,
+            occupation:  <Row key="occ"    label={t('pdf_occupation')} value={occupation} />,
+            company:     <Row key="comp"   label={t('pdf_org')}        value={company} />,
+            income:      <Row key="inc"    label={t('pdf_income')}     value={income} />,
+            workLocation:<Row key="work"   label={t('pdf_work')}       value={workLocation} />,
+          }
+          const horoscopeRowMap = {
+            rashi:    <Row key="rashi"    label={t('pdf_rashi')}     value={rashi} />,
+            nakshatra:<Row key="naksh"    label={t('pdf_nakshatra')} value={nakshatra} />,
+            gotra:    <Row key="gotra"    label={t('pdf_gotra')}     value={gotra} />,
+            manglik:  <Row key="manglik"  label={t('pdf_manglik')}   value={manglik} />,
+          }
+          return (
+            <>
+              <Divider title={t('pdf_personal')} />
+              <div style={{ display: 'grid', gridTemplateColumns: photo ? '1fr 160px' : '1fr', gap: 12, alignItems: 'flex-start' }}>
+                <div>
+                  {getFieldOrder(data, 'personal').map(id => personalRowMap[id] ?? null)}
+                  {bySection('personal').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+                  {getFieldOrder(data, 'career').map(id => careerRowMap[id] ?? null)}
+                  {bySection('career').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+                  {getFieldOrder(data, 'horoscope').map(id => horoscopeRowMap[id] ?? null)}
+                  {bySection('horoscope').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+                </div>
+                {photo && (
+                  <div style={{
+                    width: 152, height: 192,
+                    backgroundImage: `url(${photo})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: `${photoPosition.x}% ${photoPosition.y}%`,
+                    backgroundRepeat: 'no-repeat',
+                  }} />
+                )}
               </div>
-              {photo && (
-                <div style={{
-                  width: 152, height: 192,
-                  backgroundImage: `url(${photo})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: `${photoPosition.x}% ${photoPosition.y}%`,
-                  backgroundRepeat: 'no-repeat',
-                }} />
-              )}
-            </div>
-          </>
-        )}
+            </>
+          )
+        })()}
 
-        {/* Family Details — only shown when there is data */}
-        {hasFamily && (
-          <>
-            <Divider title={t('pdf_family')} />
-            <Row label={t('pdf_father')}        value={fatherName && fatherOccupation ? `${fatherName} (${fatherOccupation})` : fatherName || fatherOccupation} />
-            <Row label={t('pdf_mother')}        value={motherName && motherOccupation ? `${motherName} (${motherOccupation})` : motherName || motherOccupation} />
-            <Row label={t('pdf_brothers')}      value={brothers} />
-            <Row label={t('pdf_sisters')}       value={sisters} />
-            <Row label={t('pdf_family_type')}   value={familyType} />
-            <Row label={t('pdf_family_status')} value={familyStatus} />
-            <Row label={t('pdf_native')}        value={nativePlace} />
-            {bySection('family').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
-            {hasHoroscope && (
-              <>
-                <Row label={t('pdf_rashi')}     value={rashi} />
-                <Row label={t('pdf_nakshatra')} value={nakshatra} />
-                <Row label={t('pdf_gotra')}     value={gotra} />
-                <Row label={t('pdf_manglik')}   value={manglik} />
-                {bySection('horoscope').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
-              </>
-            )}
-          </>
-        )}
+        {/* Family Details — one Row per field, in user-defined order */}
+        {hasFamily && (() => {
+          const familyRowMap = {
+            fatherName:      <Row key="fName"   label={t('pdf_father')}        value={fatherName} />,
+            fatherOccupation:<Row key="fOcc"    label="Father's Occupation"    value={fatherOccupation} />,
+            motherName:      <Row key="mName"   label={t('pdf_mother')}        value={motherName} />,
+            motherOccupation:<Row key="mOcc"    label="Mother's Occupation"    value={motherOccupation} />,
+            brothers:        <Row key="bro"     label={t('pdf_brothers')}      value={brothers} />,
+            sisters:         <Row key="sis"     label={t('pdf_sisters')}       value={sisters} />,
+            familyType:      <Row key="ftype"   label={t('pdf_family_type')}   value={familyType} />,
+            familyStatus:    <Row key="fstatus" label={t('pdf_family_status')} value={familyStatus} />,
+            nativePlace:     <Row key="native"  label={t('pdf_native')}        value={nativePlace} />,
+          }
+          return (
+            <>
+              <Divider title={t('pdf_family')} />
+              {getFieldOrder(data, 'family').map(id => familyRowMap[id] ?? null)}
+              {bySection('family').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+            </>
+          )
+        })()}
 
-        {/* Contact — only shown when there is data */}
-        {hasContact && (
-          <>
-            <Divider title={t('pdf_contact')} />
-            <Row label={t('pdf_phone')}    value={phone} />
-            <Row label={t('pdf_email')}    value={email} />
-            <Row label="City / State"      value={[city, state].filter(Boolean).join(', ')} />
-            <Row label={t('pdf_address')}  value={address} />
-            {bySection('contact').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
-          </>
-        )}
+        {/* Contact — one Row per field, in user-defined order */}
+        {hasContact && (() => {
+          const contactRowMap = {
+            phone:   <Row key="phone"    label={t('pdf_phone')}   value={phone} />,
+            email:   <Row key="email"    label={t('pdf_email')}   value={email} />,
+            city:    <Row key="city"     label="City"             value={city} />,
+            state:   <Row key="state"    label="State"            value={state} />,
+            address: <Row key="address"  label={t('pdf_address')} value={address} />,
+          }
+          return (
+            <>
+              <Divider title={t('pdf_contact')} />
+              {getFieldOrder(data, 'contact').map(id => contactRowMap[id] ?? null)}
+              {bySection('contact').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+            </>
+          )
+        })()}
 
         {/* Custom sections */}
         {Object.entries(grouped).map(([title, rows]) => (
