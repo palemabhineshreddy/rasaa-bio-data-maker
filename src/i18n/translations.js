@@ -56,6 +56,10 @@ const en = {
   feat3_desc:        'Templates crafted for Hindu, Muslim, Sikh, Christian, and Jain families — more added regularly.',
   feat4_label:       'Share anywhere',
   feat4_desc:        'PDF works on every device. Share on WhatsApp, email, or print — exactly as designed.',
+  feat5_label:       'Truly free, forever',
+  feat5_desc:        'No watermarks, no sign-up, no paid plans. Create and download as many biodatas as you like — at zero cost.',
+  feat6_label:       'Nine Indian languages',
+  feat6_desc:        'Switch between Hindi, Telugu, Tamil, Kannada, Malayalam, Bengali, Marathi, Gujarati, and English instantly.',
 
   /* ── How it works ── */
   how_label:         'How it works',
@@ -84,7 +88,7 @@ const en = {
 
   /* ── CTA ── */
   cta_title1:        'Begin your',
-  cta_title2:        'Bandhan today.',
+  cta_title2:        'journey for life.',
   cta_subtitle:      'Free, private, and ready in minutes.\nThe biodata your family deserves.',
   cta_btn:           'Create Your Biodata',
 
@@ -154,7 +158,7 @@ const en = {
   field_value:       'Value',
 
   /* ── Field labels ── */
-  f_fullName:        'Full Name *',
+  f_fullName:        'Full Name',
   f_gender:          'Gender',
   f_dob:             'Date of Birth',
   f_age:             'Age (Years)',
@@ -165,9 +169,9 @@ const en = {
   f_religion:        'Religion',
   f_caste:           'Caste / Community',
   f_subCaste:        'Sub-Caste (optional)',
-  f_education:       'Highest Qualification *',
+  f_education:       'Highest Qualification',
   f_college:         'College / University',
-  f_occupation:      'Occupation *',
+  f_occupation:      'Occupation',
   f_company:         'Company / Organisation',
   f_income:          'Annual Income (optional)',
   f_workLocation:    'Work Location / City',
@@ -350,6 +354,10 @@ const hi = {
   feat3_desc:        'हिंदू, मुस्लिम, सिख, ईसाई और जैन परिवारों के लिए अलग-अलग डिज़ाइन — और नए आते रहते हैं।',
   feat4_label:       'जहाँ चाहें शेयर करें',
   feat4_desc:        'PDF हर जगह काम करता है। WhatsApp पर भेजें, ईमेल करें या प्रिंट निकालें।',
+  feat5_label:       'हमेशा के लिए मुफ़्त',
+  feat5_desc:        'कोई वॉटरमार्क नहीं, कोई साइन-अप नहीं, कोई पेड प्लान नहीं। जितने चाहें बायोडेटा बनाएं — एकदम मुफ़्त।',
+  feat6_label:       'नौ भारतीय भाषाएँ',
+  feat6_desc:        'हिंदी, तेलुगु, तमिल, कन्नड़, मलयालम, बंगाली, मराठी, गुजराती और अंग्रेज़ी में तुरंत स्विच करें।',
 
   /* ── How it works ── */
   how_label:         'कैसे बनाएं',
@@ -377,8 +385,8 @@ const hi = {
   faq_a5:            'हाँ, ज़रूर। किसी भी हिस्से पर सीधे जाएं, जो चाहें बदलें और तुरंत देखें।',
 
   /* ── CTA ── */
-  cta_title1:        'आज ही बनाएं',
-  cta_title2:        'अपना Bandhan।',
+  cta_title1:        'आज ही शुरू करें',
+  cta_title2:        'जीवन भर का सफ़र।',
   cta_subtitle:      'मुफ़्त, सुरक्षित और बस कुछ मिनट में तैयार।\nवह बायोडेटा जो आपके परिवार को पसंद आएगा।',
   cta_btn:           'अभी बायोडेटा बनाएं',
 
@@ -448,7 +456,7 @@ const hi = {
   field_value:       'जानकारी',
 
   /* ── Field labels ── */
-  f_fullName:        'पूरा नाम *',
+  f_fullName:        'पूरा नाम',
   f_gender:          'लिंग',
   f_dob:             'जन्मतिथि',
   f_age:             'उम्र (साल)',
@@ -459,9 +467,9 @@ const hi = {
   f_religion:        'धर्म',
   f_caste:           'जाति / समुदाय',
   f_subCaste:        'उपजाति (ज़रूरी नहीं)',
-  f_education:       'सबसे ऊँची डिग्री *',
+  f_education:       'सबसे ऊँची डिग्री',
   f_college:         'कॉलेज / यूनिवर्सिटी',
-  f_occupation:      'पेशा *',
+  f_occupation:      'पेशा',
   f_company:         'कंपनी / संस्था',
   f_income:          'सालाना कमाई (ज़रूरी नहीं)',
   f_workLocation:    'काम की जगह / शहर',
@@ -644,6 +652,10 @@ const te = {
   feat3_desc:        'హిందూ, ముస్లిం, సిక్కు, క్రిస్టియన్, జైన కుటుంబాల కోసం ప్రత్యేకంగా తయారైన డిజైన్లు — మరిన్ని వస్తూనే ఉంటాయి.',
   feat4_label:       'ఎక్కడైనా పంపవచ్చు',
   feat4_desc:        'PDF అన్ని డివైస్‌లలో పనిచేస్తుంది. WhatsApp లో పంపండి, ఇమెయిల్ చేయండి లేదా ప్రింట్ తీయండి.',
+  feat5_label:       'ఎప్పటికీ ఉచితం',
+  feat5_desc:        'వాటర్‌మార్క్ లేదు, సైన్-అప్ లేదు, పెయిడ్ ప్లాన్ లేదు. ఎన్ని బయోడేటాలైనా తయారు చేసి డౌన్‌లోడ్ చేయండి — పూర్తిగా ఉచితంగా.',
+  feat6_label:       'తొమ్మిది భారతీయ భాషలు',
+  feat6_desc:        'హిందీ, తెలుగు, తమిళం, కన్నడ, మలయాళం, బెంగాలీ, మరాఠీ, గుజరాతీ మరియు ఇంగ్లీష్‌లో అందుబాటులో ఉంది.',
 
   /* ── How it works ── */
   how_label:         'ఎలా చేయాలి',
@@ -672,7 +684,7 @@ const te = {
 
   /* ── CTA ── */
   cta_title1:        'ఈరోజే మొదలుపెట్టండి',
-  cta_title2:        'మీ Bandhan.',
+  cta_title2:        'జీవిత ప్రయాణం.',
   cta_subtitle:      'ఉచితం, సురక్షితం, కొన్ని నిమిషాల్లో తయారు.\nమీ కుటుంబానికి తగిన బయోడేటా.',
   cta_btn:           'ఇప్పుడే బయోడేటా తయారు చేయండి',
 
@@ -742,7 +754,7 @@ const te = {
   field_value:       'వివరం',
 
   /* ── Field labels ── */
-  f_fullName:        'పూర్తి పేరు *',
+  f_fullName:        'పూర్తి పేరు',
   f_gender:          'లింగం',
   f_dob:             'పుట్టిన తేదీ',
   f_age:             'వయసు (సంవత్సరాలు)',
@@ -753,9 +765,9 @@ const te = {
   f_religion:        'మతం',
   f_caste:           'కులం / సమాజం',
   f_subCaste:        'ఉప-కులం (అవసరమైతే)',
-  f_education:       'చివరి చదువు *',
+  f_education:       'చివరి చదువు',
   f_college:         'కళాశాల / విశ్వవిద్యాలయం',
-  f_occupation:      'ఉద్యోగం / వృత్తి *',
+  f_occupation:      'ఉద్యోగం / వృత్తి',
   f_company:         'కంపెనీ / సంస్థ',
   f_income:          'సంవత్సర ఆదాయం (అవసరమైతే)',
   f_workLocation:    'పనిచేసే ఊరు / నగరం',
@@ -938,6 +950,10 @@ const ta = {
   feat3_desc:        'இந்து, முஸ்லிம், சீக்கிய, கிறிஸ்தவ, ஜைன குடும்பங்களுக்கென தனிப்பட்ட டிசைன்கள் — இன்னும் வருகின்றன.',
   feat4_label:       'எங்கும் பகிரலாம்',
   feat4_desc:        'PDF எல்லா சாதனங்களிலும் வேலை செய்யும். WhatsApp இல் அனுப்புங்கள், email செய்யுங்கள் அல்லது பிரிண்ட் எடுங்கள்.',
+  feat5_label:       'என்றும் இலவசம்',
+  feat5_desc:        'வாட்டர்மார்க் இல்லை, பதிவு இல்லை, கட்டண திட்டம் இல்லை. எத்தனை பயோடேட்டா வேண்டுமானாலும் — முற்றிலும் இலவசம்.',
+  feat6_label:       'ஒன்பது இந்திய மொழிகள்',
+  feat6_desc:        'இந்தி, தெலுங்கு, தமிழ், கன்னடம், மலையாளம், வங்காளம், மராத்தி, குஜராத்தி மற்றும் ஆங்கிலத்தில் உடனடியாக மாறுங்கள்.',
 
   /* ── How it works ── */
   how_label:         'எப்படி செய்வது',
@@ -966,7 +982,7 @@ const ta = {
 
   /* ── CTA ── */
   cta_title1:        'இன்றே தொடங்குங்கள்',
-  cta_title2:        'உங்கள் Bandhan.',
+  cta_title2:        'வாழ்க்கை பயணம்.',
   cta_subtitle:      'இலவசம், பாதுகாப்பானது, சில நிமிடங்களில் தயார்.\nஉங்கள் குடும்பத்திற்கு தகுந்த பயோடேட்டா.',
   cta_btn:           'இப்போதே பயோடேட்டா உருவாக்குங்கள்',
 
@@ -1036,7 +1052,7 @@ const ta = {
   field_value:       'மதிப்பு',
 
   /* ── Field labels ── */
-  f_fullName:        'முழு பெயர் *',
+  f_fullName:        'முழு பெயர்',
   f_gender:          'பாலினம்',
   f_dob:             'பிறந்த தேதி',
   f_age:             'வயது (ஆண்டுகள்)',
@@ -1047,9 +1063,9 @@ const ta = {
   f_religion:        'மதம்',
   f_caste:           'சாதி / சமூகம்',
   f_subCaste:        'உட்சாதி (விருப்பமானது)',
-  f_education:       'உயர் கல்வி தகுதி *',
+  f_education:       'உயர் கல்வி தகுதி',
   f_college:         'கல்லூரி / பல்கலைக்கழகம்',
-  f_occupation:      'தொழில் *',
+  f_occupation:      'தொழில்',
   f_company:         'நிறுவனம் / அமைப்பு',
   f_income:          'ஆண்டு வருமானம் (விருப்பமானது)',
   f_workLocation:    'வேலை செய்யும் இடம் / நகரம்',
@@ -1232,6 +1248,10 @@ const kn = {
   feat3_desc:        'ಹಿಂದೂ, ಮುಸ್ಲಿಂ, ಸಿಖ್, ಕ್ರಿಸ್ತಿಯನ್, ಜೈನ ಕುಟುಂಬಗಳಿಗಾಗಿ ವಿಶೇಷ ಡಿಸೈನ್‌ಗಳು — ಇನ್ನಷ್ಟು ಬರಲಿದೆ.',
   feat4_label:       'ಎಲ್ಲಿಯಾದರೂ ಹಂಚಿಕೊಳ್ಳಿ',
   feat4_desc:        'PDF ಎಲ್ಲ ಸಾಧನಗಳಲ್ಲೂ ಕೆಲಸ ಮಾಡುತ್ತದೆ. WhatsApp ನಲ್ಲಿ ಕಳುಹಿಸಿ, email ಮಾಡಿ ಅಥವಾ ಪ್ರಿಂಟ್ ತೆಗೆಯಿರಿ.',
+  feat5_label:       'ಯಾವಾಗಲೂ ಉಚಿತ',
+  feat5_desc:        'ವಾಟರ್‌ಮಾರ್ಕ್ ಇಲ್ಲ, ಸೈನ್-ಅಪ್ ಇಲ್ಲ, ಪೇಯ್ಡ್ ಪ್ಲಾನ್ ಇಲ್ಲ. ಬೇಕಾದಷ್ಟು ಬಯೋಡೇಟಾ ತಯಾರಿಸಿ — ಸಂಪೂರ್ಣ ಉಚಿತ.',
+  feat6_label:       'ಒಂಬತ್ತು ಭಾರತೀಯ ಭಾಷೆಗಳು',
+  feat6_desc:        'ಹಿಂದಿ, ತೆಲುಗು, ತಮಿಳು, ಕನ್ನಡ, ಮಲಯಾಳಂ, ಬೆಂಗಾಳಿ, ಮರಾಠಿ, ಗುಜರಾತಿ ಮತ್ತು ಇಂಗ್ಲಿಷ್‌ನಲ್ಲಿ ತಕ್ಷಣ ಬದಲಾಯಿಸಿ.',
 
   /* ── How it works ── */
   how_label:         'ಹೇಗೆ ಮಾಡಬೇಕು',
@@ -1260,7 +1280,7 @@ const kn = {
 
   /* ── CTA ── */
   cta_title1:        'ಇಂದೇ ಪ್ರಾರಂಭಿಸಿ',
-  cta_title2:        'ನಿಮ್ಮ Bandhan.',
+  cta_title2:        'ಜೀವನ ಪ್ರಯಾಣ.',
   cta_subtitle:      'ಉಚಿತ, ಸುರಕ್ಷಿತ, ಕೆಲವೇ ನಿಮಿಷದಲ್ಲಿ ತಯಾರು.\nನಿಮ್ಮ ಕುಟುಂಬಕ್ಕೆ ತಕ್ಕ ಬಯೋಡೇಟಾ.',
   cta_btn:           'ಈಗಲೇ ಬಯೋಡೇಟಾ ತಯಾರಿಸಿ',
 
@@ -1330,7 +1350,7 @@ const kn = {
   field_value:       'ಮೌಲ್ಯ',
 
   /* ── Field labels ── */
-  f_fullName:        'ಪೂರ್ಣ ಹೆಸರು *',
+  f_fullName:        'ಪೂರ್ಣ ಹೆಸರು',
   f_gender:          'ಲಿಂಗ',
   f_dob:             'ಹುಟ್ಟಿದ ದಿನಾಂಕ',
   f_age:             'ವಯಸ್ಸು (ವರ್ಷಗಳು)',
@@ -1341,9 +1361,9 @@ const kn = {
   f_religion:        'ಧರ್ಮ',
   f_caste:           'ಜಾತಿ / ಸಮುದಾಯ',
   f_subCaste:        'ಉಪಜಾತಿ (ಐಚ್ಛಿಕ)',
-  f_education:       'ಅತ್ಯುನ್ನತ ಶಿಕ್ಷಣ *',
+  f_education:       'ಅತ್ಯುನ್ನತ ಶಿಕ್ಷಣ',
   f_college:         'ಕಾಲೇಜು / ವಿಶ್ವವಿದ್ಯಾಲಯ',
-  f_occupation:      'ಉದ್ಯೋಗ *',
+  f_occupation:      'ಉದ್ಯೋಗ',
   f_company:         'ಕಂಪನಿ / ಸಂಸ್ಥೆ',
   f_income:          'ವಾರ್ಷಿಕ ಆದಾಯ (ಐಚ್ಛಿಕ)',
   f_workLocation:    'ಕೆಲಸ ಮಾಡುವ ಸ್ಥಳ / ನಗರ',
@@ -1526,6 +1546,10 @@ const ml = {
   feat3_desc:        'ഹിന്ദു, മുസ്ലിം, സിഖ്, ക്രിസ്ത്യൻ, ജൈന കുടുംബങ്ങൾക്കായി പ്രത്യേക ഡിസൈനുകൾ — ഇനിയും വരുന്നുണ്ട്.',
   feat4_label:       'എവിടേക്കും അയക്കാം',
   feat4_desc:        'PDF എല്ലാ ഉപകരണങ്ങളിലും പ്രവർത്തിക്കും. WhatsApp ൽ അയക്കൂ, email ചെയ്യൂ അല്ലെങ്കിൽ പ്രിന്റ് ചെയ്യൂ.',
+  feat5_label:       'എന്നും സൗജന്യം',
+  feat5_desc:        'വാട്ടർമാർക്ക് ഇല്ല, സൈൻ-അപ്പ് ഇല്ല, പേഡ് പ്ലാൻ ഇല്ല. എത്ര ബയോഡേറ്റ വേണമെങ്കിലും — തികച്ചും സൗജന്യം.',
+  feat6_label:       'ഒൻപത് ഭാരതീയ ഭാഷകൾ',
+  feat6_desc:        'ഹിന്ദി, തെലുഗു, തമിഴ്, കന്നഡ, മലയാളം, ബംഗാളി, മറാഠി, ഗുജറാത്തി, ഇംഗ്ലീഷ് ഭാഷകളിൽ ഉടൻ മാറ്റം.',
 
   /* ── How it works ── */
   how_label:         'എങ്ങനെ ചെയ്യണം',
@@ -1554,7 +1578,7 @@ const ml = {
 
   /* ── CTA ── */
   cta_title1:        'ഇന്ന് തന്നെ തുടങ്ങൂ',
-  cta_title2:        'നിങ്ങളുടെ Bandhan.',
+  cta_title2:        'ജീവിത യാത്ര.',
   cta_subtitle:      'സൗജന്യം, സുരക്ഷിതം, ഏതാനും മിനിറ്റിൽ തയ്യാർ.\nനിങ്ങളുടെ കുടുംബത്തിന് അർഹമായ ബയോഡേറ്റ.',
   cta_btn:           'ഇപ്പോൾ ബയോഡേറ്റ ഉണ്ടാക്കൂ',
 
@@ -1624,7 +1648,7 @@ const ml = {
   field_value:       'മൂല്യം',
 
   /* ── Field labels ── */
-  f_fullName:        'പൂർണ്ണ പേര് *',
+  f_fullName:        'പൂർണ്ണ പേര്',
   f_gender:          'ലിംഗം',
   f_dob:             'ജനനത്തീയതി',
   f_age:             'പ്രായം (വർഷങ്ങൾ)',
@@ -1635,9 +1659,9 @@ const ml = {
   f_religion:        'മതം',
   f_caste:           'ജാതി / സമുദായം',
   f_subCaste:        'ഉപജാതി (ഐച്ഛികം)',
-  f_education:       'ഉന്നത വിദ്യാഭ്യാസ യോഗ്യത *',
+  f_education:       'ഉന്നത വിദ്യാഭ്യാസ യോഗ്യത',
   f_college:         'കോളേജ് / സർവകലാശാല',
-  f_occupation:      'ജോലി *',
+  f_occupation:      'ജോലി',
   f_company:         'കമ്പനി / സ്ഥാപനം',
   f_income:          'വാർഷിക വരുമാനം (ഐച്ഛികം)',
   f_workLocation:    'ജോലി ചെയ്യുന്ന സ്ഥലം / നഗരം',
@@ -1820,6 +1844,10 @@ const bn = {
   feat3_desc:        'হিন্দু, মুসলিম, শিখ, খ্রিস্টান, জৈন পরিবারের জন্য বিশেষ ডিজাইন — আরও আসছে।',
   feat4_label:       'যেখানে খুশি পাঠান',
   feat4_desc:        'PDF সব ডিভাইসে কাজ করে। WhatsApp-এ পাঠান, email করুন বা প্রিন্ট নিন।',
+  feat5_label:       'চিরকাল বিনামূল্যে',
+  feat5_desc:        'কোনো ওয়াটারমার্ক নেই, সাইন-আপ নেই, পেইড প্ল্যান নেই। যত খুশি বায়োডেটা তৈরি করুন — সম্পূর্ণ বিনামূল্যে।',
+  feat6_label:       'নয়টি ভারতীয় ভাষা',
+  feat6_desc:        'হিন্দি, তেলুগু, তামিল, কন্নড়, মালায়ালাম, বাংলা, মারাঠি, গুজরাটি এবং ইংরেজিতে তাৎক্ষণিক পরিবর্তন।',
 
   /* ── How it works ── */
   how_label:         'কীভাবে করবেন',
@@ -1848,7 +1876,7 @@ const bn = {
 
   /* ── CTA ── */
   cta_title1:        'আজই শুরু করুন',
-  cta_title2:        'আপনার Bandhan।',
+  cta_title2:        'জীবনের যাত্রা।',
   cta_subtitle:      'বিনামূল্যে, নিরাপদ, কয়েক মিনিটেই তৈরি।\nআপনার পরিবারের যোগ্য বায়োডেটা।',
   cta_btn:           'এখনই বায়োডেটা তৈরি করুন',
 
@@ -1918,7 +1946,7 @@ const bn = {
   field_value:       'মান',
 
   /* ── Field labels ── */
-  f_fullName:        'পুরো নাম *',
+  f_fullName:        'পুরো নাম',
   f_gender:          'লিঙ্গ',
   f_dob:             'জন্মতারিখ',
   f_age:             'বয়স (বছর)',
@@ -1929,9 +1957,9 @@ const bn = {
   f_religion:        'ধর্ম',
   f_caste:           'জাতি / সম্প্রদায়',
   f_subCaste:        'উপজাতি (ঐচ্ছিক)',
-  f_education:       'সর্বোচ্চ শিক্ষাগত যোগ্যতা *',
+  f_education:       'সর্বোচ্চ শিক্ষাগত যোগ্যতা',
   f_college:         'কলেজ / বিশ্ববিদ্যালয়',
-  f_occupation:      'পেশা *',
+  f_occupation:      'পেশা',
   f_company:         'কোম্পানি / প্রতিষ্ঠান',
   f_income:          'বার্ষিক আয় (ঐচ্ছিক)',
   f_workLocation:    'কর্মস্থল / শহর',
@@ -2114,6 +2142,10 @@ const mr = {
   feat3_desc:        'हिंदू, मुस्लिम, शीख, ख्रिश्चन, जैन कुटुंबांसाठी खास डिझाइन — आणखी येत आहेत.',
   feat4_label:       'कुठेही पाठवा',
   feat4_desc:        'PDF सर्व उपकरणांवर काम करतो. WhatsApp वर पाठवा, email करा किंवा प्रिंट काढा.',
+  feat5_label:       'कायमचे मोफत',
+  feat5_desc:        'कोणताही वॉटरमार्क नाही, साइन-अप नाही, पेड प्लान नाही. हवे तितके बायोडेटा बनवा — पूर्णपणे मोफत.',
+  feat6_label:       'नऊ भारतीय भाषा',
+  feat6_desc:        'हिंदी, तेलुगु, तमिळ, कन्नड, मल्याळम, बंगाली, मराठी, गुजराती आणि इंग्रजीमध्ये त्वरित बदल करा.',
 
   /* ── How it works ── */
   how_label:         'कसे करायचे',
@@ -2142,7 +2174,7 @@ const mr = {
 
   /* ── CTA ── */
   cta_title1:        'आजच सुरुवात करा',
-  cta_title2:        'तुमचा Bandhan.',
+  cta_title2:        'जीवनाचा प्रवास.',
   cta_subtitle:      'मोफत, सुरक्षित, काही मिनिटांत तयार.\nतुमच्या कुटुंबास योग्य बायोडेटा.',
   cta_btn:           'आत्ताच बायोडेटा तयार करा',
 
@@ -2212,7 +2244,7 @@ const mr = {
   field_value:       'मूल्य',
 
   /* ── Field labels ── */
-  f_fullName:        'पूर्ण नाव *',
+  f_fullName:        'पूर्ण नाव',
   f_gender:          'लिंग',
   f_dob:             'जन्मतारीख',
   f_age:             'वय (वर्षे)',
@@ -2223,9 +2255,9 @@ const mr = {
   f_religion:        'धर्म',
   f_caste:           'जात / समाज',
   f_subCaste:        'उपजात (पर्यायी)',
-  f_education:       'सर्वोच्च शैक्षणिक पात्रता *',
+  f_education:       'सर्वोच्च शैक्षणिक पात्रता',
   f_college:         'महाविद्यालय / विद्यापीठ',
-  f_occupation:      'व्यवसाय *',
+  f_occupation:      'व्यवसाय',
   f_company:         'कंपनी / संस्था',
   f_income:          'वार्षिक उत्पन्न (पर्यायी)',
   f_workLocation:    'कामाचे ठिकाण / शहर',
@@ -2408,6 +2440,10 @@ const gu = {
   feat3_desc:        'હિન્દુ, મુસ્લિમ, શીખ, ખ્રિસ્તી, જૈન પરિવારો માટે ખાસ ડિઝાઇન — વધુ આવી રહ્યા છે.',
   feat4_label:       'ગમે ત્યાં મોકલો',
   feat4_desc:        'PDF દરેક ઉપકરણ પર કામ કરે છે. WhatsApp પર મોકલો, email કરો અથવા પ્રિન્ટ કાઢો.',
+  feat5_label:       'હંમેશ માટે મફત',
+  feat5_desc:        'કોઈ વૉટરમાર્ક નહીં, સાઈન-અપ નહીં, પેઈડ પ્લાન નહીં. ગમે તેટલા બાયોડેટા બનાવો — સંપૂર્ણ મફત.',
+  feat6_label:       'નવ ભારતીય ભાષાઓ',
+  feat6_desc:        'હિન્દી, તેલુગુ, તામિલ, કન્નડ, મલયાળમ, બંગાળી, મરાઠી, ગુજરાતી અને અંગ્રેજીમાં તરત સ્વિચ કરો.',
 
   /* ── How it works ── */
   how_label:         'કેવી રીતે કરવું',
@@ -2436,7 +2472,7 @@ const gu = {
 
   /* ── CTA ── */
   cta_title1:        'આજે જ શરૂ કરો',
-  cta_title2:        'તમારો Bandhan.',
+  cta_title2:        'જીવનની સફ઼ર.',
   cta_subtitle:      'મફત, સુરક્ષિત, થોડી મિનિટોમાં તૈયાર.\nતમારા પરિવારને લાયક બાયોડેટા.',
   cta_btn:           'અત્યારે જ બાયોડેટા બનાવો',
 
@@ -2506,7 +2542,7 @@ const gu = {
   field_value:       'મૂલ્ય',
 
   /* ── Field labels ── */
-  f_fullName:        'પૂરું નામ *',
+  f_fullName:        'પૂરું નામ',
   f_gender:          'લિંગ',
   f_dob:             'જન્મ તારીખ',
   f_age:             'ઉંમર (વર્ષ)',
@@ -2517,9 +2553,9 @@ const gu = {
   f_religion:        'ધર્મ',
   f_caste:           'જ્ઞાતિ / સમાજ',
   f_subCaste:        'પેટા-જ્ઞાતિ (વૈકલ્પિક)',
-  f_education:       'સૌથી ઊંચી શૈક્ષણિક લાયકાત *',
+  f_education:       'સૌથી ઊંચી શૈક્ષણિક લાયકાત',
   f_college:         'કૉલેજ / યુનિવર્સિટી',
-  f_occupation:      'વ્યવસાય *',
+  f_occupation:      'વ્યવસાય',
   f_company:         'કંપની / સંસ્થા',
   f_income:          'વાર્ષિક આવક (વૈકલ્પિક)',
   f_workLocation:    'કામ કરવાની જગ્યા / શહેર',
