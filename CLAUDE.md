@@ -58,6 +58,7 @@ Builder steps (0-indexed, `STEP_KEYS` array drives labels via i18n):
 | File | What it controls |
 |------|-----------------|
 | `src/pages/LandingPage.jsx` | Landing copy, hero, template showcase, FAQ |
+| `src/components/LivePreview.jsx` | Shared live preview component + `SAMPLE_BY_TEMPLATE` (used by both landing page and builder modal) |
 | `src/contexts/LanguageContext.jsx` | Language state, auto-detect, `createT()` helper |
 | `src/components/LanguageSwitcher.jsx` | Globe icon dropdown in nav (landing + builder) |
 | `src/utils/pdfExport.js` | PDF export — html2canvas snapshot |
@@ -266,14 +267,13 @@ Sections: `'personal'`, `'career'`, `'family'`, `'horoscope'`, `'contact'`, `'cu
 
 ### Layout
 - `flex-col sm:flex-row` — stacked on mobile, side-by-side from 640px+
-- **Picker column** (`flex-1 min-w-0`): tabs + 2-row grid scroller
+- **Picker column** (`flex-1 min-w-0`): labelled group sections + 2-row grid scroller per group
 - **Preview column:** `sm:w-52 md:w-64 lg:w-auto` — fixed width on tablet, auto on desktop; `sm:sticky sm:top-20`
 - **Mobile preview:** clipped at `max-h-72` (288px) via wrapper — shows header + first section, enough to judge template style
 - **Preview animation:** `motion.div key={formData.template}` slides up (`y: 14→0`) on every template change
 
-### Group Tabs
-- `flex-wrap` — all groups always visible, wrap to second line if needed (never hidden/scrollable)
-- Active tab: purple pill style with count badge
+### All-groups layout (no tab filter)
+Step 6 shows **all 19 templates at once**, organised as 3 labelled sections (Classic Collection / Modern & Minimal / New Wave) with a divider line and count badge. No active-tab filtering — user sees everything immediately.
 
 ### `BuilderTemplateRow` Component
 - **2-row CSS grid:** `display: grid; grid-auto-flow: column; grid-template-rows: repeat(2, auto); gap: 10px`
@@ -284,7 +284,21 @@ Sections: `'personal'`, `'career'`, `'family'`, `'horoscope'`, `'contact'`, `'cu
 - **Sample data fallback:** `const base = formData.fullName ? formData : DESIGN_SAMPLE` — shows rich sample persona when user hasn't entered their name yet, prevents blank template cards
 
 ### `DESIGN_SAMPLE` constant
-Defined in `BuilderPage.jsx` after `TEMPLATE_GROUPS`. Used in both `TemplateCard` and `DesignLivePreview` (via `previewFormData` in `Step6`) when `formData.fullName` is empty.
+Defined in `BuilderPage.jsx` after `TEMPLATE_GROUPS`. Used in `TemplateCard` and `DesignLivePreview` (via `previewFormData` in `Step6`) when `formData.fullName` is empty.
+
+### `BuilderTemplateModal`
+Full-screen template picker modal — mirrors the landing page `TemplateModal` exactly:
+- Group tabs (Classic / Modern & Minimal / New Wave) + thumbnail strip + full preview pane + CTA
+- **Opened by both Templates buttons** — mobile nav pill and right-panel button
+- **Previews use `LivePreview`** (not `TemplateMiniPreview`) — same per-template personas and photos as the landing page, never live user data
+- Replaces the old `TemplateCarouselModal` (arrow/swipe carousel) which is no longer used
+
+### `LivePreview` shared component (`src/components/LivePreview.jsx`)
+Extracted from `LandingPage.jsx` so both pages share identical previews:
+- **Default export:** `LivePreview({ containerW, visibleH, shadow, template })` — scales `BioTemplate` to fit any container width
+- **Named export:** `SAMPLE_BY_TEMPLATE` — 19 per-template persona objects with real AI-generated photos (one per template ID)
+- Photos imported from `Images/AI_Female/` — 14 Classic/Modern photos + 5 New Wave personas
+- `LandingPage.jsx` and `BuilderTemplateModal` both import from this file
 
 ---
 
