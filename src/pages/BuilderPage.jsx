@@ -1,10 +1,11 @@
 import { useEffect, useLayoutEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Check, Download, Heart, RotateCcw, Search, Plus, Trash2, MessageCircle, LayoutTemplate } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, Download, Heart, RotateCcw, Search, Plus, Trash2, MessageCircle, LayoutTemplate, X } from 'lucide-react'
 import { useForm } from '@formspree/react'
 import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import BioTemplate from '../components/BioTemplate'
+import LivePreview from '../components/LivePreview'
 import SortableFieldRow from '../components/SortableFieldRow'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -144,7 +145,10 @@ function InlineCustomFields({ section, titleKey, formData, updateForm }) {
         <button
           type="button"
           onClick={() => addCustomField(formData, updateForm, section)}
-          className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 transition-colors"
+          className="flex items-center gap-1 text-xs transition-colors"
+          style={{ color: '#C8960C' }}
+          onMouseEnter={e => e.currentTarget.style.color = '#F0B820'}
+          onMouseLeave={e => e.currentTarget.style.color = '#C8960C'}
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0' }}
         >
           <Plus className="h-3 w-3" /> {t('add_field')}
@@ -527,13 +531,13 @@ function TemplateCard({ style, isSelected, formData, onSelect }) {
   const previewData = { ...DESIGN_SAMPLE, template: style.id }
   return (
     <div
-      onClick={() => style.live && onSelect(style.id)}
+      onClick={() => style.live && onSelect(style)}
       style={{ width: 180, flexShrink: 0, cursor: style.live ? 'pointer' : 'default' }}
     >
       <div style={{
         height: 252, borderRadius: 16, overflow: 'hidden', position: 'relative',
-        border: isSelected ? '2px solid #a855f7' : '1.5px solid rgba(255,255,255,0.1)',
-        boxShadow: isSelected ? '0 0 0 3px rgba(168,85,247,0.2), 0 12px 32px rgba(0,0,0,0.45)' : '0 4px 20px rgba(0,0,0,0.35)',
+        border: isSelected ? '2px solid rgba(237,137,54,0.8)' : '1.5px solid rgba(255,255,255,0.1)',
+        boxShadow: isSelected ? '0 0 0 3px rgba(237,137,54,0.18), 0 12px 32px rgba(0,0,0,0.45)' : '0 4px 20px rgba(0,0,0,0.35)',
         transition: 'border 0.2s, box-shadow 0.2s',
       }}>
         {style.live ? (
@@ -545,7 +549,7 @@ function TemplateCard({ style, isSelected, formData, onSelect }) {
           </div>
         )}
         {isSelected && (
-          <div style={{ position: 'absolute', top: 10, right: 10, width: 24, height: 24, borderRadius: '50%', background: '#a855f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ position: 'absolute', top: 10, right: 10, width: 24, height: 24, borderRadius: '50%', background: 'rgba(237,137,54,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(237,137,54,0.4)' }}>
             <Check className="w-3.5 h-3.5 text-white" />
           </div>
         )}
@@ -715,7 +719,7 @@ function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace 
         <div
           ref={containerRef}
           className="relative overflow-hidden select-none"
-          style={{ width: 130, height: 158, cursor: 'grab', border: '2px solid rgba(168,85,247,0.5)', borderRadius: 12 }}
+          style={{ width: 130, height: 158, cursor: 'grab', border: '2px solid rgba(200,150,12,0.5)', borderRadius: 12 }}
           onMouseDown={onMouseDown} onMouseMove={onMouseMove}
           onMouseUp={onMouseUp} onMouseLeave={onMouseUp}
           onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
@@ -735,7 +739,7 @@ function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace 
       <div className="text-sm text-white/50 space-y-2 pt-1">
         <p>{t('photo_uploaded')}</p>
         <p className="text-white/30 text-xs">{t('photo_drag_sub')}</p>
-        <button onClick={onReplace} className="text-purple-400 hover:text-purple-300 text-xs flex items-center gap-1">
+        <button onClick={onReplace} className="text-xs flex items-center gap-1" style={{ color: '#C8960C', background: 'none', border: 'none', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.color = '#F0B820'} onMouseLeave={e => e.currentTarget.style.color = '#C8960C'}>
           <RotateCcw className="w-3 h-3" /> {t('photo_change')}
         </button>
         <button onClick={onRemove} className="text-red-400 hover:text-red-300 text-xs flex items-center gap-1">
@@ -786,9 +790,9 @@ function Step5({ formData, updateForm }) {
           <div className="flex items-center gap-6">
             <div
               onClick={() => fileRef.current?.click()}
-              className="w-28 h-28 rounded-2xl border-2 border-dashed border-white/20 flex items-center justify-center cursor-pointer hover:border-purple-500/60 transition-colors overflow-hidden bg-white/5 group"
+              className="w-28 h-28 rounded-2xl border-2 border-dashed border-white/20 flex items-center justify-center cursor-pointer hover:border-amber-500/50 transition-colors overflow-hidden bg-white/5 group"
             >
-              <div className="flex flex-col items-center gap-2 text-white/30 group-hover:text-purple-400 transition-colors">
+              <div className="flex flex-col items-center gap-2 text-white/30 group-hover:text-amber-400 transition-colors">
                 <span className="text-3xl">📷</span>
                 <span className="text-xs text-center">{t('photo_upload_btn')}</span>
               </div>
@@ -837,7 +841,9 @@ function DesignLivePreview({ formData }) {
       <div className="flex items-center justify-between mb-3">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Your Biodata</p>
         {selectedStyle && (
-          <span className="text-xs font-semibold text-purple-300 bg-purple-500/10 border border-purple-500/20 rounded-full px-3 py-1">
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#F0B820',
+            background: 'rgba(200,150,12,0.1)', border: '1px solid rgba(200,150,12,0.28)',
+            borderRadius: 100, padding: '3px 12px' }}>
             {selectedStyle.name}
           </span>
         )}
@@ -928,94 +934,334 @@ function SidePanelPreview({ formData }) {
   )
 }
 
-/* ── Template picker popup — shown when user clicks "Change design" ── */
-function TemplatePickerModal({ formData, updateForm, onClose }) {
-  const [activeGroup, setActiveGroup] = useState(() => {
-    const cur = formData.template || 'lotus'
-    const idx = TEMPLATE_GROUPS.findIndex(g => g.ids.includes(cur))
-    return idx >= 0 ? idx : 0
-  })
+/* ── Template carousel — full-screen lightbox, one template at a time ── */
+function TemplateCarouselModal({ formData, updateForm, onClose }) {
+  const ALL = TEMPLATE_STYLES
+  const startIdx = Math.max(0, ALL.findIndex(s => s.id === (formData.template || 'lotus')))
+  const [idx, setIdx] = useState(startIdx)
+  const [dir, setDir] = useState(0)
+  const touchX = useRef(null)
 
-  const groupStyles = TEMPLATE_STYLES.filter(s =>
-    TEMPLATE_GROUPS[activeGroup].ids.includes(s.id)
+  const go = useCallback((d) => {
+    setDir(d)
+    setIdx(i => (i + d + ALL.length) % ALL.length)
+  }, [ALL.length])
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'ArrowLeft') go(-1)
+      else if (e.key === 'ArrowRight') go(1)
+      else if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [go, onClose])
+
+  const current = ALL[idx]
+
+  const previewData = useMemo(() => ({
+    ...(formData.fullName ? formData : DESIGN_SAMPLE),
+    template: current.id,
+  }), [formData, current.id])
+
+  const handleApply = () => {
+    track.templateSelected(current.id, current.name)
+    updateForm({ template: current.id })
+    onClose()
+  }
+
+  const slideVariants = {
+    enter: (d) => ({ x: d >= 0 ? 56 : -56, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (d) => ({ x: d >= 0 ? -56 : 56, opacity: 0 }),
+  }
+
+  const vw = typeof window !== 'undefined' ? window.innerWidth : 800
+  const isMobile = vw < 640
+  const modalPad = isMobile ? 16 : 28
+  const previewW = isMobile ? Math.min(240, vw - 130) : 320
+  const previewH = Math.round(previewW * 1.41)
+
+  const ArrowBtn = ({ onClick, children }) => (
+    <motion.button onClick={onClick}
+      whileHover={{ scale: 1.08, background: 'rgba(237,137,54,0.14)', borderColor: 'rgba(237,137,54,0.6)', color: '#ed8936' }}
+      whileTap={{ scale: 0.9 }}
+      style={{
+        width: isMobile ? 34 : 42, height: isMobile ? 34 : 42, borderRadius: '50%', flexShrink: 0,
+        background: 'rgba(107,70,193,0.12)', border: '1.5px solid rgba(107,70,193,0.45)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        cursor: 'pointer', color: 'rgba(255,255,255,0.85)', transition: 'all 0.2s',
+      }}>
+      {children}
+    </motion.button>
   )
 
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.18 }}
       onClick={onClose}
       style={{
         position: 'fixed', inset: 0, zIndex: 300,
-        background: 'rgba(0,0,0,0.78)', backdropFilter: 'blur(5px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 16,
+        background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(10px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
       }}
     >
       <motion.div
-        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        initial={{ scale: 0.93, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.92, opacity: 0, y: 12 }}
-        transition={{ type: 'spring', damping: 24, stiffness: 280 }}
+        exit={{ scale: 0.95, opacity: 0, y: 10 }}
+        transition={{ type: 'spring', damping: 26, stiffness: 300 }}
         onClick={e => e.stopPropagation()}
         style={{
-          background: 'linear-gradient(145deg, #120828 0%, #0a0a18 100%)',
-          border: '1px solid rgba(168,85,247,0.25)',
-          borderRadius: 24, padding: '28px 28px 20px',
-          maxWidth: 920, width: '100%',
-          boxShadow: '0 24px 72px rgba(0,0,0,0.7)',
+          background: '#0c0c14', border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 24, padding: `${modalPad}px`,
+          maxWidth: 500, width: '100%',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <p style={{ color: 'white', fontWeight: 700, fontSize: 15, margin: 0 }}>Choose Design</p>
-          <button
-            onClick={onClose}
-            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, cursor: 'pointer', color: 'rgba(255,255,255,0.5)', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}
-          >✕</button>
+        {/* Header */}
+        <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <p style={{ color: 'white', fontWeight: 700, fontSize: 15, margin: 0 }}>Browse Designs</p>
+            <p style={{ color: 'rgba(255,255,255,0.28)', fontSize: 11, margin: '2px 0 0' }}>
+              ← → keys · swipe on mobile
+            </p>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
+              {idx + 1} / {ALL.length}
+            </span>
+            <button onClick={onClose}
+              style={{ width: 30, height: 30, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.12)',
+                background: 'rgba(255,255,255,0.05)', cursor: 'pointer', color: 'rgba(255,255,255,0.5)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
+              ✕
+            </button>
+          </div>
         </div>
 
-        {/* Group tabs */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
-          {TEMPLATE_GROUPS.map((group, gi) => (
-            <button key={group.label} onClick={() => setActiveGroup(gi)} style={{
-              padding: '6px 14px', borderRadius: 100, fontSize: 12, fontWeight: 600,
-              cursor: 'pointer', whiteSpace: 'nowrap',
-              background: activeGroup === gi ? 'rgba(168,85,247,0.15)' : 'transparent',
-              color: activeGroup === gi ? '#c084fc' : 'rgba(255,255,255,0.4)',
-              border: `1px solid ${activeGroup === gi ? 'rgba(168,85,247,0.4)' : 'rgba(255,255,255,0.1)'}`,
-              transition: 'all 0.15s',
-            }}>
-              {group.label}
-              <span style={{ marginLeft: 6, fontSize: 10, opacity: 0.5,
-                background: activeGroup === gi ? 'rgba(192,132,252,0.12)' : 'rgba(255,255,255,0.05)',
-                padding: '1px 5px', borderRadius: 8 }}>
-                {TEMPLATE_GROUPS[gi].ids.length}
-              </span>
-            </button>
+        {/* Arrow + Preview + Arrow */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 14, width: '100%', justifyContent: 'center' }}>
+          <ArrowBtn onClick={() => go(-1)}><ChevronLeft size={isMobile ? 15 : 18} /></ArrowBtn>
+
+          <div
+            style={{ overflow: 'hidden', borderRadius: 14, flexShrink: 0,
+              boxShadow: '0 20px 56px rgba(0,0,0,0.75)', border: '1px solid rgba(255,255,255,0.07)' }}
+            onTouchStart={e => { touchX.current = e.touches[0].clientX }}
+            onTouchEnd={e => {
+              if (touchX.current === null) return
+              const diff = touchX.current - e.changedTouches[0].clientX
+              if (Math.abs(diff) > 36) go(diff > 0 ? 1 : -1)
+              touchX.current = null
+            }}
+          >
+            <AnimatePresence mode="wait" custom={dir}>
+              <motion.div
+                key={current.id}
+                custom={dir}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <TemplateMiniPreview formData={previewData} containerW={previewW} visibleH={previewH} />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          <ArrowBtn onClick={() => go(1)}><ChevronRight size={isMobile ? 15 : 18} /></ArrowBtn>
+        </div>
+
+        {/* Template name + desc */}
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ fontSize: 18, fontWeight: 700, color: '#ffffff', margin: '0 0 5px' }}>{current.name}</p>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.36)', lineHeight: 1.6, margin: 0 }}>{current.desc}</p>
+        </div>
+
+        {/* Dot strip — 19 pills, active expands */}
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {ALL.map((s, i) => (
+            <button key={s.id}
+              title={s.name}
+              onClick={() => { setDir(i > idx ? 1 : -1); setIdx(i) }}
+              style={{
+                width: i === idx ? 22 : 6, height: 6, borderRadius: 3, padding: 0, border: 'none',
+                background: i === idx ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)',
+                cursor: 'pointer', transition: 'all 0.22s ease',
+              }}
+            />
           ))}
         </div>
 
-        {/* Template row */}
-        <AnimatePresence mode="wait">
-          <motion.div key={activeGroup}
-            initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.18 }}>
-            <BuilderTemplateRow
-              styles={groupStyles}
-              formData={formData}
-              onSelect={id => {
-                const s = TEMPLATE_STYLES.find(t => t.id === id)
-                track.templateSelected(id, s?.name)
-                updateForm({ template: id })
-                onClose()
-              }}
-            />
-          </motion.div>
-        </AnimatePresence>
+        {/* Apply button */}
+        <button onClick={handleApply} className="btn-amber"
+          style={{ width: '100%', justifyContent: 'center', padding: '13px 24px', fontSize: 15, borderRadius: 14 }}>
+          Apply — {current.name} <Check size={15} />
+        </button>
+      </motion.div>
+    </motion.div>
+  )
+}
 
-        <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.2)', marginTop: 8 }}>
-          Click a design to apply · click outside to close
-        </p>
+/* ── Template preview modal for the builder design step ── */
+function BuilderTemplateModal({ s, formData, onClose, onSelect }) {
+  const [current, setCurrent] = useState(s)
+  const initialGroupIdx = TEMPLATE_GROUPS.findIndex(g => g.ids.includes(s.id))
+  const [activeGroup, setActiveGroup] = useState(initialGroupIdx === -1 ? 0 : initialGroupIdx)
+  const stripRef = useRef(null)
+
+  const vw = typeof window !== 'undefined' ? window.innerWidth : 480
+  const isMobile = vw < 640
+  const outerPad = isMobile ? 12 : 24
+  const previewW = Math.min(380, vw - outerPad * 2 - 56)
+
+  const groupStyles = TEMPLATE_GROUPS[activeGroup].ids
+    .map(id => TEMPLATE_STYLES.find(st => st.id === id))
+    .filter(Boolean)
+
+
+  useEffect(() => {
+    if (stripRef.current) stripRef.current.scrollLeft = 0
+  }, [activeGroup])
+
+  useEffect(() => {
+    const strip = stripRef.current
+    if (!strip) return
+    const idx = groupStyles.findIndex(st => st.id === current.id)
+    if (idx === -1) return
+    const thumb = strip.children[idx]
+    if (thumb) thumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+  }, [current.id])
+
+  const handleSelect = () => {
+    track.templateSelected(current.id, current.name)
+    onSelect(current.id)
+    onClose()
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.82)', zIndex: 200,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: outerPad }}
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.93, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.93, y: 20 }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        onClick={e => e.stopPropagation()}
+        style={{ background: '#0f0f1a', borderRadius: isMobile ? 20 : 24, overflow: 'hidden',
+          border: '1px solid rgba(255,255,255,0.1)', width: '100%', maxWidth: 860,
+          maxHeight: '92vh', display: 'flex', flexDirection: 'column' }}
+      >
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: isMobile ? '12px 16px' : '14px 24px',
+          borderBottom: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+            <span style={{ fontSize: isMobile ? 18 : 20, flexShrink: 0 }}>{current.symbol}</span>
+            <span style={{ fontSize: isMobile ? 14 : 16, fontWeight: 700, color: 'white', fontFamily: 'serif',
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{current.name}</span>
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)',
+              background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 20, flexShrink: 0 }}>
+              {current.desc}
+            </span>
+          </div>
+          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%',
+            border: '1px solid rgba(255,255,255,0.12)', background: 'transparent',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: 'rgba(255,255,255,0.45)', flexShrink: 0, marginLeft: 10 }}>
+            <X size={14} />
+          </button>
+        </div>
+
+        {/* Scrollable preview */}
+        <div style={{ overflowY: 'auto', flex: 1, minHeight: 0, display: 'flex',
+          flexDirection: 'column', alignItems: 'center',
+          padding: isMobile ? '16px 16px 12px' : '24px 28px 16px',
+          background: 'rgba(201,160,53,0.02)' }}>
+          <AnimatePresence mode="wait">
+            <motion.div key={current.id}
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}>
+              <LivePreview containerW={previewW} shadow={false} template={current.id} />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Group tabs + thumbnail strip */}
+        <div style={{ flexShrink: 0, borderTop: '1px solid rgba(255,255,255,0.07)', background: '#0a0a12' }}>
+          {/* Group tabs */}
+          <div style={{ display: 'flex', gap: 6, padding: '10px 16px 8px',
+            overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="[&::-webkit-scrollbar]:hidden">
+            {TEMPLATE_GROUPS.map((group, gi) => (
+              <button key={group.label} onClick={() => setActiveGroup(gi)} style={{
+                padding: '5px 13px', borderRadius: 100, fontSize: 11, fontWeight: 600,
+                cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, border: 'none',
+                background: activeGroup === gi ? 'rgba(237,137,54,0.15)' : 'rgba(107,70,193,0.1)',
+                color: activeGroup === gi ? '#ed8936' : 'rgba(255,255,255,0.5)',
+                outline: activeGroup === gi ? '1px solid rgba(237,137,54,0.4)' : '1px solid rgba(107,70,193,0.3)',
+                transition: 'all 0.18s',
+              }}>
+                {group.label}
+                <span style={{ marginLeft: 5, fontSize: 10, opacity: 0.6 }}>{group.ids.length}</span>
+              </button>
+            ))}
+          </div>
+          {/* Thumbnails */}
+          <div ref={stripRef}
+            style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '2px 16px 12px',
+              scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="[&::-webkit-scrollbar]:hidden">
+            {groupStyles.map(st => (
+              <div key={st.id} onClick={() => setCurrent(st)}
+                style={{ flexShrink: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <div style={{ borderRadius: 8, overflow: 'hidden',
+                  border: `2px solid ${current.id === st.id ? 'rgba(237,137,54,0.75)' : 'rgba(255,255,255,0.06)'}`,
+                  boxShadow: current.id === st.id ? '0 0 10px rgba(237,137,54,0.3)' : 'none',
+                  outline: current.id === st.id ? '1px solid rgba(237,137,54,0.2)' : 'none',
+                  outlineOffset: 2, transition: 'border-color 0.18s, box-shadow 0.18s' }}>
+                  <LivePreview containerW={64} visibleH={90} shadow={false} template={st.id} />
+                </div>
+                <span style={{ fontSize: 10, fontWeight: current.id === st.id ? 700 : 400,
+                  color: current.id === st.id ? '#ed8936' : 'rgba(255,255,255,0.35)',
+                  whiteSpace: 'nowrap', transition: 'color 0.18s' }}>
+                  {st.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CTA footer */}
+        <div style={{ flexShrink: 0, padding: isMobile ? '12px 16px 18px' : '14px 24px 20px',
+          borderTop: '1px solid rgba(255,255,255,0.07)', background: '#0f0f1a',
+          display: 'flex', justifyContent: 'center' }}>
+          <button onClick={handleSelect}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: isMobile ? '11px 28px' : '13px 40px', fontSize: 15, fontWeight: 600,
+              borderRadius: 12, cursor: 'pointer', width: '100%', maxWidth: 340, justifyContent: 'center',
+              background: 'rgba(107,70,193,0.12)', border: '1.5px solid rgba(107,70,193,0.45)',
+              color: 'rgba(255,255,255,0.92)', transition: 'all 0.2s' }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(237,137,54,0.12)'
+              e.currentTarget.style.borderColor = 'rgba(237,137,54,0.7)'
+              e.currentTarget.style.color = '#ed8936'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(107,70,193,0.12)'
+              e.currentTarget.style.borderColor = 'rgba(107,70,193,0.45)'
+              e.currentTarget.style.color = 'rgba(255,255,255,0.92)'
+            }}>
+            <Check size={16} /> Use this template
+          </button>
+        </div>
       </motion.div>
     </motion.div>
   )
@@ -1023,11 +1269,8 @@ function TemplatePickerModal({ formData, updateForm, onClose }) {
 
 function Step6({ formData, updateForm }) {
   const { t } = useLanguage()
-  const [activeGroup, setActiveGroup] = useState(0)
+  const [previewStyle, setPreviewStyle] = useState(null)
   const selectedStyle = TEMPLATE_STYLES.find(s => s.id === (formData.template || 'lotus'))
-  const currentGroup = TEMPLATE_GROUPS[activeGroup]
-  const groupStyles = TEMPLATE_STYLES.filter(s => currentGroup.ids.includes(s.id))
-  // Use sample data for the live preview when user hasn't entered their name yet
   const previewFormData = {
     ...(formData.fullName ? formData : DESIGN_SAMPLE),
     template: formData.template || 'lotus',
@@ -1037,45 +1280,33 @@ function Step6({ formData, updateForm }) {
     <div className="space-y-6">
       <StepHeading title={t('b_s6_title')} sub={t('b_s6_sub')} />
 
-      <div className="space-y-4">
+      <div className="space-y-6">
 
-        {/* Group tabs — all always visible, wrap to next line if needed */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {TEMPLATE_GROUPS.map((group, gi) => (
-            <button key={group.label} onClick={() => setActiveGroup(gi)} style={{
-              padding: '6px 14px', borderRadius: 100, fontSize: 12, fontWeight: 600,
-              cursor: 'pointer', whiteSpace: 'nowrap',
-              background: activeGroup === gi ? 'rgba(168,85,247,0.15)' : 'transparent',
-              color: activeGroup === gi ? '#c084fc' : 'rgba(255,255,255,0.4)',
-              border: `1px solid ${activeGroup === gi ? 'rgba(168,85,247,0.4)' : 'rgba(255,255,255,0.1)'}`,
-              transition: 'all 0.15s',
-            }}>
-              {group.label}
-              <span style={{ marginLeft: 6, fontSize: 10, opacity: 0.5,
-                background: activeGroup === gi ? 'rgba(192,132,252,0.12)' : 'rgba(255,255,255,0.05)',
-                padding: '1px 5px', borderRadius: 8 }}>
-                {group.ids.length}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        {/* Template row slides in when group changes */}
-        <AnimatePresence mode="wait">
-          <motion.div key={activeGroup}
-            initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.18 }}>
-            <BuilderTemplateRow
-              styles={groupStyles}
-              formData={formData}
-              onSelect={id => {
-                const s = TEMPLATE_STYLES.find(t => t.id === id)
-                track.templateSelected(id, s?.name)
-                updateForm({ template: id })
-              }}
-            />
-          </motion.div>
-        </AnimatePresence>
+        {/* All groups shown — each with a section label */}
+        {TEMPLATE_GROUPS.map(group => {
+          const groupStyles = group.ids
+            .map(id => TEMPLATE_STYLES.find(st => st.id === id))
+            .filter(Boolean)
+          return (
+            <div key={group.label}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.09em',
+                  textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', whiteSpace: 'nowrap' }}>
+                  {group.label}
+                </span>
+                <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.22)', flexShrink: 0 }}>
+                  {groupStyles.length}
+                </span>
+              </div>
+              <BuilderTemplateRow
+                styles={groupStyles}
+                formData={formData}
+                onSelect={style => setPreviewStyle(style)}
+              />
+            </div>
+          )
+        })}
 
         {/* Selected info chip */}
         {selectedStyle && (
@@ -1091,7 +1322,7 @@ function Step6({ formData, updateForm }) {
           </div>
         )}
 
-        {/* Mobile-only preview — clipped at 288px; on sm+ it's shown in the shared right panel */}
+        {/* Mobile-only preview */}
         <div className="sm:hidden mt-2">
           <div className="max-h-72 overflow-hidden rounded-xl">
             <motion.div key={formData.template || 'lotus'}
@@ -1107,6 +1338,18 @@ function Step6({ formData, updateForm }) {
         </div>
 
       </div>
+
+      {/* Template preview modal */}
+      <AnimatePresence>
+        {previewStyle && (
+          <BuilderTemplateModal
+            s={previewStyle}
+            formData={formData}
+            onClose={() => setPreviewStyle(null)}
+            onSelect={id => updateForm({ template: id })}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -1160,11 +1403,11 @@ function FeedbackModal({ template, onClose }) {
         transition={{ type: 'spring', damping: 22, stiffness: 320 }}
         onClick={e => e.stopPropagation()}
         style={{
-          background: 'linear-gradient(145deg, #1e1035 0%, #150d2a 100%)',
-          border: '1px solid rgba(168,85,247,0.2)',
+          background: 'linear-gradient(145deg, #0f0f1c 0%, #090910 100%)',
+          border: '1px solid rgba(200,150,12,0.18)',
           borderRadius: 24, padding: '32px 28px',
           maxWidth: 380, width: '100%',
-          boxShadow: '0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(168,85,247,0.1)',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.65), 0 0 0 1px rgba(200,150,12,0.07)',
         }}
       >
         {state.succeeded ? (
@@ -1199,14 +1442,14 @@ function FeedbackModal({ template, onClose }) {
                   <button key={r.score} type="button" onClick={() => setRating(r.score)} style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
                     padding: '10px 12px', borderRadius: 14, border: 'none', cursor: 'pointer',
-                    background: rating === r.score ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.04)',
-                    outline: rating === r.score ? '1.5px solid rgba(168,85,247,0.55)' : '1.5px solid transparent',
+                    background: rating === r.score ? 'rgba(200,150,12,0.18)' : 'rgba(255,255,255,0.04)',
+                    outline: rating === r.score ? '1.5px solid rgba(200,150,12,0.5)' : '1.5px solid transparent',
                     transition: 'all 0.15s',
                   }}>
                     <span style={{ fontSize: 28, lineHeight: 1, filter: rating !== null && rating !== r.score ? 'grayscale(1) opacity(0.35)' : 'none', transition: 'filter 0.15s' }}>
                       {r.emoji}
                     </span>
-                    <span style={{ fontSize: 9, color: rating === r.score ? '#c084fc' : 'rgba(255,255,255,0.28)', fontWeight: 600, letterSpacing: '0.04em' }}>
+                    <span style={{ fontSize: 9, color: rating === r.score ? '#F0B820' : 'rgba(255,255,255,0.28)', fontWeight: 600, letterSpacing: '0.04em' }}>
                       {t(r.labelKey)}
                     </span>
                   </button>
@@ -1225,7 +1468,7 @@ function FeedbackModal({ template, onClose }) {
                       className="form-input resize-none mb-3" rows={3} maxLength={500}
                       placeholder={rating >= 4 ? t('prev_fb_loved') : t('prev_fb_improve')}
                     />
-                    <button type="submit" disabled={state.submitting} className="btn-primary w-full justify-center py-3 text-sm mb-2">
+                    <button type="submit" disabled={state.submitting} className="btn-amber w-full justify-center py-3 text-sm mb-2" style={{ borderRadius: 12 }}>
                       {state.submitting ? t('prev_fb_sending') : t('prev_fb_send')}
                     </button>
                   </motion.div>
@@ -1340,7 +1583,8 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef }) {
           <button
             onClick={handleDownload}
             disabled={loading}
-            className="btn-primary px-5 sm:px-8 py-2.5 sm:py-4 text-sm sm:text-base"
+            className="btn-amber px-5 sm:px-8 py-2.5 sm:py-4 text-sm sm:text-base"
+            style={{ borderRadius: 12 }}
           >
             {loading ? (
               <><span className="animate-spin">⏳</span> {t('prev_generating')}</>
@@ -1358,9 +1602,9 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef }) {
           <button
             key={index}
             onClick={() => onEditStep(index)}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-left text-sm text-white/70 hover:border-purple-400/60 hover:text-white transition-colors"
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-left text-sm text-white/70 hover:border-white/25 hover:text-white transition-colors"
           >
-            <span className="block text-[10px] uppercase tracking-widest text-purple-300 mb-1">{t('prev_edit_label')}</span>
+            <span className="block text-[10px] uppercase tracking-widest text-white/35 mb-1">{t('prev_edit_label')}</span>
             {label}
           </button>
         ))}
@@ -1375,7 +1619,7 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef }) {
         <button onClick={onBack} className="btn-ghost">
           <ChevronLeft className="w-4 h-4" /> {t('prev_edit_details')}
         </button>
-        <button onClick={handleDownload} disabled={loading} className="btn-primary flex-1 justify-center py-3 sm:py-4">
+        <button onClick={handleDownload} disabled={loading} className="btn-amber flex-1 justify-center py-3 sm:py-4" style={{ borderRadius: 12 }}>
           {loading ? t('prev_generating') : <><Download className="w-5 h-5" /> {downloaded ? t('prev_again') : t('prev_download')}</>}
         </button>
         {downloaded && (
@@ -1405,15 +1649,20 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef }) {
 /* ── Small helpers ── */
 function StepHeading({ title, sub }) {
   return (
-    <div className="mb-2">
-      <h2 className="font-serif text-xl sm:text-2xl font-bold text-white mb-1">{title}</h2>
-      <p className="text-white/50 text-sm">{sub}</p>
+    <div style={{ marginBottom: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 5 }}>
+        <div style={{ width: 3, height: 22, borderRadius: 2,
+          background: 'linear-gradient(180deg, #F0B820, #C8960C)', flexShrink: 0 }} />
+        <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(18px, 3vw, 22px)',
+          fontWeight: 700, color: '#FFFFFF', margin: 0 }}>{title}</h2>
+      </div>
+      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', paddingLeft: 13 }}>{sub}</p>
     </div>
   )
 }
 
 function SectionTitle({ children }) {
-  return <h3 className="text-sm font-semibold text-purple-400 uppercase tracking-widest">{children}</h3>
+  return <h3 style={{ fontSize: 11, fontWeight: 700, color: '#C8960C', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{children}</h3>
 }
 
 const FIELD_JUMPS = [
@@ -1446,7 +1695,16 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
   const [showDesignModal, setShowDesignModal] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
+  const [savedFlash, setSavedFlash] = useState(false)
+  const savedFlashTimer = useRef(null)
   const downloadRef = useRef(null)
+
+  useEffect(() => {
+    if (savedFlashTimer.current) clearTimeout(savedFlashTimer.current)
+    setSavedFlash(true)
+    savedFlashTimer.current = setTimeout(() => setSavedFlash(false), 2200)
+    return () => clearTimeout(savedFlashTimer.current)
+  }, [formData])
 
   const handleQuickDownload = async () => {
     if (!downloadRef.current) return
@@ -1485,11 +1743,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
     return () => window.clearTimeout(timer)
   }, [pendingFocus, step])
 
-  const canNext = () => {
-    if (step === 0) return formData.fullName.trim().length > 0
-    if (step === 1) return formData.occupation.trim().length > 0
-    return true
-  }
+  const canNext = () => true
 
   const next = () => {
     if (step < totalSteps) {
@@ -1518,28 +1772,51 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a12]">
+    <div className="min-h-screen" style={{ background: '#060608' }}>
       {/* Top bar */}
-      <header className="border-b border-white/5 bg-[#080810] px-3 sm:px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center gap-4">
-          <button onClick={onBack} className="text-white/40 hover:text-white/70 transition-colors">
-            <ChevronLeft className="w-5 h-5" />
+      <header style={{
+        position: 'sticky', top: 0, zIndex: 100,
+        background: 'rgba(6,6,8,0.95)', backdropFilter: 'blur(24px)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+      }}>
+        <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 20px',
+          display: 'flex', alignItems: 'center', gap: 14, height: 64 }}>
+          <button onClick={onBack}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px 8px', borderRadius: 8,
+              color: 'rgba(255,255,255,0.35)', display: 'flex', alignItems: 'center', transition: 'all 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.background = 'none'; }}>
+            <ChevronLeft style={{ width: 20, height: 20 }} />
           </button>
-          <div className="flex items-center gap-2">
-            <Heart className="w-4 h-4 text-pink-400 fill-pink-400" />
-            <span className="font-serif text-white font-semibold">Bandhan</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 9,
+              background: 'linear-gradient(135deg, #C8960C, #F0B820)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 3px 12px rgba(200,150,12,0.4)' }}>
+              <Heart style={{ width: 14, height: 14, color: '#1a0a00', fill: '#1a0a00' }} />
+            </div>
+            <span style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>Bandhan</span>
           </div>
-          <div className="ml-auto flex items-center gap-2 sm:gap-4">
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <LanguageSwitcher compact />
-            {formData.fullName?.trim() && (
-              <span className="hidden sm:flex items-center gap-1.5 text-xs text-green-400/70">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
-                {t('b_auto_saved')}
-              </span>
-            )}
+            <span className="hidden sm:flex" style={{
+              alignItems: 'center', gap: 6, fontSize: 12,
+              color: savedFlash ? 'rgba(52,211,153,0.9)' : 'rgba(52,211,153,0.35)',
+              transition: 'color 0.4s ease',
+            }}>
+              <span style={{
+                width: 6, height: 6, borderRadius: '50%', display: 'inline-block',
+                background: savedFlash ? '#34d399' : 'rgba(52,211,153,0.3)',
+                boxShadow: savedFlash ? '0 0 6px rgba(52,211,153,0.6)' : 'none',
+                transition: 'all 0.4s ease',
+              }} />
+              {t('b_auto_saved')}
+            </span>
             {!isPreview && (
-              <div className="text-white/40 text-sm">
-                {t('b_step')} {step + 1} {t('b_of')} {totalSteps}
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.38)', fontWeight: 500,
+                background: 'rgba(255,255,255,0.05)', padding: '4px 12px', borderRadius: 100,
+                border: '1px solid rgba(255,255,255,0.08)' }}>
+                {t('b_step')} {step + 1} / {totalSteps}
               </div>
             )}
           </div>
@@ -1548,39 +1825,38 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
 
       <main className="max-w-6xl mx-auto px-2 sm:px-4 py-6 sm:py-10">
         {!isPreview && (
-          <div className="sticky top-0 z-20 -mx-3 sm:-mx-6 mb-6 sm:mb-8 border-b border-white/10 bg-[#0a0a12]/95 px-3 sm:px-6 py-3 sm:py-4 backdrop-blur">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex flex-wrap gap-2">
+          <div style={{ position: 'sticky', top: 64, zIndex: 20, margin: '0 -8px',
+            marginBottom: 24, borderBottom: '1px solid rgba(255,255,255,0.06)',
+            background: 'rgba(6,6,8,0.97)', backdropFilter: 'blur(20px)',
+            padding: '10px 20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
                 {STEPS.map((section, index) => (
-                  <button
-                    key={section.label}
-                    onClick={() => setStep(index)}
-                    className={`rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm transition-colors ${
-                      step === index
-                        ? 'bg-purple-500 text-white'
-                        : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
-                    }`}
-                  >
+                  <button key={section.label} onClick={() => setStep(index)} style={{
+                    padding: '6px 15px', borderRadius: 100, fontSize: 12, fontWeight: 600,
+                    cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s',
+                    background: step === index ? 'rgba(200,150,12,0.15)' : 'rgba(255,255,255,0.05)',
+                    color: step === index ? '#F0B820' : 'rgba(255,255,255,0.45)',
+                    border: `1px solid ${step === index ? 'rgba(200,150,12,0.38)' : 'rgba(255,255,255,0.08)'}`,
+                  }}>
                     {section.label}
                   </button>
                 ))}
-                {/* Templates button — mobile only, desktop uses right panel popup */}
-                <button
-                  onClick={() => setShowDesignModal(true)}
-                  className="sm:hidden flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 transition-colors"
-                >
-                  <LayoutTemplate className="w-3 h-3" />
+                <button onClick={() => setShowDesignModal(true)} className="sm:hidden"
+                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 13px', borderRadius: 100,
+                    fontSize: 11, fontWeight: 600, background: 'rgba(107,70,193,0.1)',
+                    color: 'rgba(255,255,255,0.65)', border: '1px solid rgba(107,70,193,0.35)',
+                    cursor: 'pointer', transition: 'all 0.2s' }}>
+                  <LayoutTemplate style={{ width: 11, height: 11 }} />
                   Templates
                 </button>
               </div>
-              <label className="relative block md:w-72">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
-                <select
-                  className="form-select text-sm" style={{ paddingLeft: '2.5rem' }}
-                  value=""
-                  onChange={event => jumpToField(event.target.value)}
-                  aria-label="Jump to a specific biodata field"
-                >
+              <label className="md:self-end md:w-72" style={{ position: 'relative', display: 'block' }}>
+                <Search style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+                  width: 14, height: 14, color: 'rgba(255,255,255,0.3)', pointerEvents: 'none' }} />
+                <select className="form-select text-sm" style={{ paddingLeft: '2.5rem' }}
+                  value="" onChange={event => jumpToField(event.target.value)}
+                  aria-label="Jump to a specific biodata field">
                   <option value="">{t('b_jump_ph')}</option>
                   {FIELD_JUMPS.map(field => (
                     <option key={field.name} value={field.name}>{field.label}</option>
@@ -1604,7 +1880,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                   {i < step ? <Check className="w-4 h-4" /> : i + 1}
                 </button>
                 {i < STEPS.length - 1 && (
-                  <div className={`h-px w-4 sm:w-8 transition-colors duration-300 ${i < step ? 'bg-green-500/50' : 'bg-white/10'}`} />
+                  <div className={`h-px w-4 sm:w-8 transition-colors duration-300 ${i < step ? 'bg-amber-500/40' : 'bg-white/10'}`} />
                 )}
               </div>
             ))}
@@ -1644,20 +1920,19 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                 </motion.div>
               </AnimatePresence>
 
-              <div className="flex gap-4 mt-10">
-                <button onClick={prev} className="btn-ghost px-6">
-                  <ChevronLeft className="w-4 h-4" />
+              <div style={{ display: 'flex', gap: 12, marginTop: 36 }}>
+                <button onClick={prev} className="btn-ghost" style={{ padding: '12px 24px' }}>
+                  <ChevronLeft style={{ width: 16, height: 16 }} />
                   {step === 0 ? t('b_home') : t('b_back')}
                 </button>
-                <button
-                  onClick={next}
-                  disabled={!canNext()}
-                  className={`btn-primary flex-1 justify-center py-3 sm:py-4 ${!canNext() ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
+                <button onClick={next} disabled={!canNext()} className="btn-amber"
+                  style={{ flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    gap: 8, padding: '13px 24px', fontSize: 15, borderRadius: 14,
+                    opacity: !canNext() ? 0.45 : 1, cursor: !canNext() ? 'not-allowed' : 'pointer' }}>
                   {step === totalSteps - 1 ? (
-                    <><span>{t('b_preview_btn')}</span> <Check className="w-4 h-4" /></>
+                    <><span>{t('b_preview_btn')}</span> <Check style={{ width: 16, height: 16 }} /></>
                   ) : (
-                    <><span>{t('b_continue')}</span> <ChevronRight className="w-4 h-4" /></>
+                    <><span>{t('b_continue')}</span> <ChevronRight style={{ width: 16, height: 16 }} /></>
                   )}
                 </button>
               </div>
@@ -1665,23 +1940,30 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
 
             {/* RIGHT: live preview — exactly card width, no extra space */}
             <div className="hidden sm:flex flex-col items-end sticky top-20 self-start" style={{ width: 420, flexShrink: 0 }}>
-              <div className="flex items-center gap-2 mb-3" style={{ width: 420 }}>
-                <button
-                  onClick={() => setShowDesignModal(true)}
-                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 hover:text-purple-300 transition-colors"
-                >
-                  <LayoutTemplate className="w-3.5 h-3.5" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: 420, marginBottom: 12 }}>
+                <button onClick={() => setShowDesignModal(true)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', borderRadius: 100,
+                    fontSize: 11, fontWeight: 700, letterSpacing: '0.03em', cursor: 'pointer',
+                    background: 'rgba(107,70,193,0.1)', color: 'rgba(255,255,255,0.65)',
+                    border: '1px solid rgba(107,70,193,0.35)', transition: 'all 0.2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(237,137,54,0.12)'; e.currentTarget.style.borderColor = 'rgba(237,137,54,0.5)'; e.currentTarget.style.color = '#ed8936'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(107,70,193,0.1)'; e.currentTarget.style.borderColor = 'rgba(107,70,193,0.35)'; e.currentTarget.style.color = 'rgba(255,255,255,0.65)'; }}>
+                  <LayoutTemplate style={{ width: 12, height: 12 }} />
                   Templates
                 </button>
-                <button
-                  onClick={handleQuickDownload}
-                  disabled={downloading}
-                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 hover:text-green-300 transition-colors disabled:opacity-50"
-                >
-                  <Download className="w-3.5 h-3.5" />
+                <button onClick={handleQuickDownload} disabled={downloading}
+                  style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', borderRadius: 100,
+                    fontSize: 11, fontWeight: 700, letterSpacing: '0.03em',
+                    cursor: downloading ? 'default' : 'pointer',
+                    background: 'rgba(34,197,94,0.08)', color: '#22c55e',
+                    border: '1px solid rgba(34,197,94,0.2)', transition: 'all 0.2s',
+                    opacity: downloading ? 0.5 : 1 }}
+                  onMouseEnter={e => { if (!downloading) e.currentTarget.style.background = 'rgba(34,197,94,0.15)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(34,197,94,0.08)'; }}>
+                  <Download style={{ width: 12, height: 12 }} />
                   {downloading ? 'Saving…' : 'Download'}
                 </button>
-                <p className="ml-auto text-[10px] font-semibold uppercase tracking-widest text-white/30">Live Preview</p>
+                <p style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.22)' }}>Live Preview</p>
               </div>
               <motion.div
                 key={formData.template || 'lotus'}
@@ -1713,10 +1995,11 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
       {/* Template picker modal */}
       <AnimatePresence>
         {showDesignModal && (
-          <TemplatePickerModal
+          <BuilderTemplateModal
+            s={TEMPLATE_STYLES.find(s => s.id === (formData.template || 'lotus')) || TEMPLATE_STYLES[0]}
             formData={formData}
-            updateForm={updateForm}
             onClose={() => setShowDesignModal(false)}
+            onSelect={id => updateForm({ template: id })}
           />
         )}
       </AnimatePresence>

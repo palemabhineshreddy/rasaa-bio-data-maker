@@ -22,14 +22,31 @@ export default function LanguageSwitcher({ compact = false }) {
         style={{
           display: 'flex', alignItems: 'center', gap: 6,
           padding: compact ? '6px 10px' : '7px 12px',
-          borderRadius: 10,
-          border: '1px solid rgba(255,255,255,0.12)',
-          background: open ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)',
-          color: 'rgba(255,255,255,0.75)',
+          borderRadius: 100,
+          border: `1px solid ${open ? 'rgba(237,137,54,0.6)' : 'rgba(107,70,193,0.35)'}`,
+          background: open ? 'rgba(237,137,54,0.1)' : 'rgba(107,70,193,0.1)',
+          color: open ? '#ed8936' : 'rgba(255,255,255,0.65)',
+          boxShadow: open ? '0 0 14px rgba(237,137,54,0.18)' : 'none',
           cursor: 'pointer',
           fontSize: compact ? 12 : 13,
-          fontWeight: 500,
-          transition: 'all 0.15s',
+          fontWeight: 600,
+          transition: 'all 0.2s',
+        }}
+        onMouseEnter={e => {
+          if (!open) {
+            e.currentTarget.style.background = 'rgba(237,137,54,0.1)'
+            e.currentTarget.style.borderColor = 'rgba(237,137,54,0.6)'
+            e.currentTarget.style.color = '#ed8936'
+            e.currentTarget.style.boxShadow = '0 0 14px rgba(237,137,54,0.18)'
+          }
+        }}
+        onMouseLeave={e => {
+          if (!open) {
+            e.currentTarget.style.background = 'rgba(107,70,193,0.1)'
+            e.currentTarget.style.borderColor = 'rgba(107,70,193,0.35)'
+            e.currentTarget.style.color = 'rgba(255,255,255,0.65)'
+            e.currentTarget.style.boxShadow = 'none'
+          }
         }}
       >
         <Globe size={compact ? 13 : 14} style={{ opacity: 0.7 }} />
@@ -40,7 +57,7 @@ export default function LanguageSwitcher({ compact = false }) {
       {open && (
         <div style={{
           position: 'absolute', top: 'calc(100% + 6px)', right: 0,
-          background: '#13132a', border: '1px solid rgba(255,255,255,0.1)',
+          background: '#0d0d14', border: '1px solid rgba(255,255,255,0.08)',
           borderRadius: 12, overflow: 'hidden',
           boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
           zIndex: 500, minWidth: 160,
@@ -53,8 +70,8 @@ export default function LanguageSwitcher({ compact = false }) {
                 width: '100%', display: 'flex', alignItems: 'center',
                 justifyContent: 'space-between', gap: 12,
                 padding: '10px 16px', border: 'none', cursor: 'pointer',
-                background: lang === l.code ? 'rgba(168,85,247,0.15)' : 'transparent',
-                color: lang === l.code ? '#c084fc' : 'rgba(255,255,255,0.7)',
+                background: lang === l.code ? 'rgba(200,150,12,0.15)' : 'transparent',
+                color: lang === l.code ? '#F0B820' : 'rgba(255,255,255,0.7)',
                 fontSize: 13, fontWeight: lang === l.code ? 600 : 400,
                 transition: 'background 0.1s',
                 textAlign: 'left',

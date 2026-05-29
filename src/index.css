@@ -15,8 +15,8 @@ html {
 body {
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: #0a0a12;
-  color: #f8fafc;
+  background: #060608;
+  color: #ffffff;
 }
 
 /* Animated hero gradient */
@@ -64,13 +64,13 @@ body {
 
 /* Input styling */
 .form-input {
-  @apply w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/60 focus:bg-white/[0.08] transition-all duration-200;
+  @apply w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all duration-200;
   font-family: 'Inter', sans-serif;
   font-size: 15px;
 }
 
 .form-input:focus {
-  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
 }
 
 .form-label {
@@ -87,8 +87,8 @@ body {
 }
 
 .form-select:focus {
-  border-color: rgba(168, 85, 247, 0.6);
-  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
 }
 
 .form-select option {
@@ -102,9 +102,9 @@ body {
 }
 
 .step-dot.active {
-  background: linear-gradient(135deg, #a855f7, #ec4899);
-  color: white;
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+  background: linear-gradient(135deg, #C8960C, #F0B820);
+  color: #1a0a00;
+  box-shadow: 0 0 20px rgba(200, 150, 12, 0.5);
 }
 
 .step-dot.done {
@@ -117,32 +117,75 @@ body {
   color: rgba(255,255,255,0.3);
 }
 
-/* Primary button */
+/* Primary button — purple base, orange hover */
 .btn-primary {
-  @apply inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white transition-all duration-200;
-  background: linear-gradient(135deg, #a855f7, #ec4899);
-  box-shadow: 0 4px 24px rgba(168, 85, 247, 0.35);
+  @apply inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200;
+  background: rgba(107, 70, 193, 0.12);
+  border: 1.5px solid rgba(107, 70, 193, 0.45);
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(168, 85, 247, 0.5);
+  background: rgba(237, 137, 54, 0.12);
+  border-color: rgba(237, 137, 54, 0.7);
+  box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.12), 0 4px 20px rgba(237, 137, 54, 0.2);
+  color: #ed8936;
+  transform: translateY(-1px);
 }
 
 .btn-primary:active {
   transform: translateY(0);
 }
 
-/* Ghost button */
+/* Ghost button — purple base, orange hover */
 .btn-ghost {
   @apply inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200;
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.8);
+  background: rgba(107, 70, 193, 0.12);
+  border: 1.5px solid rgba(107, 70, 193, 0.45);
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .btn-ghost:hover {
-  background: rgba(255,255,255,0.07);
-  border-color: rgba(255,255,255,0.25);
+  background: rgba(237, 137, 54, 0.12);
+  border-color: rgba(237, 137, 54, 0.7);
+  box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.12), 0 4px 20px rgba(237, 137, 54, 0.2);
+  color: #ed8936;
+  transform: translateY(-1px);
+}
+
+.btn-ghost:active { transform: translateY(0); }
+
+/* ── Landing page primary CTA buttons — purple base, orange hover ── */
+.btn-amber {
+  @apply inline-flex items-center gap-2 font-semibold transition-all duration-200;
+  background: rgba(107, 70, 193, 0.12);
+  border: 1.5px solid rgba(107, 70, 193, 0.45);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+}
+.btn-amber:hover {
+  background: rgba(237, 137, 54, 0.12);
+  border-color: rgba(237, 137, 54, 0.7);
+  box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.12), 0 4px 20px rgba(237, 137, 54, 0.2);
+  color: #ed8936;
+  transform: translateY(-1px);
+}
+.btn-amber:active { transform: translateY(0); }
+
+.btn-outline-dark {
+  @apply inline-flex items-center gap-2 font-semibold transition-all duration-200;
+  border: 1.5px solid rgba(0,0,0,0.15);
+  color: #333;
+  background: transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn-outline-dark:hover {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.25);
+  color: #111;
 }
 
 /* Template card hover */
@@ -171,6 +214,22 @@ body {
 ::-webkit-scrollbar-thumb {
   background: rgba(168, 85, 247, 0.4);
   border-radius: 3px;
+}
+
+/* Headline shimmer sweep */
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+/* Template marquee animations */
+@keyframes marqueeLeft {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes marqueeRight {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
 }
 
 /* Print / PDF preview area */
