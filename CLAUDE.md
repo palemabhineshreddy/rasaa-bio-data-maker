@@ -35,7 +35,7 @@ Builder steps (0-indexed, `STEP_KEYS` array drives labels via i18n):
 | 0 | Personal details | `fullName` |
 | 1 | Education & Career | `occupation` |
 | 2 | Family details | — |
-| 3 | About + Horoscope + Contact | — |
+| 3 | About + Horoscope + Contact (all toggleable, default OFF) | — |
 | 4 | Photo + Slogan | — |
 | 5 | Design / Template picker | — |
 | isPreview | Preview + PDF download | — |
@@ -57,10 +57,13 @@ Builder steps (0-indexed, `STEP_KEYS` array drives labels via i18n):
 ### MEDIUM PRIORITY
 | File | What it controls |
 |------|-----------------|
-| `src/pages/LandingPage.jsx` | Landing copy, hero, template showcase, FAQ |
+| `src/pages/LandingPage.jsx` | Dark theme landing — copy, hero, template showcase, FAQ |
+| `src/pages/LandingPageLight.jsx` | Light theme landing — same sections, light palette |
+| `src/contexts/ThemeContext.jsx` | Builder light/dark theme tokens (`LIGHT`/`DARK`), `useBuilderTheme()`, default theme |
 | `src/components/LivePreview.jsx` | Shared live preview component + `SAMPLE_BY_TEMPLATE` (used by both landing page and builder modal) |
 | `src/contexts/LanguageContext.jsx` | Language state, auto-detect, `createT()` helper |
 | `src/components/LanguageSwitcher.jsx` | Globe icon dropdown in nav (landing + builder) |
+| `src/components/SortableFieldRow.jsx` | Drag-and-drop row wrapper with themed drag handle |
 | `src/utils/pdfExport.js` | PDF export — html2canvas snapshot |
 | `src/index.css` | Global Tailwind base + custom classes |
 | `src/utils/analytics.js` | GA4 event wrappers (`track.*`) |
@@ -136,7 +139,109 @@ Group labels are translated via `tpl_group1/2/3` keys.
 
 ---
 
-## i18n / Multilingual System
+## Builder Theme System
+
+### Overview
+`src/contexts/ThemeContext.jsx` controls light/dark mode for the builder and both landing pages.
+- **Default theme:** `light` — `useState('light')` in `ThemeProvider`. Users see the light builder first.
+- `useTheme()` — returns `{ theme, setTheme }` for the toggle switch.
+- `useBuilderTheme()` — returns the full token object (`LIGHT` or `DARK`). Every builder component calls `const T = useBuilderTheme()` and reads named tokens.
+
+### Token pattern
+All colours are named tokens — **never hardcode colours in components**. If a colour needs to differ between themes, add a token to both `LIGHT` and `DARK` in `ThemeContext.jsx`.
+
+Key tokens (selected):
+| Token | LIGHT | DARK |
+|-------|-------|------|
+| `pageBg` | `#f8f9fa` | `#060608` |
+| `text` | `#0a0a0a` | `#ffffff` |
+| `accentGold` | `#0a0a0a` (black) | `#F0B820` (gold) |
+| `logoIconBg` | `#0a0a0a` | `linear-gradient(135deg, #C8960C, #F0B820)` |
+| `logoIconColor` | `#ffffff` | `#1a0a00` |
+| `logoIconShadow` | `0 3px 12px rgba(0,0,0,0.18)` | `0 3px 12px rgba(200,150,12,0.4)` |
+| `dragHandleColor` | `rgba(0,0,0,0.22)` | `rgba(255,255,255,0.18)` |
+| `dragHandleHover` | `rgba(0,0,0,0.55)` | `rgba(168,85,247,0.7)` |
+| `textFaint` | `#9ca3af` | `rgba(255,255,255,0.35)` |
+
+### Bandhan logo — "B" letter design
+Logo uses a **"B" letter** (Georgia serif, bold) in a rounded box — not an icon.
+- **Light theme:** black box (`#0a0a0a`) + white B (`#ffffff`)
+- **Dark theme:** gold gradient box (`linear-gradient(135deg, #C8960C, #F0B820)`) + dark B (`#1a0a00`)
+- Rendered in 4 locations: builder header, dark landing nav, dark landing footer, light landing nav, light landing footer.
+- Builder header logo is **clickable** (`<button onClick={onBack}>`) — routes back to the home/landing page.
+
+### Live preview panel buttons (light theme)
+In the builder live preview panel, **Templates** and **Download** buttons are **black** (`#0a0a0a`) in light theme, not the default step idle colours. This is applied inline via `theme === 'light' ? '#0a0a0a' : T.stepIdleBg` conditionals directly in the JSX (not via tokens, since it's a one-off per-panel override).
+
+---
+
+## Builder Section Toggles
+
+### How toggles work
+Optional biodata sections are controlled by `sectionsEnabled` inside `formData`. Each section has an on/off pill switch rendered by the `SectionToggle` component.
+
+```js
+// BuilderPage.jsx
+const DEFAULT_SECTIONS_ENABLED = {
+  about: false,
+  partnerExpectations: false,
+  horoscope: false,
+}
+```
+
+All three default to **OFF** — new users see a clean minimal form.
+
+`EMPTY_FORM.sectionsEnabled` in `App.jsx` mirrors the same shape:
+```js
+sectionsEnabled: { about: false, partnerExpectations: false, horoscope: false }
+```
+
+### `applyEnabledSections(formData)`
+Single function applied at all 3 output paths (live preview, PDF download, template modal). It zeroes out fields whose section is toggled off:
+- `about` → clears `formData.about`
+- `partnerExpectations` → clears `formData.partnerExpectations`
+- `horoscope` → clears `rashi`, `nakshatra`, `gotra`, `manglik` + removes custom fields with `section === 'horoscope'`
+
+### Current toggleable sections
+| Toggle key | Section label | Fields covered |
+|-----------|--------------|---------------|
+| `about` | About Yourself | `about` text field |
+| `partnerExpectations` | Partner Expectations | `partnerExpectations` text field |
+| `horoscope` | Horoscope Details | `rashi`, `nakshatra`, `gotra`, `manglik` + horoscope custom fields |
+
+**Removed:** `extraPersonal` toggle was deleted — extra fields are already available per-section via the custom fields system.
+
+### Horoscope section (Step 1)
+Horoscope is a full drag-and-drop section (like Personal/Career/Family/Contact) wrapped in `SectionToggle`. When toggled on, users can reorder Rashi/Nakshatra/Gotra/Manglik rows and add custom horoscope fields via `InlineCustomFields section="horoscope"`.
+
+---
+
+## Builder Drag-and-Drop System
+
+### `SortableFieldRow` component (`src/components/SortableFieldRow.jsx`)
+Wraps each draggable field row. Uses `@dnd-kit/sortable`.
+- Drag handle: `GripVertical` icon from lucide-react.
+- Handle colour is **themed** via `T.dragHandleColor` / `T.dragHandleHover` from `useBuilderTheme()`.
+  - Light theme: `rgba(0,0,0,0.22)` → `rgba(0,0,0,0.55)` on hover (visible on white backgrounds).
+  - Dark theme: `rgba(255,255,255,0.18)` → `rgba(168,85,247,0.7)` on hover.
+- **Never hardcode `rgba(255,255,255,...)` for the handle** — it is invisible on the light theme background.
+
+### `DragHint` component (inline in `BuilderPage.jsx`)
+Faint centred hint text shown below every DnD block in both themes:
+```
+⠿ Hold and drag to reorder fields
+```
+Uses `T.textFaint` for colour (11px, letterSpacing 0.02em). Placed after each `</DndContext>` closing tag in: personal (Step1), horoscope (Step1), career (Step2), family (Step3), contact (Step4).
+
+### DnD sections
+`useSectionSort(keys, formData, updateForm)` hook manages field order state. Sections with DnD:
+- Personal fields (Step1)
+- Horoscope fields (Step1, inside SectionToggle)
+- Career fields (Step2)
+- Family fields (Step3)
+- Contact fields (Step4)
+
+---
 
 ### Architecture
 ```
@@ -245,6 +350,18 @@ Sections: `'personal'`, `'career'`, `'family'`, `'horoscope'`, `'contact'`, `'cu
 ---
 
 ## Landing Page Architecture
+
+### Logo — both landing pages
+Nav and footer logos use the **"B" letter** design (same as builder header — see Builder Theme System above).
+- `LandingPage.jsx` (dark): box uses `linear-gradient(135deg, #C8960C, #F0B820)`, B colour `#1a0a00`.
+- `LandingPageLight.jsx` (light): box uses `#0a0a0a`, B colour `#ffffff`.
+- `Heart` import is **still present** in both files — it is used in the features list and pill badge. Only the logo instances were replaced.
+
+### "How it Works" section (dark landing) — connector line
+The 3 step boxes are connected by a single absolute horizontal line (`top: 43, height: 2`). The step number boxes must have an **opaque background** or the line bleeds visually through them.
+- Step number box background: `'linear-gradient(135deg, rgba(237,137,54,0.18), rgba(237,137,54,0.05)), #060608'`
+- The `, #060608` suffix is the solid base layer (page background) that blocks the line. Without it the semi-transparent gradient lets the line show through the box.
+- Do **not** remove the solid base when restyling this section.
 
 ### Hero Section
 - `overflowX: 'clip'` on `<section>` — prevents horizontal scroll at all viewport widths without clipping the nav dropdown (clip does not create a new BFC)
@@ -414,6 +531,8 @@ Note: `_headers` is Netlify-specific syntax — on AWS CloudFront, response head
 - Hero floating cards at x: >±162px overflow the viewport at 1024–1227px → current values ±160, ±80 are safe; `overflowX: 'clip'` on section catches any edge cases
 - `overflow-x: hidden` on the hero section would clip the language switcher dropdown → use `overflow-x: clip` instead (does not create new BFC)
 - `BuilderTemplateRow` 2-row grid: odd card counts leave an empty cell in the last column — this is intentional and looks fine
+- Drag handle hardcoded as `rgba(255,255,255,0.18)` is invisible in light theme → always use `T.dragHandleColor` / `T.dragHandleHover` tokens from `useBuilderTheme()`
+- "How it Works" step boxes with semi-transparent backgrounds let the horizontal connector line bleed through → the box background must include a solid page-colour base (`, #060608`) as described in Landing Page Architecture
 
 ---
 

@@ -96,6 +96,47 @@ body {
   color: white;
 }
 
+/* ── Light theme builder overrides ── */
+[data-theme="light"] .step-dot.active {
+  background: #0a0a0a;
+  color: #ffffff;
+  box-shadow: none;
+}
+[data-theme="light"] .step-dot.done {
+  background: #374151;
+  color: #ffffff;
+}
+[data-theme="light"] .step-dot.pending {
+  background: rgba(0,0,0,0.06);
+  color: rgba(0,0,0,0.3);
+}
+
+[data-theme="light"] .form-input {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #0a0a0a;
+}
+[data-theme="light"] .form-input::placeholder { color: #9ca3af; }
+[data-theme="light"] .form-input:focus {
+  border-color: #6b7280;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .form-label { color: #374151; }
+[data-theme="light"] .form-select {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #0a0a0a;
+}
+[data-theme="light"] .form-select:focus {
+  border-color: #6b7280;
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .form-select option {
+  background: #ffffff;
+  color: #0a0a0a;
+}
+
 /* Step progress */
 .step-dot {
   @apply w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold transition-all duration-300;
@@ -173,6 +214,23 @@ body {
 }
 .btn-amber:active { transform: translateY(0); }
 
+/* Light theme primary CTA — black fill, white text */
+.btn-black {
+  @apply inline-flex items-center gap-2 font-semibold transition-all duration-200;
+  background: #0a0a0a;
+  border: 1.5px solid #0a0a0a;
+  border-radius: 12px;
+  color: #ffffff;
+  cursor: pointer;
+}
+.btn-black:hover {
+  background: #222222;
+  border-color: #222222;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+}
+.btn-black:active { transform: translateY(0); }
+
 .btn-outline-dark {
   @apply inline-flex items-center gap-2 font-semibold transition-all duration-200;
   border: 1.5px solid rgba(0,0,0,0.15);
@@ -214,6 +272,12 @@ body {
 ::-webkit-scrollbar-thumb {
   background: rgba(168, 85, 247, 0.4);
   border-radius: 3px;
+}
+html[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.45);
+}
+html[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.65);
 }
 
 /* Headline shimmer sweep */

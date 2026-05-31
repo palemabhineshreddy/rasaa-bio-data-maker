@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import LandingPage from './pages/LandingPage'
+import LandingPageLight from './pages/LandingPageLight'
 import BuilderPage from './pages/BuilderPage'
+import { ThemeProvider, useTheme } from './contexts/ThemeContext'
 import { track } from './utils/analytics'
 import { DEFAULT_FIELD_ORDER } from './utils/fieldGroups'
 
@@ -33,6 +35,8 @@ const EMPTY_FORM = {
   customFields: [],
   // Field display order (per section) — drag to reorder in the builder
   fieldOrder: DEFAULT_FIELD_ORDER,
+  // Optional section visibility toggles
+  sectionsEnabled: { about: false, partnerExpectations: false, horoscope: false },
 }
 
 function loadSaved() {
@@ -45,8 +49,9 @@ function loadSaved() {
   }
 }
 
-export default function App() {
+function AppInner() {
   const [view, setView] = useState('landing')
+  const { theme } = useTheme()
   const [formData, setFormData] = useState(() => loadSaved() ?? EMPTY_FORM)
 
   // Handle browser back button — popstate fires when user presses browser back
@@ -84,8 +89,15 @@ export default function App() {
 
   return (
     <div className="min-h-screen">
-      {view === 'landing' && (
+      {view === 'landing' && theme === 'dark' && (
         <LandingPage
+          onStart={startBuilder}
+          onContinue={continueBuilder}
+          savedName={savedName}
+        />
+      )}
+      {view === 'landing' && theme === 'light' && (
+        <LandingPageLight
           onStart={startBuilder}
           onContinue={continueBuilder}
           savedName={savedName}
@@ -96,11 +108,18 @@ export default function App() {
           formData={formData}
           updateForm={updateForm}
           onBack={() => {
-            // Use browser history.back() so popstate fires and view resets cleanly
             history.back()
           }}
         />
       )}
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppInner />
+    </ThemeProvider>
   )
 }

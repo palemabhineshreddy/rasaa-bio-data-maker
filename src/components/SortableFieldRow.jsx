@@ -1,9 +1,11 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical } from 'lucide-react'
+import { useBuilderTheme } from '../contexts/ThemeContext'
 
 export default function SortableFieldRow({ id, children }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+  const T = useBuilderTheme()
 
   return (
     <div
@@ -17,7 +19,6 @@ export default function SortableFieldRow({ id, children }) {
         gap: 6,
       }}
     >
-      {/* Drag handle — visible on hover */}
       <button
         type="button"
         {...attributes}
@@ -30,17 +31,16 @@ export default function SortableFieldRow({ id, children }) {
           border: 'none',
           padding: '4px 2px',
           cursor: isDragging ? 'grabbing' : 'grab',
-          color: 'rgba(255,255,255,0.18)',
+          color: T.dragHandleColor,
           touchAction: 'none',
           transition: 'color 0.15s',
         }}
-        onMouseEnter={e => { e.currentTarget.style.color = 'rgba(168,85,247,0.7)' }}
-        onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.18)' }}
+        onMouseEnter={e => { e.currentTarget.style.color = T.dragHandleHover }}
+        onMouseLeave={e => { e.currentTarget.style.color = T.dragHandleColor }}
       >
         <GripVertical size={15} />
       </button>
 
-      {/* Field content */}
       <div style={{ flex: 1, minWidth: 0 }}>
         {children}
       </div>
