@@ -2,7 +2,7 @@
 // One drag handle per field in the form; one Row per field in the PDF.
 
 export const DEFAULT_FIELD_ORDER = {
-  personal:  ['fullName', 'gender', 'dateOfBirth', 'age', 'height', 'weight', 'bloodGroup', 'religion', 'caste', 'subCaste', 'motherTongue', 'about', 'partnerExpectations'],
+  personal:  ['fullName', 'gender', 'dateOfBirth', 'age', 'height', 'weight', 'bloodGroup', 'religion', 'caste', 'subCaste', 'motherTongue'],
   horoscope: ['rashi', 'nakshatra', 'gotra', 'manglik'],
   career:    ['education', 'college', 'occupation', 'company', 'income', 'workLocation'],
   family:    ['fatherName', 'fatherOccupation', 'motherName', 'motherOccupation', 'brothers', 'sisters', 'familyType', 'familyStatus', 'nativePlace'],

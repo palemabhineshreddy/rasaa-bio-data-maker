@@ -4,6 +4,7 @@ import { Sparkles, Shield, Download, ChevronRight, ChevronLeft, Heart, Lock, Zap
 import BioTemplate from '../components/BioTemplate'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useLanguage } from '../contexts/LanguageContext'
+import { useTheme } from '../contexts/ThemeContext'
 import LivePreview, { SAMPLE_BY_TEMPLATE } from '../components/LivePreview'
 
 
@@ -414,8 +415,9 @@ const FEATURE_ICONS = [
 ]
 
 /* ── Main landing page ── */
-export default function LandingPage({ onStart, onContinue, savedName, setTheme }) {
+export default function LandingPage({ onStart, onContinue, savedName }) {
   const { t, lang } = useLanguage()
+  const { setTheme } = useTheme()
   const [openFaq, setOpenFaq] = useState(null)
 
   const HOW_STEPS = [
@@ -448,7 +450,7 @@ export default function LandingPage({ onStart, onContinue, savedName, setTheme }
               background: 'linear-gradient(135deg, #C8960C, #F0B820)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 4px 16px rgba(237,137,54,0.45)' }}>
-              <Heart style={{ width: 17, height: 17, color: '#1a0a00', fill: '#1a0a00' }} />
+              <span style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 700, color: '#1a0a00', lineHeight: 1 }}>B</span>
             </div>
             <span style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>Bandhan</span>
           </motion.div>
@@ -483,14 +485,13 @@ export default function LandingPage({ onStart, onContinue, savedName, setTheme }
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
             <LanguageSwitcher compact />
             <button onClick={() => setTheme('light')} style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              padding: '6px 12px', borderRadius: 100,
-              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)',
-              color: 'rgba(255,255,255,0.55)', cursor: 'pointer', fontSize: 12, fontWeight: 600,
-              transition: 'all 0.2s',
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              padding: '6px 14px', borderRadius: 100, fontSize: 13, fontWeight: 600,
+              background: 'transparent', border: '1.5px solid rgba(255,255,255,0.18)',
+              color: 'rgba(255,255,255,0.55)', cursor: 'pointer', transition: 'all 0.2s',
             }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#fff' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)' }}>
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'; e.currentTarget.style.color = '#fff' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)' }}>
               <Sun size={13} /> Light
             </button>
             {savedName ? (
@@ -710,8 +711,8 @@ export default function LandingPage({ onStart, onContinue, savedName, setTheme }
           </motion.div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 52, position: 'relative' }}>
-            <div className="hidden md:block" style={{ position: 'absolute', top: 44, left: '20%', right: '20%', height: 1,
-              background: 'linear-gradient(to right, transparent, rgba(237,137,54,0.4) 25%, rgba(237,137,54,0.4) 75%, transparent)',
+            <div className="hidden md:block" style={{ position: 'absolute', top: 43, left: '18%', right: '18%', height: 2,
+              background: 'linear-gradient(to right, transparent, rgba(237,137,54,0.65) 20%, rgba(237,137,54,0.65) 80%, transparent)',
               zIndex: 0 }} />
 
             {HOW_STEPS.map(({ num, titleKey, descKey }, i) => (
@@ -720,7 +721,7 @@ export default function LandingPage({ onStart, onContinue, savedName, setTheme }
                 viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.16 }}
                 style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', position: 'relative', zIndex: 1 }}>
                 <div style={{ width: 88, height: 88, borderRadius: 26,
-                  background: 'linear-gradient(135deg, rgba(237,137,54,0.18), rgba(237,137,54,0.05))',
+                  background: 'linear-gradient(135deg, rgba(237,137,54,0.18), rgba(237,137,54,0.05)), #060608',
                   border: '1px solid rgba(237,137,54,0.28)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   marginBottom: 32, boxShadow: '0 12px 48px rgba(237,137,54,0.18), inset 0 1px 0 rgba(255,255,255,0.05)',
@@ -947,7 +948,7 @@ export default function LandingPage({ onStart, onContinue, savedName, setTheme }
             </a>
           </div>
 
-          <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: 13 }}>
+          <p style={{ color: 'rgba(255,255,255,0.48)', fontSize: 13 }}>
             No sign-up required · 100% free · Instant PDF download
           </p>
         </motion.div>
@@ -965,7 +966,7 @@ export default function LandingPage({ onStart, onContinue, savedName, setTheme }
                 background: 'linear-gradient(135deg, #C8960C, #F0B820)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 3px 12px rgba(237,137,54,0.38)' }}>
-                <Heart style={{ width: 15, height: 15, color: '#1a0a00', fill: '#1a0a00' }} />
+                <span style={{ fontFamily: 'Georgia, serif', fontSize: 16, fontWeight: 700, color: '#1a0a00', lineHeight: 1 }}>B</span>
               </div>
               <span style={{ fontFamily: 'Georgia, serif', color: 'rgba(255,255,255,0.82)', fontWeight: 700, fontSize: 19 }}>Bandhan</span>
             </div>
@@ -997,8 +998,8 @@ export default function LandingPage({ onStart, onContinue, savedName, setTheme }
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-            <p style={{ color: 'rgba(255,255,255,0.18)', fontSize: 12 }}>{t('footer_tagline')}</p>
-            <span style={{ color: 'rgba(255,255,255,0.18)', fontSize: 12 }}>© 2026 Bandhan · bandhan.app</span>
+            <p style={{ color: 'rgba(255,255,255,0.42)', fontSize: 12 }}>{t('footer_tagline')}</p>
+            <span style={{ color: 'rgba(255,255,255,0.42)', fontSize: 12 }}>© 2026 Bandhan · bandhan.app</span>
           </div>
         </div>
       </footer>

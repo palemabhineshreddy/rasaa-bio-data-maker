@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { Globe } from 'lucide-react'
 import { useLanguage } from '../contexts/LanguageContext'
+import { useBuilderTheme } from '../contexts/ThemeContext'
 
 export default function LanguageSwitcher({ compact = false }) {
   const { lang, setLang, LANGUAGES } = useLanguage()
+  const T = useBuilderTheme()
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -15,6 +17,9 @@ export default function LanguageSwitcher({ compact = false }) {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
+  const G = T.globeBtn
+  const D = T.globeDropdown
+
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <button
@@ -23,10 +28,10 @@ export default function LanguageSwitcher({ compact = false }) {
           display: 'flex', alignItems: 'center', gap: 6,
           padding: compact ? '6px 10px' : '7px 12px',
           borderRadius: 100,
-          border: `1px solid ${open ? 'rgba(237,137,54,0.6)' : 'rgba(107,70,193,0.35)'}`,
-          background: open ? 'rgba(237,137,54,0.1)' : 'rgba(107,70,193,0.1)',
-          color: open ? '#ed8936' : 'rgba(255,255,255,0.65)',
-          boxShadow: open ? '0 0 14px rgba(237,137,54,0.18)' : 'none',
+          border: `1px solid ${open ? G.hoverBorder : G.border}`,
+          background: open ? G.hoverBg : G.bg,
+          color: open ? G.hoverColor : G.color,
+          boxShadow: 'none',
           cursor: 'pointer',
           fontSize: compact ? 12 : 13,
           fontWeight: 600,
@@ -34,18 +39,16 @@ export default function LanguageSwitcher({ compact = false }) {
         }}
         onMouseEnter={e => {
           if (!open) {
-            e.currentTarget.style.background = 'rgba(237,137,54,0.1)'
-            e.currentTarget.style.borderColor = 'rgba(237,137,54,0.6)'
-            e.currentTarget.style.color = '#ed8936'
-            e.currentTarget.style.boxShadow = '0 0 14px rgba(237,137,54,0.18)'
+            e.currentTarget.style.background = G.hoverBg
+            e.currentTarget.style.borderColor = G.hoverBorder
+            e.currentTarget.style.color = G.hoverColor
           }
         }}
         onMouseLeave={e => {
           if (!open) {
-            e.currentTarget.style.background = 'rgba(107,70,193,0.1)'
-            e.currentTarget.style.borderColor = 'rgba(107,70,193,0.35)'
-            e.currentTarget.style.color = 'rgba(255,255,255,0.65)'
-            e.currentTarget.style.boxShadow = 'none'
+            e.currentTarget.style.background = G.bg
+            e.currentTarget.style.borderColor = G.border
+            e.currentTarget.style.color = G.color
           }
         }}
       >
@@ -57,9 +60,9 @@ export default function LanguageSwitcher({ compact = false }) {
       {open && (
         <div style={{
           position: 'absolute', top: 'calc(100% + 6px)', right: 0,
-          background: '#0d0d14', border: '1px solid rgba(255,255,255,0.08)',
+          background: D.bg, border: `1px solid ${D.border}`,
           borderRadius: 12, overflow: 'hidden',
-          boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
+          boxShadow: D.shadow,
           zIndex: 500, minWidth: 160,
         }}>
           {LANGUAGES.map(l => (
@@ -70,17 +73,17 @@ export default function LanguageSwitcher({ compact = false }) {
                 width: '100%', display: 'flex', alignItems: 'center',
                 justifyContent: 'space-between', gap: 12,
                 padding: '10px 16px', border: 'none', cursor: 'pointer',
-                background: lang === l.code ? 'rgba(200,150,12,0.15)' : 'transparent',
-                color: lang === l.code ? '#F0B820' : 'rgba(255,255,255,0.7)',
+                background: lang === l.code ? D.selectedBg : 'transparent',
+                color: lang === l.code ? D.selectedText : D.text,
                 fontSize: 13, fontWeight: lang === l.code ? 600 : 400,
                 transition: 'background 0.1s',
                 textAlign: 'left',
               }}
-              onMouseEnter={e => { if (lang !== l.code) e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+              onMouseEnter={e => { if (lang !== l.code) e.currentTarget.style.background = D.hoverBg }}
               onMouseLeave={e => { if (lang !== l.code) e.currentTarget.style.background = 'transparent' }}
             >
               <span>{l.nativeName}</span>
-              <span style={{ fontSize: 11, opacity: 0.45 }}>{l.name}</span>
+              <span style={{ fontSize: 11, opacity: 0.45, color: D.textMuted }}>{l.name}</span>
             </button>
           ))}
         </div>

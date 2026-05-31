@@ -4,6 +4,7 @@ import { Sparkles, Shield, Download, ChevronRight, ChevronLeft, Heart, Lock, Zap
 import BioTemplate from '../components/BioTemplate'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useLanguage } from '../contexts/LanguageContext'
+import { useTheme } from '../contexts/ThemeContext'
 import LivePreview, { SAMPLE_BY_TEMPLATE } from '../components/LivePreview'
 
 
@@ -317,7 +318,7 @@ function TemplateModal({ s, onClose, onStart }) {
         <div style={{ flexShrink: 0, padding: isMobile ? '12px 16px 18px' : '14px 28px 20px',
           borderTop: '1px solid #f3f4f6', background: '#ffffff',
           display: 'flex', justifyContent: 'center' }}>
-          <button onClick={() => onStart(current.id)} className="btn-amber"
+          <button onClick={() => onStart(current.id)} className="btn-black"
             style={{ padding: isMobile ? '11px 28px' : '13px 40px', fontSize: 15,
               width: '100%', maxWidth: 340, justifyContent: 'center' }}>
             {t('tpl_modal_btn')} <ChevronRight size={18} />
@@ -413,8 +414,9 @@ const FEATURE_ICONS = [
 ]
 
 /* ── Main landing page ── */
-export default function LandingPageLight({ onStart, onContinue, savedName, setTheme }) {
+export default function LandingPageLight({ onStart, onContinue, savedName }) {
   const { t, lang } = useLanguage()
+  const { setTheme } = useTheme()
   const [openFaq, setOpenFaq] = useState(null)
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
@@ -453,7 +455,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName, setTh
             <div style={{ width: 28, height: 28, borderRadius: 6,
               background: '#0a0a0a',
               display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Heart style={{ width: 14, height: 14, color: '#ffffff', fill: '#ffffff' }} />
+              <span style={{ fontFamily: 'Georgia, serif', fontSize: 15, fontWeight: 700, color: '#ffffff', lineHeight: 1 }}>B</span>
             </div>
             <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 700, color: '#0a0a0a', letterSpacing: '-0.01em' }}>Bandhan</span>
           </motion.div>
@@ -473,20 +475,12 @@ export default function LandingPageLight({ onStart, onContinue, savedName, setTh
           {/* Right */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
             <LanguageSwitcher compact />
-            <button onClick={() => setTheme('dark')} style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              padding: '6px 12px', borderRadius: 100,
-              background: 'transparent', border: '1px solid #e5e7eb',
-              color: '#6b7280', cursor: 'pointer', fontSize: 12, fontWeight: 600,
-              transition: 'all 0.2s',
-            }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = '#9ca3af'; e.currentTarget.style.color = '#0a0a0a' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.color = '#6b7280' }}>
+            <button onClick={() => setTheme('dark')} className="btn-outline-dark" style={{ padding: '6px 14px', fontSize: 13 }}>
               <Moon size={13} /> Dark
             </button>
             {savedName ? (
               <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }} onClick={onContinue} className="btn-amber"
+                transition={{ duration: 0.5 }} onClick={onContinue} className="btn-black"
                 style={{ padding: '8px 18px', fontSize: 13, maxWidth: 220 }}>
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {t('continue_btn')} — {savedName}
@@ -495,7 +489,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName, setTh
               </motion.button>
             ) : (
               <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }} onClick={onStart} className="btn-amber"
+                transition={{ duration: 0.5 }} onClick={onStart} className="btn-black"
                 style={{ padding: '8px 18px', fontSize: 13 }}>
                 {t('begin_free')} <ChevronRight style={{ width: 14, height: 14 }} />
               </motion.button>
@@ -510,14 +504,6 @@ export default function LandingPageLight({ onStart, onContinue, savedName, setTh
         minHeight: '92vh', position: 'relative', overflowX: 'clip',
         display: 'flex', alignItems: 'center',
       }}>
-        {/* Background */}
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-          {/* Subtle grid */}
-          <div style={{ position: 'absolute', inset: 0,
-            backgroundImage: 'linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
-            maskImage: 'radial-gradient(ellipse 85% 85% at 50% 50%, black 30%, transparent 100%)' }} />
-        </div>
 
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: '80px 24px', width: '100%',
           display: 'flex', alignItems: 'center', gap: 48, position: 'relative', zIndex: 1 }}>
@@ -542,11 +528,8 @@ export default function LandingPageLight({ onStart, onContinue, savedName, setTh
                 letterSpacing: '-0.02em' }}>
               {t('headline1')}<br />
               <span style={{
-                background: 'linear-gradient(90deg, #C8960C 0%, #F5D060 40%, #E8B020 70%, #C8960C 100%)',
-                backgroundSize: '200% auto',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+                color: '#0a0a0a',
                 fontStyle: lang === 'en' ? 'italic' : 'normal',
-                animation: 'shimmer 5s linear infinite',
               }}>
                 {t('headline2')}
               </span>
@@ -563,19 +546,19 @@ export default function LandingPageLight({ onStart, onContinue, savedName, setTh
               style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 40 }}>
               {savedName ? (
                 <>
-                  <button onClick={onContinue} className="btn-amber" style={{ fontSize: 16, padding: '14px 30px' }}>
+                  <button onClick={onContinue} className="btn-black" style={{ fontSize: 16, padding: '14px 30px' }}>
                     {t('cta_continue')} <ChevronRight style={{ width: 17, height: 17 }} />
                   </button>
-                  <button onClick={onStart} className="btn-ghost" style={{ fontSize: 16, padding: '14px 30px' }}>
+                  <button onClick={onStart} className="btn-outline-dark" style={{ fontSize: 16, padding: '14px 30px' }}>
                     {t('cta_fresh')}
                   </button>
                 </>
               ) : (
                 <>
-                  <button onClick={onStart} className="btn-amber" style={{ fontSize: 16, padding: '14px 30px' }}>
+                  <button onClick={onStart} className="btn-black" style={{ fontSize: 16, padding: '14px 30px' }}>
                     {t('cta_create')} <ChevronRight style={{ width: 17, height: 17 }} />
                   </button>
-                  <a href="#templates" className="btn-ghost" style={{ fontSize: 16, padding: '14px 30px', textDecoration: 'none' }}>
+                  <a href="#templates" className="btn-outline-dark" style={{ fontSize: 16, padding: '14px 30px', textDecoration: 'none' }}>
                     {t('cta_explore')}
                   </a>
                 </>
@@ -798,7 +781,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName, setTh
                 {/* Stars */}
                 <div style={{ display: 'flex', gap: 3, position: 'relative', zIndex: 1 }}>
                   {Array.from({ length: rating }).map((_, j) => (
-                    <svg key={j} width="15" height="15" viewBox="0 0 20 20" fill="#F0B820">
+                    <svg key={j} width="15" height="15" viewBox="0 0 20 20" fill="#374151">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                     </svg>
                   ))}
@@ -838,7 +821,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName, setTh
             <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(28px, 3.5vw, 44px)', fontWeight: 700,
               lineHeight: 1.18, color: '#0a0a0a', marginBottom: 18, letterSpacing: '-0.02em' }}>{t('faq_title')}</h2>
             <p style={{ color: '#6b7280', lineHeight: 1.8, fontSize: 15, marginBottom: 36 }}>{t('faq_desc')}</p>
-            <button onClick={onStart} className="btn-amber" style={{ padding: '13px 28px', fontSize: 15 }}>
+            <button onClick={onStart} className="btn-black" style={{ padding: '13px 28px', fontSize: 15 }}>
               {t('cta_create')} <ChevronRight style={{ width: 16, height: 16 }} />
             </button>
           </motion.div>
@@ -893,78 +876,74 @@ export default function LandingPageLight({ onStart, onContinue, savedName, setTh
       </section>
 
       {/* ── FINAL CTA ── */}
-      <section style={{ background: '#0a0a0a', padding: '128px 24px', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ background: '#ffffff', borderTop: '1px solid rgba(0,0,0,0.07)', padding: '128px 24px', position: 'relative', overflow: 'hidden' }}>
 
         <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }} transition={{ duration: 0.8 }}
           style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
 
           <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase',
-            color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>Start for free</p>
+            color: '#9ca3af', marginBottom: 24 }}>Start for free</p>
 
           <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(36px, 5.5vw, 68px)', fontWeight: 700,
-            lineHeight: 1.08, color: '#ffffff', marginBottom: 26, letterSpacing: '-0.025em' }}>
+            lineHeight: 1.08, color: '#0a0a0a', marginBottom: 26, letterSpacing: '-0.025em' }}>
             {t('cta_title1')}<br />
-            <span style={{
-              background: 'linear-gradient(90deg, #C8960C 0%, #F5D060 45%, #E8B020 70%, #C8960C 100%)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-              fontStyle: lang === 'en' ? 'italic' : 'normal',
-            }}>
+            <span style={{ fontStyle: lang === 'en' ? 'italic' : 'normal' }}>
               {t('cta_title2')}
             </span>
           </h2>
 
-          <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 18, lineHeight: 1.8,
+          <p style={{ color: '#6b7280', fontSize: 18, lineHeight: 1.8,
             maxWidth: 500, margin: '0 auto 52px' }}>
             {t('cta_subtitle').split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
           </p>
 
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 28 }}>
             <button onClick={onStart} style={{ fontSize: 16, padding: '14px 40px', borderRadius: 100, fontWeight: 600,
-              background: '#ffffff', color: '#0a0a0a', border: '1.5px solid #ffffff', cursor: 'pointer',
+              background: '#0a0a0a', color: '#ffffff', border: '1.5px solid #0a0a0a', cursor: 'pointer',
               display: 'inline-flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#f3f4f6' }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#ffffff' }}>
+              onMouseEnter={e => { e.currentTarget.style.background = '#222222'; e.currentTarget.style.borderColor = '#222222' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#0a0a0a'; e.currentTarget.style.borderColor = '#0a0a0a' }}>
               {t('cta_btn')} <ChevronRight style={{ width: 18, height: 18 }} />
             </button>
             <a href="#templates" style={{ fontSize: 16, padding: '14px 32px', borderRadius: 100, fontWeight: 600,
-              background: 'transparent', color: 'rgba(255,255,255,0.7)', border: '1.5px solid rgba(255,255,255,0.2)',
+              background: 'transparent', color: '#374151', border: '1.5px solid rgba(0,0,0,0.15)',
               cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8, transition: 'all 0.2s',
               textDecoration: 'none' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'; e.currentTarget.style.color = '#ffffff' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)' }}>
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.3)'; e.currentTarget.style.color = '#0a0a0a' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.15)'; e.currentTarget.style.color = '#374151' }}>
               {t('cta_explore')}
             </a>
           </div>
 
-          <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: 13 }}>
+          <p style={{ color: '#d1d5db', fontSize: 13 }}>
             No sign-up required · 100% free · Instant PDF download
           </p>
         </motion.div>
       </section>
 
       {/* ── FOOTER ── */}
-      <footer style={{ background: '#0a0a0a', padding: '48px 24px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <footer style={{ background: '#f3f4f6', padding: '48px 24px', borderTop: '1px solid rgba(0,0,0,0.07)' }}>
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center',
             justifyContent: 'space-between', gap: 24, marginBottom: 32, paddingBottom: 32,
-            borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ width: 28, height: 28, borderRadius: 6, background: '#ffffff',
+              <div style={{ width: 28, height: 28, borderRadius: 6, background: '#0a0a0a',
                 display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Heart style={{ width: 13, height: 13, color: '#0a0a0a', fill: '#0a0a0a' }} />
+                <span style={{ fontFamily: 'Georgia, serif', fontSize: 15, fontWeight: 700, color: '#ffffff', lineHeight: 1 }}>B</span>
               </div>
-              <span style={{ fontFamily: "'Playfair Display', Georgia, serif", color: '#ffffff', fontWeight: 700, fontSize: 18 }}>Bandhan</span>
+              <span style={{ fontFamily: "'Playfair Display', Georgia, serif", color: '#0a0a0a', fontWeight: 700, fontSize: 18 }}>Bandhan</span>
             </div>
 
             <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
               {[['#templates','Templates'],['#how','How it Works'],['#features','Features']].map(([href, label]) => (
                 <a key={href} href={href}
                   style={{ fontSize: 13, fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s',
-                    color: 'rgba(255,255,255,0.4)' }}
-                  onMouseEnter={e => { e.currentTarget.style.color = '#ffffff' }}
-                  onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)' }}>
+                    color: '#9ca3af' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = '#0a0a0a' }}
+                  onMouseLeave={e => { e.currentTarget.style.color = '#9ca3af' }}>
                   {label}
                 </a>
               ))}
@@ -972,8 +951,8 @@ export default function LandingPageLight({ onStart, onContinue, savedName, setTh
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-            <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: 12 }}>{t('footer_tagline')}</p>
-            <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 12 }}>© 2026 Bandhan · bandhan.app</span>
+            <p style={{ color: '#9ca3af', fontSize: 12 }}>{t('footer_tagline')}</p>
+            <span style={{ color: '#9ca3af', fontSize: 12 }}>© 2026 Bandhan · bandhan.app</span>
           </div>
         </div>
       </footer>

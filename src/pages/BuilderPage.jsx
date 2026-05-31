@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Check, Download, Heart, RotateCcw, Search, Plus, Trash2, MessageCircle, LayoutTemplate, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, Download, RotateCcw, Search, Plus, Trash2, MessageCircle, LayoutTemplate, X } from 'lucide-react'
 import { useForm } from '@formspree/react'
 import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
@@ -9,6 +9,7 @@ import LivePreview from '../components/LivePreview'
 import SortableFieldRow from '../components/SortableFieldRow'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useLanguage } from '../contexts/LanguageContext'
+import { useTheme, useBuilderTheme } from '../contexts/ThemeContext'
 import { exportPDF } from '../utils/pdfExport'
 import { track } from '../utils/analytics'
 import { DEFAULT_FIELD_ORDER, getFieldOrder } from '../utils/fieldGroups'
@@ -79,12 +80,13 @@ function removeCustomField(formData, updateForm, id) {
 
 function CustomFieldEditor({ field, index, formData, updateForm }) {
   const { t } = useLanguage()
+  const T = useBuilderTheme()
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+    <div style={{ borderRadius: 16, border: `1px solid ${T.borderStrong}`, background: T.customFieldBg, padding: 20 }}>
       <div className="mb-4 flex items-center justify-between gap-4">
         <div>
-          <div className="text-sm font-semibold text-white">{t('extra_field')} {index + 1}</div>
-          <div className="text-xs text-white/40">{t('extra_field_desc')}</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: T.text }}>{t('extra_field')} {index + 1}</div>
+          <div style={{ fontSize: 12, color: T.textFaint }}>{t('extra_field_desc')}</div>
         </div>
         <button
           type="button"
@@ -134,26 +136,28 @@ function CustomFieldEditor({ field, index, formData, updateForm }) {
   )
 }
 
-function InlineCustomFields({ section, titleKey, formData, updateForm }) {
+function InlineCustomFields({ section, titleKey, formData, updateForm, showHeader = true }) {
   const { t } = useLanguage()
+  const T = useBuilderTheme()
   const sectionFields = getCustomFields(formData).filter(field => field.section === section)
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold uppercase tracking-widest text-white/30">{t(titleKey)}</span>
-        <button
-          type="button"
-          onClick={() => addCustomField(formData, updateForm, section)}
-          className="flex items-center gap-1 text-xs transition-colors"
-          style={{ color: '#C8960C' }}
-          onMouseEnter={e => e.currentTarget.style.color = '#F0B820'}
-          onMouseLeave={e => e.currentTarget.style.color = '#C8960C'}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0' }}
-        >
-          <Plus className="h-3 w-3" /> {t('add_field')}
-        </button>
-      </div>
+      {showHeader && (
+        <div className="flex items-center justify-between">
+          <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: T.sectionTitleColor }}>{t(titleKey)}</span>
+          <button
+            type="button"
+            onClick={() => addCustomField(formData, updateForm, section)}
+            className="flex items-center gap-1 text-xs transition-colors"
+            style={{ color: T.accentGold, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0' }}
+            onMouseEnter={e => e.currentTarget.style.opacity = '0.75'}
+            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+          >
+            <Plus className="h-3 w-3" /> {t('add_field')}
+          </button>
+        </div>
+      )}
       {sectionFields.length > 0 && (
         <div className="space-y-3">
           {sectionFields.map((field, index) => (
@@ -165,6 +169,62 @@ function InlineCustomFields({ section, titleKey, formData, updateForm }) {
               updateForm={updateForm}
             />
           ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── Optional section toggle ── */
+const DEFAULT_SECTIONS_ENABLED = { about: false, partnerExpectations: false, horoscope: false }
+
+function applyEnabledSections(formData) {
+  const se = { ...DEFAULT_SECTIONS_ENABLED, ...(formData.sectionsEnabled || {}) }
+  let customFields = formData.customFields || []
+  if (!se.horoscope) customFields = customFields.filter(f => f.section !== 'horoscope')
+  return {
+    ...formData,
+    about: se.about ? formData.about : '',
+    partnerExpectations: se.partnerExpectations ? formData.partnerExpectations : '',
+    rashi:     se.horoscope ? formData.rashi     : '',
+    nakshatra: se.horoscope ? formData.nakshatra : '',
+    gotra:     se.horoscope ? formData.gotra     : '',
+    manglik:   se.horoscope ? formData.manglik   : '',
+    customFields,
+  }
+}
+
+function SectionToggle({ sectionKey, label, formData, updateForm, children, headerExtra }) {
+  const T = useBuilderTheme()
+  const se = { ...DEFAULT_SECTIONS_ENABLED, ...(formData.sectionsEnabled || {}) }
+  const enabled = se[sectionKey]
+
+  const toggle = () => updateForm({
+    sectionsEnabled: { ...DEFAULT_SECTIONS_ENABLED, ...(formData.sectionsEnabled || {}), [sectionKey]: !enabled },
+  })
+
+  return (
+    <div style={{ borderRadius: 14, border: `1px solid ${enabled ? T.borderStrong : T.border}`, overflow: 'hidden', transition: 'border-color 0.2s' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: T.cardBg, gap: 10 }}>
+        <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: T.sectionTitleColor, flex: 1 }}>{label}</span>
+        {enabled && headerExtra}
+        <button
+          type="button"
+          onClick={toggle}
+          role="switch"
+          aria-checked={enabled}
+          style={{ width: 38, height: 20, borderRadius: 10, border: 'none', cursor: 'pointer',
+            position: 'relative', background: enabled ? T.stepActiveBg : T.sliderTrack,
+            padding: 0, transition: 'background 0.18s', flexShrink: 0 }}
+        >
+          <span style={{ position: 'absolute', top: 2, left: enabled ? 20 : 2, width: 16, height: 16,
+            borderRadius: '50%', background: enabled ? T.stepActiveText : T.textFaint,
+            transition: 'left 0.18s', display: 'block' }} />
+        </button>
+      </div>
+      {enabled && (
+        <div style={{ padding: '2px 14px 14px', borderTop: `1px solid ${T.border}` }}>
+          {children}
         </div>
       )}
     </div>
@@ -192,9 +252,19 @@ function useSectionSort(formData, updateForm, section) {
   return { sensors, order, onDragEnd }
 }
 
+function DragHint() {
+  const T = useBuilderTheme()
+  return (
+    <p style={{ fontSize: 11, color: T.textFaint, textAlign: 'center', marginTop: 6, letterSpacing: '0.02em' }}>
+      ⠿ Hold and drag to reorder fields
+    </p>
+  )
+}
+
 /* ── Step 1: Personal ── */
 function Step1({ formData, updateForm }) {
   const { t } = useLanguage()
+  const T = useBuilderTheme()
   const personal = useSectionSort(formData, updateForm, 'personal')
   const horoscope = useSectionSort(formData, updateForm, 'horoscope')
 
@@ -210,22 +280,6 @@ function Step1({ formData, updateForm }) {
     caste:               <Field label={t('f_caste')}       name="caste"       formData={formData} updateForm={updateForm} placeholder={t('ph_caste')} />,
     subCaste:            <Field label={t('f_subCaste')}    name="subCaste"    formData={formData} updateForm={updateForm} placeholder={t('ph_subCaste')} />,
     motherTongue:        <Field label={t('f_motherTongue')} name="motherTongue" formData={formData} updateForm={updateForm} placeholder={t('ph_motherTongue')} />,
-    about: (
-      <div>
-        <label className="form-label">About Yourself</label>
-        <textarea name="about" className="form-input resize-none" rows={3}
-          placeholder="Share a little about your personality, values, and interests…"
-          value={formData.about} onChange={e => updateForm({ about: e.target.value })} />
-      </div>
-    ),
-    partnerExpectations: (
-      <div>
-        <label className="form-label">Partner Expectations</label>
-        <textarea name="partnerExpectations" className="form-input resize-none" rows={3}
-          placeholder="What are you looking for in a life partner?"
-          value={formData.partnerExpectations || ''} onChange={e => updateForm({ partnerExpectations: e.target.value })} />
-      </div>
-    ),
   }
 
   const horoscopeFields = {
@@ -250,21 +304,39 @@ function Step1({ formData, updateForm }) {
           </div>
         </SortableContext>
       </DndContext>
+      <DragHint />
 
-      <InlineCustomFields section="personal" titleKey="extra_personal_t" formData={formData} updateForm={updateForm} />
+      {/* Optional sections — togglable */}
+      <SectionToggle sectionKey="about" label="About Yourself" formData={formData} updateForm={updateForm}>
+        <textarea name="about" className="form-input resize-none" rows={3}
+          placeholder="Share a little about your personality, values, and interests…"
+          value={formData.about} onChange={e => updateForm({ about: e.target.value })} />
+      </SectionToggle>
 
-      <DndContext sensors={horoscope.sensors} collisionDetection={closestCenter} onDragEnd={horoscope.onDragEnd}>
-        <SortableContext items={horoscope.order} strategy={verticalListSortingStrategy}>
-          <div className="space-y-4">
-            {horoscope.order.map(id => (
-              <SortableFieldRow key={id} id={id}>
-                {horoscopeFields[id]}
-              </SortableFieldRow>
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-      <InlineCustomFields section="horoscope" titleKey="extra_horoscope_t" formData={formData} updateForm={updateForm} />
+      <SectionToggle sectionKey="partnerExpectations" label="Partner Expectations" formData={formData} updateForm={updateForm}>
+        <textarea name="partnerExpectations" className="form-input resize-none" rows={3}
+          placeholder="What are you looking for in a life partner?"
+          value={formData.partnerExpectations || ''} onChange={e => updateForm({ partnerExpectations: e.target.value })} />
+      </SectionToggle>
+
+
+      <SectionToggle sectionKey="horoscope" label="Horoscope Details" formData={formData} updateForm={updateForm}>
+        <DndContext sensors={horoscope.sensors} collisionDetection={closestCenter} onDragEnd={horoscope.onDragEnd}>
+          <SortableContext items={horoscope.order} strategy={verticalListSortingStrategy}>
+            <div className="space-y-4">
+              {horoscope.order.map(id => (
+                <SortableFieldRow key={id} id={id}>
+                  {horoscopeFields[id]}
+                </SortableFieldRow>
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+        <DragHint />
+        <div style={{ marginTop: 16 }}>
+          <InlineCustomFields section="horoscope" titleKey="extra_horoscope_t" formData={formData} updateForm={updateForm} />
+        </div>
+      </SectionToggle>
     </div>
   )
 }
@@ -297,6 +369,7 @@ function Step2({ formData, updateForm }) {
           </div>
         </SortableContext>
       </DndContext>
+      <DragHint />
       <InlineCustomFields section="career" titleKey="extra_career_t" formData={formData} updateForm={updateForm} />
     </div>
   )
@@ -333,6 +406,7 @@ function Step3({ formData, updateForm }) {
           </div>
         </SortableContext>
       </DndContext>
+      <DragHint />
       <InlineCustomFields section="family" titleKey="extra_family_t" formData={formData} updateForm={updateForm} />
     </div>
   )
@@ -365,6 +439,7 @@ function Step4({ formData, updateForm }) {
           </div>
         </SortableContext>
       </DndContext>
+      <DragHint />
       <InlineCustomFields section="contact" titleKey="extra_contact_t" formData={formData} updateForm={updateForm} />
     </div>
   )
@@ -438,6 +513,7 @@ const RELIGION_DISPLAY_NAMES = {
 }
 
 function SloganPicker({ formData, updateForm }) {
+  const T = useBuilderTheme()
   const relKey = getReligionKey(formData.religion)
   if (!relKey) return null
 
@@ -474,15 +550,15 @@ function SloganPicker({ formData, updateForm }) {
           </select>
         )}
         {slogan && (
-          <span style={{ fontFamily: 'serif', fontSize: 14, color: '#C9A035', letterSpacing: '0.12em' }}>
+          <span style={{ fontFamily: 'serif', fontSize: 14, color: T.accentGold, letterSpacing: '0.12em' }}>
             {slogan}
           </span>
         )}
         {isHidden && (
-          <span className="text-white/30 text-sm">No slogan will appear</span>
+          <span style={{ fontSize: 14, color: T.textFaint }}>No slogan will appear</span>
         )}
       </div>
-      <p className="text-white/25 text-xs">
+      <p style={{ fontSize: 12, color: T.textFaint }}>
         {isHindu
           ? 'Auto matches your mother tongue script. Override to a different language anytime.'
           : 'Slogan is based on your religion. Hide it if not needed.'}
@@ -528,6 +604,7 @@ function TemplateMiniPreview({ formData, containerW = 144, visibleH = 200 }) {
 }
 
 function TemplateCard({ style, isSelected, formData, onSelect }) {
+  const T = useBuilderTheme()
   const previewData = { ...DESIGN_SAMPLE, template: style.id }
   return (
     <div
@@ -536,8 +613,8 @@ function TemplateCard({ style, isSelected, formData, onSelect }) {
     >
       <div style={{
         height: 252, borderRadius: 16, overflow: 'hidden', position: 'relative',
-        border: isSelected ? '2px solid rgba(237,137,54,0.8)' : '1.5px solid rgba(255,255,255,0.1)',
-        boxShadow: isSelected ? '0 0 0 3px rgba(237,137,54,0.18), 0 12px 32px rgba(0,0,0,0.45)' : '0 4px 20px rgba(0,0,0,0.35)',
+        border: isSelected ? '2px solid rgba(237,137,54,0.8)' : `1.5px solid ${T.border}`,
+        boxShadow: isSelected ? '0 0 0 3px rgba(237,137,54,0.18), 0 12px 32px rgba(0,0,0,0.25)' : '0 4px 16px rgba(0,0,0,0.12)',
         transition: 'border 0.2s, box-shadow 0.2s',
       }}>
         {style.live ? (
@@ -550,15 +627,15 @@ function TemplateCard({ style, isSelected, formData, onSelect }) {
         )}
         {isSelected && (
           <div style={{ position: 'absolute', top: 10, right: 10, width: 24, height: 24, borderRadius: '50%', background: 'rgba(237,137,54,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(237,137,54,0.4)' }}>
-            <Check className="w-3.5 h-3.5 text-white" />
+            <Check size={13} color="#fff" />
           </div>
         )}
       </div>
       <div style={{ padding: '8px 2px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: isSelected ? 'white' : 'rgba(255,255,255,0.65)' }}>{style.name}</span>
+        <span style={{ fontSize: 12, fontWeight: 600, color: isSelected ? T.text : T.textMuted }}>{style.name}</span>
         {style.live
           ? <span style={{ fontSize: 9, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)', padding: '2px 7px', borderRadius: 20 }}>Live</span>
-          : <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.22)', padding: '2px 4px', borderRadius: 20 }}>Soon</span>
+          : <span style={{ fontSize: 9, fontWeight: 600, color: T.textFaint, padding: '2px 4px', borderRadius: 20 }}>Soon</span>
         }
       </div>
     </div>
@@ -567,6 +644,7 @@ function TemplateCard({ style, isSelected, formData, onSelect }) {
 
 /* 2-row grid scroller — scroll-aware ghost arrows, framer-motion fades */
 function BuilderTemplateRow({ styles, formData, onSelect }) {
+  const T = useBuilderTheme()
   const scrollRef = useRef(null)
   const [canLeft, setCanLeft] = useState(false)
   const [canRight, setCanRight] = useState(true)
@@ -609,11 +687,11 @@ function BuilderTemplateRow({ styles, formData, onSelect }) {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="absolute left-0 top-0 bottom-3 w-10 z-[3] flex items-center justify-start pl-0.5"
-            style={{ background: 'linear-gradient(to right, #0a0a12 30%, transparent)' }}>
+            style={{ background: T.scrollFadeLeft }}>
             <motion.button
               onClick={() => scrollTo(-1)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: 'rgba(255,255,255,0.45)', display: 'flex' }}
-              whileHover={{ scale: 1.3, color: 'rgba(255,255,255,0.9)' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: T.textFaint, display: 'flex' }}
+              whileHover={{ scale: 1.3 }}
               whileTap={{ scale: 0.85 }}
               transition={{ duration: 0.15 }}>
               <ChevronLeft size={16} />
@@ -645,11 +723,11 @@ function BuilderTemplateRow({ styles, formData, onSelect }) {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="absolute right-0 top-0 bottom-3 w-10 z-[3] flex items-center justify-end pr-0.5"
-            style={{ background: 'linear-gradient(to left, #0a0a12 30%, transparent)' }}>
+            style={{ background: T.scrollFadeRight }}>
             <motion.button
               onClick={() => scrollTo(1)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: 'rgba(255,255,255,0.45)', display: 'flex' }}
-              whileHover={{ scale: 1.3, color: 'rgba(255,255,255,0.9)' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: T.textFaint, display: 'flex' }}
+              whileHover={{ scale: 1.3 }}
               whileTap={{ scale: 0.85 }}
               transition={{ duration: 0.15 }}>
               <ChevronRight size={16} />
@@ -691,6 +769,7 @@ const DESIGN_SAMPLE = {
 /* ── Photo drag-to-reposition adjuster ── */
 function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace }) {
   const { t } = useLanguage()
+  const T = useBuilderTheme()
   const containerRef = useRef()
   const dragging = useRef(false)
 
@@ -729,20 +808,19 @@ function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace 
             className="w-full h-full pointer-events-none"
             style={{ objectFit: 'cover', objectPosition: `${position.x}% ${position.y}%` }}
           />
-          <div className="absolute bottom-0 inset-x-0 text-center text-[10px] text-white py-1"
-            style={{ background: 'rgba(0,0,0,0.45)' }}>
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, textAlign: 'center', fontSize: 10, color: '#fff', padding: '4px 0', background: 'rgba(0,0,0,0.45)' }}>
             {t('photo_drag')}
           </div>
         </div>
-        <p className="text-xs text-white/30 text-center">{t('photo_drag_hint')}</p>
+        <p style={{ fontSize: 12, color: T.textFaint, textAlign: 'center' }}>{t('photo_drag_hint')}</p>
       </div>
-      <div className="text-sm text-white/50 space-y-2 pt-1">
+      <div style={{ fontSize: 14, color: T.textMuted, display: 'flex', flexDirection: 'column', gap: 6, paddingTop: 4 }}>
         <p>{t('photo_uploaded')}</p>
-        <p className="text-white/30 text-xs">{t('photo_drag_sub')}</p>
-        <button onClick={onReplace} className="text-xs flex items-center gap-1" style={{ color: '#C8960C', background: 'none', border: 'none', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.color = '#F0B820'} onMouseLeave={e => e.currentTarget.style.color = '#C8960C'}>
+        <p style={{ fontSize: 12, color: T.textFaint }}>{t('photo_drag_sub')}</p>
+        <button onClick={onReplace} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: T.accentGold, background: 'none', border: 'none', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.color = T.accentGold} onMouseLeave={e => e.currentTarget.style.color = T.accentGold}>
           <RotateCcw className="w-3 h-3" /> {t('photo_change')}
         </button>
-        <button onClick={onRemove} className="text-red-400 hover:text-red-300 text-xs flex items-center gap-1">
+        <button onClick={onRemove} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#f87171', background: 'none', border: 'none', cursor: 'pointer' }}>
           {t('photo_remove')}
         </button>
       </div>
@@ -753,6 +831,7 @@ function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace 
 /* ── Step 5: Photo & Slogan ── */
 function Step5({ formData, updateForm }) {
   const { t } = useLanguage()
+  const T = useBuilderTheme()
   const fileRef = useRef()
 
   const handlePhoto = (e) => {
@@ -777,7 +856,7 @@ function Step5({ formData, updateForm }) {
 
       {/* Photo upload */}
       <div className="space-y-4">
-        <SectionTitle>{t('sec_photo')} <span className="text-white/30 text-sm font-normal">({t('sec_optional')})</span></SectionTitle>
+        <SectionTitle>{t('sec_photo')} <span style={{ fontSize: 14, color: T.textFaint, fontWeight: 400 }}>({t('sec_optional')})</span></SectionTitle>
         {formData.photo ? (
           <PhotoAdjuster
             photo={formData.photo}
@@ -787,19 +866,21 @@ function Step5({ formData, updateForm }) {
             onReplace={() => fileRef.current?.click()}
           />
         ) : (
-          <div className="flex items-center gap-6">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
             <div
               onClick={() => fileRef.current?.click()}
-              className="w-28 h-28 rounded-2xl border-2 border-dashed border-white/20 flex items-center justify-center cursor-pointer hover:border-amber-500/50 transition-colors overflow-hidden bg-white/5 group"
+              style={{ width: 112, height: 112, borderRadius: 16, border: `2px dashed ${T.photoBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: T.photoBg, overflow: 'hidden', transition: 'border-color 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(237,137,54,0.5)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = T.photoBorder}
             >
-              <div className="flex flex-col items-center gap-2 text-white/30 group-hover:text-amber-400 transition-colors">
-                <span className="text-3xl">📷</span>
-                <span className="text-xs text-center">{t('photo_upload_btn')}</span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: T.photoText }}>
+                <span style={{ fontSize: 30 }}>📷</span>
+                <span style={{ fontSize: 12, textAlign: 'center' }}>{t('photo_upload_btn')}</span>
               </div>
             </div>
-            <div className="text-sm text-white/50 space-y-1">
+            <div style={{ fontSize: 14, color: T.textMuted, display: 'flex', flexDirection: 'column', gap: 4 }}>
               <p>{t('photo_hint')}</p>
-              <p className="text-white/30">{t('photo_fmt')}</p>
+              <p style={{ fontSize: 12, color: T.textFaint }}>{t('photo_fmt')}</p>
             </div>
           </div>
         )}
@@ -813,6 +894,7 @@ function Step5({ formData, updateForm }) {
 
 /* ── Step 6: Design picker with large live preview ── */
 function DesignLivePreview({ formData }) {
+  const T = useBuilderTheme()
   const innerRef = useRef()
   const [containerH, setContainerH] = useState(0)
   const naturalW = 760
@@ -838,11 +920,11 @@ function DesignLivePreview({ formData }) {
 
   return (
     <div ref={outerRef} style={{ width: '100%', maxWidth: 420 }}>
-      <div className="flex items-center justify-between mb-3">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-white/40">Your Biodata</p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: T.textFaint }}>Your Biodata</p>
         {selectedStyle && (
-          <span style={{ fontSize: 12, fontWeight: 600, color: '#F0B820',
-            background: 'rgba(200,150,12,0.1)', border: '1px solid rgba(200,150,12,0.28)',
+          <span style={{ fontSize: 12, fontWeight: 600, color: T.accentGold,
+            background: T.accentGoldMuted, border: `1px solid ${T.borderStrong}`,
             borderRadius: 100, padding: '3px 12px' }}>
             {selectedStyle.name}
           </span>
@@ -854,8 +936,8 @@ function DesignLivePreview({ formData }) {
           height: displayH,
           overflow: 'hidden',
           borderRadius: 12,
-          border: '1.5px solid rgba(255,255,255,0.12)',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+          border: `1.5px solid ${T.borderStrong}`,
+          boxShadow: '0 12px 40px rgba(0,0,0,0.2)',
         }}
       >
         <div
@@ -870,13 +952,14 @@ function DesignLivePreview({ formData }) {
           <BioTemplate data={formData} />
         </div>
       </div>
-      <p className="text-[10px] text-white/25 text-center mt-2">Updates instantly as you select</p>
+      <p style={{ fontSize: 10, color: T.textFaint, textAlign: 'center', marginTop: 8 }}>Updates instantly as you select</p>
     </div>
   )
 }
 
 /* ── Side panel preview — fixed A4 card, scrollable inside when content overflows ── */
 function SidePanelPreview({ formData }) {
+  const T = useBuilderTheme()
   const innerRef = useRef()
   const [contentH, setContentH] = useState(0)
   const naturalW = 760
@@ -902,8 +985,8 @@ function SidePanelPreview({ formData }) {
         height: cardH,
         overflow: 'hidden',
         borderRadius: 10,
-        border: '1.5px solid rgba(255,255,255,0.12)',
-        boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
+        border: `1.5px solid ${T.borderStrong}`,
+        boxShadow: '0 12px 40px rgba(0,0,0,0.2)',
         isolation: 'isolate',
       }}>
         {/* Scroll layer — 20px wider than clip so native scrollbar is hidden behind the clip */}
@@ -937,6 +1020,7 @@ function SidePanelPreview({ formData }) {
 
 /* ── Template preview modal for the builder design step ── */
 function BuilderTemplateModal({ s, formData, onClose, onSelect }) {
+  const T = useBuilderTheme()
   const [current, setCurrent] = useState(s)
   const initialGroupIdx = TEMPLATE_GROUPS.findIndex(g => g.ids.includes(s.id))
   const [activeGroup, setActiveGroup] = useState(initialGroupIdx === -1 ? 0 : initialGroupIdx)
@@ -985,27 +1069,27 @@ function BuilderTemplateModal({ s, formData, onClose, onSelect }) {
         exit={{ opacity: 0, scale: 0.93, y: 20 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         onClick={e => e.stopPropagation()}
-        style={{ background: '#0f0f1a', borderRadius: isMobile ? 20 : 24, overflow: 'hidden',
-          border: '1px solid rgba(255,255,255,0.1)', width: '100%', maxWidth: 860,
+        style={{ background: T.modalBg, borderRadius: isMobile ? 20 : 24, overflow: 'hidden',
+          border: `1px solid ${T.modalBorder}`, width: '100%', maxWidth: 860,
           maxHeight: '92vh', display: 'flex', flexDirection: 'column' }}
       >
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: isMobile ? '12px 16px' : '14px 24px',
-          borderBottom: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
+          borderBottom: `1px solid ${T.border}`, flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
             <span style={{ fontSize: isMobile ? 18 : 20, flexShrink: 0 }}>{current.symbol}</span>
-            <span style={{ fontSize: isMobile ? 14 : 16, fontWeight: 700, color: 'white', fontFamily: 'serif',
+            <span style={{ fontSize: isMobile ? 14 : 16, fontWeight: 700, color: T.text, fontFamily: 'serif',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{current.name}</span>
-            <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)',
-              background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 20, flexShrink: 0 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: T.textFaint,
+              background: T.cardBg, padding: '2px 8px', borderRadius: 20, flexShrink: 0 }}>
               {current.desc}
             </span>
           </div>
           <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%',
-            border: '1px solid rgba(255,255,255,0.12)', background: 'transparent',
+            border: `1px solid ${T.borderStrong}`, background: 'transparent',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'rgba(255,255,255,0.45)', flexShrink: 0, marginLeft: 10 }}>
+            color: T.textFaint, flexShrink: 0, marginLeft: 10 }}>
             <X size={14} />
           </button>
         </div>
@@ -1014,7 +1098,7 @@ function BuilderTemplateModal({ s, formData, onClose, onSelect }) {
         <div style={{ overflowY: 'auto', flex: 1, minHeight: 0, display: 'flex',
           flexDirection: 'column', alignItems: 'center',
           padding: isMobile ? '16px 16px 12px' : '24px 28px 16px',
-          background: 'rgba(201,160,53,0.02)' }}>
+          background: T.modalBodyBg }}>
           <AnimatePresence mode="wait">
             <motion.div key={current.id}
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
@@ -1025,7 +1109,7 @@ function BuilderTemplateModal({ s, formData, onClose, onSelect }) {
         </div>
 
         {/* Group tabs + thumbnail strip */}
-        <div style={{ flexShrink: 0, borderTop: '1px solid rgba(255,255,255,0.07)', background: '#0a0a12' }}>
+        <div style={{ flexShrink: 0, borderTop: `1px solid ${T.border}`, background: T.cardBg2 }}>
           {/* Group tabs */}
           <div style={{ display: 'flex', gap: 6, padding: '10px 16px 8px',
             overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -1033,10 +1117,10 @@ function BuilderTemplateModal({ s, formData, onClose, onSelect }) {
             {TEMPLATE_GROUPS.map((group, gi) => (
               <button key={group.label} onClick={() => setActiveGroup(gi)} style={{
                 padding: '5px 13px', borderRadius: 100, fontSize: 11, fontWeight: 600,
-                cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, border: 'none',
-                background: activeGroup === gi ? 'rgba(237,137,54,0.15)' : 'rgba(107,70,193,0.1)',
-                color: activeGroup === gi ? '#ed8936' : 'rgba(255,255,255,0.5)',
-                outline: activeGroup === gi ? '1px solid rgba(237,137,54,0.4)' : '1px solid rgba(107,70,193,0.3)',
+                cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
+                background: activeGroup === gi ? T.stepActiveBg : T.stepIdleBg,
+                color: activeGroup === gi ? T.stepActiveText : T.stepIdleText,
+                border: `1px solid ${activeGroup === gi ? T.stepActiveBorder : T.stepIdleBorder}`,
                 transition: 'all 0.18s',
               }}>
                 {group.label}
@@ -1053,14 +1137,13 @@ function BuilderTemplateModal({ s, formData, onClose, onSelect }) {
               <div key={st.id} onClick={() => setCurrent(st)}
                 style={{ flexShrink: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                 <div style={{ borderRadius: 8, overflow: 'hidden',
-                  border: `2px solid ${current.id === st.id ? 'rgba(237,137,54,0.75)' : 'rgba(255,255,255,0.06)'}`,
+                  border: `2px solid ${current.id === st.id ? 'rgba(237,137,54,0.75)' : T.border}`,
                   boxShadow: current.id === st.id ? '0 0 10px rgba(237,137,54,0.3)' : 'none',
-                  outline: current.id === st.id ? '1px solid rgba(237,137,54,0.2)' : 'none',
-                  outlineOffset: 2, transition: 'border-color 0.18s, box-shadow 0.18s' }}>
+                  transition: 'border-color 0.18s, box-shadow 0.18s' }}>
                   <LivePreview containerW={64} visibleH={90} shadow={false} template={st.id} />
                 </div>
                 <span style={{ fontSize: 10, fontWeight: current.id === st.id ? 700 : 400,
-                  color: current.id === st.id ? '#ed8936' : 'rgba(255,255,255,0.35)',
+                  color: current.id === st.id ? '#ed8936' : T.textFaint,
                   whiteSpace: 'nowrap', transition: 'color 0.18s' }}>
                   {st.name}
                 </span>
@@ -1071,24 +1154,14 @@ function BuilderTemplateModal({ s, formData, onClose, onSelect }) {
 
         {/* CTA footer */}
         <div style={{ flexShrink: 0, padding: isMobile ? '12px 16px 18px' : '14px 24px 20px',
-          borderTop: '1px solid rgba(255,255,255,0.07)', background: '#0f0f1a',
+          borderTop: `1px solid ${T.border}`, background: T.modalBg,
           display: 'flex', justifyContent: 'center' }}>
           <button onClick={handleSelect}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: isMobile ? '11px 28px' : '13px 40px', fontSize: 15, fontWeight: 600,
               borderRadius: 12, cursor: 'pointer', width: '100%', maxWidth: 340, justifyContent: 'center',
-              background: 'rgba(107,70,193,0.12)', border: '1.5px solid rgba(107,70,193,0.45)',
-              color: 'rgba(255,255,255,0.92)', transition: 'all 0.2s' }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(237,137,54,0.12)'
-              e.currentTarget.style.borderColor = 'rgba(237,137,54,0.7)'
-              e.currentTarget.style.color = '#ed8936'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(107,70,193,0.12)'
-              e.currentTarget.style.borderColor = 'rgba(107,70,193,0.45)'
-              e.currentTarget.style.color = 'rgba(255,255,255,0.92)'
-            }}>
+              background: T.stepActiveBg, border: `1.5px solid ${T.stepActiveBorder}`,
+              color: T.stepActiveText, transition: 'all 0.2s' }}>
             <Check size={16} /> Use this template
           </button>
         </div>
@@ -1099,6 +1172,7 @@ function BuilderTemplateModal({ s, formData, onClose, onSelect }) {
 
 function Step6({ formData, updateForm }) {
   const { t } = useLanguage()
+  const T = useBuilderTheme()
   const [previewStyle, setPreviewStyle] = useState(null)
   const selectedStyle = TEMPLATE_STYLES.find(s => s.id === (formData.template || 'lotus'))
   const previewFormData = {
@@ -1121,11 +1195,11 @@ function Step6({ formData, updateForm }) {
             <div key={group.label}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.09em',
-                  textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)', whiteSpace: 'nowrap' }}>
+                  textTransform: 'uppercase', color: T.textFaint, whiteSpace: 'nowrap' }}>
                   {group.label}
                 </span>
-                <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.22)', flexShrink: 0 }}>
+                <div style={{ flex: 1, height: 1, background: T.border }} />
+                <span style={{ fontSize: 10, color: T.textFaint, flexShrink: 0 }}>
                   {groupStyles.length}
                 </span>
               </div>
@@ -1140,13 +1214,14 @@ function Step6({ formData, updateForm }) {
 
         {/* Selected info chip */}
         {selectedStyle && (
-          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, borderRadius: 12,
+            border: `1px solid ${T.borderStrong}`, background: T.cardBg, padding: 12 }}>
             <div style={{ width: 32, height: 32, borderRadius: 7, background: selectedStyle.gradient, flexShrink: 0 }} />
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-white">{selectedStyle.name}</p>
-              <p className="text-xs text-white/40 truncate">{selectedStyle.desc}</p>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: T.text }}>{selectedStyle.name}</p>
+              <p style={{ fontSize: 12, color: T.textFaint, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedStyle.desc}</p>
             </div>
-            <span className="ml-auto text-xs font-semibold text-green-400 bg-green-500/10 border border-green-500/25 rounded-full px-3 py-1 whitespace-nowrap">
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#16a34a', background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.25)', borderRadius: 100, padding: '4px 12px', flexShrink: 0 }}>
               {t('design_selected')}
             </span>
           </div>
@@ -1154,7 +1229,7 @@ function Step6({ formData, updateForm }) {
 
         {/* Mobile-only preview */}
         <div className="sm:hidden mt-2">
-          <div className="max-h-72 overflow-hidden rounded-xl">
+          <div style={{ maxHeight: 288, overflow: 'hidden', borderRadius: 12 }}>
             <motion.div key={formData.template || 'lotus'}
               initial={{ opacity: 0.7, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1162,7 +1237,7 @@ function Step6({ formData, updateForm }) {
               <DesignLivePreview formData={previewFormData} />
             </motion.div>
           </div>
-          <p className="text-center text-[10px] text-white/25 mt-2">
+          <p style={{ textAlign: 'center', fontSize: 10, color: T.textFaint, marginTop: 8 }}>
             ↑ preview clipped · tap Preview in nav for full view
           </p>
         </div>
@@ -1201,6 +1276,7 @@ const RATINGS = [
 /* ── Feedback modal (appears immediately after PDF download) ── */
 function FeedbackModal({ template, onClose }) {
   const { t } = useLanguage()
+  const T = useBuilderTheme()
   const [rating, setRating] = useState(null)
   const [state, handleSubmit] = useForm('xwvyrbpw')
 
@@ -1233,11 +1309,11 @@ function FeedbackModal({ template, onClose }) {
         transition={{ type: 'spring', damping: 22, stiffness: 320 }}
         onClick={e => e.stopPropagation()}
         style={{
-          background: 'linear-gradient(145deg, #0f0f1c 0%, #090910 100%)',
-          border: '1px solid rgba(200,150,12,0.18)',
+          background: T.modalBg,
+          border: `1px solid ${T.modalBorder}`,
           borderRadius: 24, padding: '32px 28px',
           maxWidth: 380, width: '100%',
-          boxShadow: '0 24px 64px rgba(0,0,0,0.65), 0 0 0 1px rgba(200,150,12,0.07)',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.25)',
         }}
       >
         {state.succeeded ? (
@@ -1246,7 +1322,7 @@ function FeedbackModal({ template, onClose }) {
             style={{ textAlign: 'center', padding: '8px 0' }}
           >
             <div style={{ fontSize: 52, marginBottom: 12 }}>🙏</div>
-            <p style={{ color: 'white', fontWeight: 700, fontSize: 17, marginBottom: 6 }}>{t('prev_thank_you')}</p>
+            <p style={{ color: T.text, fontWeight: 700, fontSize: 17, marginBottom: 6 }}>{t('prev_thank_you')}</p>
           </motion.div>
         ) : (
           <>
@@ -1256,8 +1332,8 @@ function FeedbackModal({ template, onClose }) {
                 transition={{ type: 'spring', damping: 12, stiffness: 260, delay: 0.08 }}
                 style={{ fontSize: 52, marginBottom: 10 }}
               >✅</motion.div>
-              <p style={{ color: 'white', fontWeight: 700, fontSize: 17, marginBottom: 4 }}>{t('prev_ready')}</p>
-              <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 13 }}>{t('prev_how_was')}</p>
+              <p style={{ color: T.text, fontWeight: 700, fontSize: 17, marginBottom: 4 }}>{t('prev_ready')}</p>
+              <p style={{ color: T.textMuted, fontSize: 13 }}>{t('prev_how_was')}</p>
             </div>
 
             <form onSubmit={handleSubmit}>
@@ -1272,14 +1348,14 @@ function FeedbackModal({ template, onClose }) {
                   <button key={r.score} type="button" onClick={() => setRating(r.score)} style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
                     padding: '10px 12px', borderRadius: 14, border: 'none', cursor: 'pointer',
-                    background: rating === r.score ? 'rgba(200,150,12,0.18)' : 'rgba(255,255,255,0.04)',
-                    outline: rating === r.score ? '1.5px solid rgba(200,150,12,0.5)' : '1.5px solid transparent',
+                    background: rating === r.score ? T.stepActiveBg : T.cardBg,
+                    outline: rating === r.score ? `1.5px solid ${T.stepActiveBorder}` : '1.5px solid transparent',
                     transition: 'all 0.15s',
                   }}>
                     <span style={{ fontSize: 28, lineHeight: 1, filter: rating !== null && rating !== r.score ? 'grayscale(1) opacity(0.35)' : 'none', transition: 'filter 0.15s' }}>
                       {r.emoji}
                     </span>
-                    <span style={{ fontSize: 9, color: rating === r.score ? '#F0B820' : 'rgba(255,255,255,0.28)', fontWeight: 600, letterSpacing: '0.04em' }}>
+                    <span style={{ fontSize: 9, color: rating === r.score ? T.stepActiveText : T.textFaint, fontWeight: 600, letterSpacing: '0.04em' }}>
                       {t(r.labelKey)}
                     </span>
                   </button>
@@ -1298,7 +1374,12 @@ function FeedbackModal({ template, onClose }) {
                       className="form-input resize-none mb-3" rows={3} maxLength={500}
                       placeholder={rating >= 4 ? t('prev_fb_loved') : t('prev_fb_improve')}
                     />
-                    <button type="submit" disabled={state.submitting} className="btn-amber w-full justify-center py-3 text-sm mb-2" style={{ borderRadius: 12 }}>
+                    <button type="submit" disabled={state.submitting}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                        width: '100%', padding: '12px 0', fontSize: 14, fontWeight: 600,
+                        borderRadius: 12, cursor: 'pointer', marginBottom: 8,
+                        background: T.stepActiveBg, border: `1.5px solid ${T.stepActiveBorder}`,
+                        color: T.stepActiveText }}>
                       {state.submitting ? t('prev_fb_sending') : t('prev_fb_send')}
                     </button>
                   </motion.div>
@@ -1309,11 +1390,11 @@ function FeedbackModal({ template, onClose }) {
                 type="button" onClick={onClose}
                 style={{
                   width: '100%', background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'rgba(255,255,255,0.3)', fontSize: 13, padding: '8px 0',
+                  color: T.textFaint, fontSize: 13, padding: '8px 0',
                   transition: 'color 0.15s',
                 }}
-                onMouseEnter={e => e.target.style.color = 'rgba(255,255,255,0.6)'}
-                onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.3)'}
+                onMouseEnter={e => e.target.style.color = T.textMuted}
+                onMouseLeave={e => e.target.style.color = T.textFaint}
               >Skip →</button>
             </form>
           </>
@@ -1330,6 +1411,7 @@ const WA_FALLBACK_TEXT = encodeURIComponent(
 
 function PreviewStep({ formData, onBack, onEditStep, steps, exportRef }) {
   const { t } = useLanguage()
+  const T = useBuilderTheme()
   const [loading, setLoading] = useState(false)
   const [sharing, setSharing] = useState(false)
   const [downloaded, setDownloaded] = useState(false)
@@ -1394,71 +1476,71 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef }) {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
         <div>
-          <h2 className="font-serif text-xl sm:text-2xl font-bold text-white">{t('prev_title')}</h2>
-          <p className="text-white/50 text-sm mt-1">{t('prev_sub')}</p>
+          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(20px, 3vw, 26px)', fontWeight: 700, color: T.text, margin: 0 }}>{t('prev_title')}</h2>
+          <p style={{ color: T.textMuted, fontSize: 14, marginTop: 4 }}>{t('prev_sub')}</p>
         </div>
-        <div className="flex items-center gap-3 flex-wrap">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {downloaded && (
             <button
               onClick={handleShare}
               disabled={sharing}
-              className="btn-ghost text-sm px-5 py-3 border-green-500/40 text-green-400 hover:bg-green-500/10"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', fontSize: 14, fontWeight: 600, borderRadius: 12, cursor: 'pointer', background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.3)', color: '#16a34a' }}
             >
-              <MessageCircle className="w-4 h-4" />
+              <MessageCircle size={16} />
               {sharing ? t('prev_preparing') : t('prev_share')}
             </button>
           )}
           <button
             onClick={handleDownload}
             disabled={loading}
-            className="btn-amber px-5 sm:px-8 py-2.5 sm:py-4 text-sm sm:text-base"
-            style={{ borderRadius: 12 }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 28px', fontSize: 14, fontWeight: 600, borderRadius: 12, cursor: 'pointer', background: T.stepActiveBg, border: `1.5px solid ${T.stepActiveBorder}`, color: T.stepActiveText }}
           >
             {loading ? (
-              <><span className="animate-spin">⏳</span> {t('prev_generating')}</>
+              <><span>⏳</span> {t('prev_generating')}</>
             ) : downloaded ? (
-              <><Check className="w-5 h-5" /> {t('prev_again')}</>
+              <><Check size={18} /> {t('prev_again')}</>
             ) : (
-              <><Download className="w-5 h-5" /> {t('prev_download')}</>
+              <><Download size={18} /> {t('prev_download')}</>
             )}
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }} className="md:grid-cols-6">
         {steps.map((label, index) => (
           <button
             key={index}
             onClick={() => onEditStep(index)}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-left text-sm text-white/70 hover:border-white/25 hover:text-white transition-colors"
+            style={{ borderRadius: 12, border: `1px solid ${T.borderStrong}`, background: T.previewEditBg, padding: '10px 12px', textAlign: 'left', fontSize: 14, color: T.previewEditText, cursor: 'pointer', transition: 'border-color 0.2s' }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = T.stepActiveBorder}
+            onMouseLeave={e => e.currentTarget.style.borderColor = T.borderStrong}
           >
-            <span className="block text-[10px] uppercase tracking-widest text-white/35 mb-1">{t('prev_edit_label')}</span>
+            <span style={{ display: 'block', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: T.previewEditLabel, marginBottom: 4 }}>{t('prev_edit_label')}</span>
             {label}
           </button>
         ))}
       </div>
 
       {/* Biodata preview — same card view as the live preview panel */}
-      <div className="flex justify-center">
-        <SidePanelPreview formData={formData} />
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <SidePanelPreview formData={applyEnabledSections(formData)} />
       </div>
 
-      <div className="flex gap-4 flex-wrap">
-        <button onClick={onBack} className="btn-ghost">
-          <ChevronLeft className="w-4 h-4" /> {t('prev_edit_details')}
+      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+        <button onClick={onBack}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', fontSize: 14, fontWeight: 600, borderRadius: 12, cursor: 'pointer', background: T.cardBg, border: `1.5px solid ${T.borderStrong}`, color: T.text }}>
+          <ChevronLeft size={16} /> {t('prev_edit_details')}
         </button>
-        <button onClick={handleDownload} disabled={loading} className="btn-amber flex-1 justify-center py-3 sm:py-4" style={{ borderRadius: 12 }}>
-          {loading ? t('prev_generating') : <><Download className="w-5 h-5" /> {downloaded ? t('prev_again') : t('prev_download')}</>}
+        <button onClick={handleDownload} disabled={loading}
+          style={{ display: 'inline-flex', flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 0', fontSize: 14, fontWeight: 600, borderRadius: 12, cursor: 'pointer', background: T.stepActiveBg, border: `1.5px solid ${T.stepActiveBorder}`, color: T.stepActiveText }}>
+          {loading ? t('prev_generating') : <><Download size={18} /> {downloaded ? t('prev_again') : t('prev_download')}</>}
         </button>
         {downloaded && (
-          <button
-            onClick={handleShare}
-            disabled={sharing}
-            className="btn-ghost border-green-500/40 text-green-400 hover:bg-green-500/10 justify-center px-6"
-          >
-            <MessageCircle className="w-4 h-4" /> {sharing ? t('prev_preparing') : t('prev_whatsapp')}
+          <button onClick={handleShare} disabled={sharing}
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 24px', fontSize: 14, fontWeight: 600, borderRadius: 12, cursor: 'pointer', background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.3)', color: '#16a34a' }}>
+            <MessageCircle size={16} /> {sharing ? t('prev_preparing') : t('prev_whatsapp')}
           </button>
         )}
       </div>
@@ -1478,21 +1560,23 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef }) {
 
 /* ── Small helpers ── */
 function StepHeading({ title, sub }) {
+  const T = useBuilderTheme()
   return (
     <div style={{ marginBottom: 8 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 5 }}>
         <div style={{ width: 3, height: 22, borderRadius: 2,
-          background: 'linear-gradient(180deg, #F0B820, #C8960C)', flexShrink: 0 }} />
+          background: T.accentBar, flexShrink: 0 }} />
         <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(18px, 3vw, 22px)',
-          fontWeight: 700, color: '#FFFFFF', margin: 0 }}>{title}</h2>
+          fontWeight: 700, color: T.text, margin: 0 }}>{title}</h2>
       </div>
-      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', paddingLeft: 13 }}>{sub}</p>
+      <p style={{ fontSize: 13, color: T.textFaint, paddingLeft: 13 }}>{sub}</p>
     </div>
   )
 }
 
 function SectionTitle({ children }) {
-  return <h3 style={{ fontSize: 11, fontWeight: 700, color: '#C8960C', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{children}</h3>
+  const T = useBuilderTheme()
+  return <h3 style={{ fontSize: 11, fontWeight: 700, color: T.accentGold, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{children}</h3>
 }
 
 const FIELD_JUMPS = [
@@ -1520,6 +1604,8 @@ const FIELD_JUMPS = [
 /* ── Main BuilderPage ── */
 export default function BuilderPage({ formData, updateForm, onBack }) {
   const { t } = useLanguage()
+  const { theme } = useTheme()
+  const T = useBuilderTheme()
   const [step, setStep] = useState(0)
   const [pendingFocus, setPendingFocus] = useState('')
   const [showDesignModal, setShowDesignModal] = useState(false)
@@ -1589,7 +1675,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
 
   const isPreview = step === totalSteps
 
-  const previewFormData = useMemo(() => ({
+  const previewFormData = useMemo(() => applyEnabledSections({
     ...formData,
     template: formData.template || 'lotus',
   }), [formData])
@@ -1602,36 +1688,40 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#060608' }}>
+    <div className="min-h-screen" data-theme={theme} style={{ background: T.pageBg }}>
       {/* Top bar */}
       <header style={{
         position: 'sticky', top: 0, zIndex: 100,
-        background: 'rgba(6,6,8,0.95)', backdropFilter: 'blur(24px)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        background: T.headerBg, backdropFilter: 'blur(24px)',
+        borderBottom: `1px solid ${T.border}`,
       }}>
         <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 20px',
           display: 'flex', alignItems: 'center', gap: 14, height: 64 }}>
           <button onClick={onBack}
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px 8px', borderRadius: 8,
-              color: 'rgba(255,255,255,0.35)', display: 'flex', alignItems: 'center', transition: 'all 0.2s' }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.75)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.background = 'none'; }}>
+              color: T.backBtnColor, display: 'flex', alignItems: 'center', transition: 'all 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.color = T.backBtnHoverColor; e.currentTarget.style.background = T.backBtnHoverBg; }}
+            onMouseLeave={e => { e.currentTarget.style.color = T.backBtnColor; e.currentTarget.style.background = 'none'; }}>
             <ChevronLeft style={{ width: 20, height: 20 }} />
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+          <button
+            onClick={onBack}
+            style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            aria-label="Go to home page"
+          >
             <div style={{ width: 30, height: 30, borderRadius: 9,
-              background: 'linear-gradient(135deg, #C8960C, #F0B820)',
+              background: T.logoIconBg,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 3px 12px rgba(200,150,12,0.4)' }}>
-              <Heart style={{ width: 14, height: 14, color: '#1a0a00', fill: '#1a0a00' }} />
+              boxShadow: T.logoIconShadow }}>
+              <span style={{ fontFamily: 'Georgia, serif', fontSize: 16, fontWeight: 700, color: T.logoIconColor, lineHeight: 1 }}>B</span>
             </div>
-            <span style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>Bandhan</span>
-          </div>
+            <span style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 700, color: T.text, letterSpacing: '-0.01em' }}>Bandhan</span>
+          </button>
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <LanguageSwitcher compact />
             <span className="hidden sm:flex" style={{
               alignItems: 'center', gap: 6, fontSize: 12,
-              color: savedFlash ? 'rgba(52,211,153,0.9)' : 'rgba(52,211,153,0.35)',
+              color: savedFlash ? T.savedFlashColor : T.savedFlashDim,
               transition: 'color 0.4s ease',
             }}>
               <span style={{
@@ -1643,9 +1733,9 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
               {t('b_auto_saved')}
             </span>
             {!isPreview && (
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.38)', fontWeight: 500,
-                background: 'rgba(255,255,255,0.05)', padding: '4px 12px', borderRadius: 100,
-                border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ fontSize: 13, color: T.stepCountText, fontWeight: 500,
+                background: T.stepCountBg, padding: '4px 12px', borderRadius: 100,
+                border: `1px solid ${T.stepCountBorder}` }}>
                 {t('b_step')} {step + 1} / {totalSteps}
               </div>
             )}
@@ -1656,8 +1746,8 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
       <main className="max-w-6xl mx-auto px-2 sm:px-4 py-6 sm:py-10">
         {!isPreview && (
           <div style={{ position: 'sticky', top: 64, zIndex: 20, margin: '0 -8px',
-            marginBottom: 24, borderBottom: '1px solid rgba(255,255,255,0.06)',
-            background: 'rgba(6,6,8,0.97)', backdropFilter: 'blur(20px)',
+            marginBottom: 24, borderBottom: `1px solid ${T.border}`,
+            background: T.stickyBg, backdropFilter: 'blur(20px)',
             padding: '10px 20px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
@@ -1665,17 +1755,17 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                   <button key={section.label} onClick={() => setStep(index)} style={{
                     padding: '6px 15px', borderRadius: 100, fontSize: 12, fontWeight: 600,
                     cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s',
-                    background: step === index ? 'rgba(200,150,12,0.15)' : 'rgba(255,255,255,0.05)',
-                    color: step === index ? '#F0B820' : 'rgba(255,255,255,0.45)',
-                    border: `1px solid ${step === index ? 'rgba(200,150,12,0.38)' : 'rgba(255,255,255,0.08)'}`,
+                    background: step === index ? T.stepActiveBg : T.stepIdleBg,
+                    color: step === index ? T.stepActiveText : T.stepIdleText,
+                    border: `1px solid ${step === index ? T.stepActiveBorder : T.stepIdleBorder}`,
                   }}>
                     {section.label}
                   </button>
                 ))}
                 <button onClick={() => setShowDesignModal(true)} className="sm:hidden"
                   style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 13px', borderRadius: 100,
-                    fontSize: 11, fontWeight: 600, background: 'rgba(107,70,193,0.1)',
-                    color: 'rgba(255,255,255,0.65)', border: '1px solid rgba(107,70,193,0.35)',
+                    fontSize: 11, fontWeight: 600, background: T.stepIdleBg,
+                    color: T.stepIdleText, border: `1px solid ${T.stepIdleBorder}`,
                     cursor: 'pointer', transition: 'all 0.2s' }}>
                   <LayoutTemplate style={{ width: 11, height: 11 }} />
                   Templates
@@ -1683,7 +1773,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
               </div>
               <label className="md:self-end md:w-72" style={{ position: 'relative', display: 'block' }}>
                 <Search style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
-                  width: 14, height: 14, color: 'rgba(255,255,255,0.3)', pointerEvents: 'none' }} />
+                  width: 14, height: 14, color: T.textFaint, pointerEvents: 'none' }} />
                 <select className="form-select text-sm" style={{ paddingLeft: '2.5rem' }}
                   value="" onChange={event => jumpToField(event.target.value)}
                   aria-label="Jump to a specific biodata field">
@@ -1710,7 +1800,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                   {i < step ? <Check className="w-4 h-4" /> : i + 1}
                 </button>
                 {i < STEPS.length - 1 && (
-                  <div className={`h-px w-4 sm:w-8 transition-colors duration-300 ${i < step ? 'bg-amber-500/40' : 'bg-white/10'}`} />
+                  <div style={{ height: 1, width: 32, transition: 'background 0.3s', background: i < step ? T.stepActiveBorder : T.border }} />
                 )}
               </div>
             ))}
@@ -1751,14 +1841,16 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
               </AnimatePresence>
 
               <div style={{ display: 'flex', gap: 12, marginTop: 36 }}>
-                <button onClick={prev} className="btn-ghost" style={{ padding: '12px 24px' }}>
+                <button onClick={prev}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', fontSize: 14, fontWeight: 600, borderRadius: 12, cursor: 'pointer', background: T.cardBg, border: `1.5px solid ${T.borderStrong}`, color: T.text }}>
                   <ChevronLeft style={{ width: 16, height: 16 }} />
                   {step === 0 ? t('b_home') : t('b_back')}
                 </button>
-                <button onClick={next} disabled={!canNext()} className="btn-amber"
+                <button onClick={next} disabled={!canNext()}
                   style={{ flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    gap: 8, padding: '13px 24px', fontSize: 15, borderRadius: 14,
-                    opacity: !canNext() ? 0.45 : 1, cursor: !canNext() ? 'not-allowed' : 'pointer' }}>
+                    gap: 8, padding: '13px 24px', fontSize: 15, borderRadius: 14, fontWeight: 600, cursor: !canNext() ? 'not-allowed' : 'pointer',
+                    background: T.stepActiveBg, border: `1.5px solid ${T.stepActiveBorder}`, color: T.stepActiveText,
+                    opacity: !canNext() ? 0.45 : 1 }}>
                   {step === totalSteps - 1 ? (
                     <><span>{t('b_preview_btn')}</span> <Check style={{ width: 16, height: 16 }} /></>
                   ) : (
@@ -1774,10 +1866,18 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                 <button onClick={() => setShowDesignModal(true)}
                   style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', borderRadius: 100,
                     fontSize: 11, fontWeight: 700, letterSpacing: '0.03em', cursor: 'pointer',
-                    background: 'rgba(107,70,193,0.1)', color: 'rgba(255,255,255,0.65)',
-                    border: '1px solid rgba(107,70,193,0.35)', transition: 'all 0.2s' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(237,137,54,0.12)'; e.currentTarget.style.borderColor = 'rgba(237,137,54,0.5)'; e.currentTarget.style.color = '#ed8936'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(107,70,193,0.1)'; e.currentTarget.style.borderColor = 'rgba(107,70,193,0.35)'; e.currentTarget.style.color = 'rgba(255,255,255,0.65)'; }}>
+                    background: theme === 'light' ? '#0a0a0a' : T.stepIdleBg,
+                    color: theme === 'light' ? '#ffffff' : T.stepIdleText,
+                    border: theme === 'light' ? '1px solid #0a0a0a' : `1px solid ${T.stepIdleBorder}`,
+                    transition: 'all 0.2s' }}
+                  onMouseEnter={e => {
+                    if (theme === 'light') { e.currentTarget.style.background = '#333'; e.currentTarget.style.borderColor = '#333'; }
+                    else { e.currentTarget.style.background = T.stepActiveBg; e.currentTarget.style.borderColor = T.stepActiveBorder; e.currentTarget.style.color = T.stepActiveText; }
+                  }}
+                  onMouseLeave={e => {
+                    if (theme === 'light') { e.currentTarget.style.background = '#0a0a0a'; e.currentTarget.style.borderColor = '#0a0a0a'; }
+                    else { e.currentTarget.style.background = T.stepIdleBg; e.currentTarget.style.borderColor = T.stepIdleBorder; e.currentTarget.style.color = T.stepIdleText; }
+                  }}>
                   <LayoutTemplate style={{ width: 12, height: 12 }} />
                   Templates
                 </button>
@@ -1785,15 +1885,16 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                   style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', borderRadius: 100,
                     fontSize: 11, fontWeight: 700, letterSpacing: '0.03em',
                     cursor: downloading ? 'default' : 'pointer',
-                    background: 'rgba(34,197,94,0.08)', color: '#22c55e',
-                    border: '1px solid rgba(34,197,94,0.2)', transition: 'all 0.2s',
-                    opacity: downloading ? 0.5 : 1 }}
-                  onMouseEnter={e => { if (!downloading) e.currentTarget.style.background = 'rgba(34,197,94,0.15)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(34,197,94,0.08)'; }}>
+                    background: theme === 'light' ? '#0a0a0a' : 'rgba(34,197,94,0.08)',
+                    color: theme === 'light' ? '#ffffff' : '#22c55e',
+                    border: theme === 'light' ? '1px solid #0a0a0a' : '1px solid rgba(34,197,94,0.2)',
+                    transition: 'all 0.2s', opacity: downloading ? 0.5 : 1 }}
+                  onMouseEnter={e => { if (!downloading) e.currentTarget.style.background = theme === 'light' ? '#333' : 'rgba(34,197,94,0.15)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = theme === 'light' ? '#0a0a0a' : 'rgba(34,197,94,0.08)'; }}>
                   <Download style={{ width: 12, height: 12 }} />
                   {downloading ? 'Saving…' : 'Download'}
                 </button>
-                <p style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.22)' }}>Live Preview</p>
+                <p style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: T.textFaint }}>Live Preview</p>
               </div>
               <motion.div
                 key={formData.template || 'lotus'}
@@ -1803,7 +1904,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
               >
                 <SidePanelPreview formData={previewFormData} />
               </motion.div>
-              <p className="text-[10px] text-white/20 mt-2">
+              <p style={{ fontSize: 10, color: T.textFaint, marginTop: 8 }}>
                 {TEMPLATE_STYLES.find(s => s.id === (formData.template || 'lotus'))?.name} template
               </p>
             </div>
@@ -1837,7 +1938,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
       {/* Hidden template used for PDF export — no fixed height so all content is captured */}
       <div style={{ position: 'fixed', left: 0, top: 0, transform: 'translateX(-9999px)', pointerEvents: 'none' }}>
         <div ref={downloadRef} style={{ width: 760, minHeight: Math.round(760 * 1.414), position: 'relative' }}>
-          <BioTemplate data={formData} />
+          <BioTemplate data={applyEnabledSections(formData)} />
         </div>
       </div>
     </div>
