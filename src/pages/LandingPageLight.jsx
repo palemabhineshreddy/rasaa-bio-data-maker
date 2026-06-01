@@ -458,12 +458,12 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
               display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontFamily: 'Georgia, serif', fontSize: 15, fontWeight: 700, color: '#ffffff', lineHeight: 1 }}>B</span>
             </div>
-            <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 700, color: '#0a0a0a', letterSpacing: '-0.01em' }}>Bandhan</span>
+            <span className="hidden sm:inline" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 700, color: '#0a0a0a', letterSpacing: '-0.01em' }}>Bandhan</span>
           </motion.div>
 
           {/* Nav links – desktop only */}
           <nav className="hidden md:flex" style={{ gap: 32 }}>
-            {[['#templates','Templates'],['#how','How it Works'],['#features','Features']].map(([href, label]) => (
+            {[['#templates','Templates'],['#how','How it Works'],['#features','Features'],['/blog/','Blog']].map(([href, label]) => (
               <a key={href} href={href}
                 style={{ fontSize: 13, fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s', color: '#6b7280' }}
                 onMouseEnter={e => { e.currentTarget.style.color = '#0a0a0a' }}
@@ -476,16 +476,24 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
           {/* Right */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
             <LanguageSwitcher compact />
-            <button onClick={() => setTheme('dark')} className="btn-outline-dark hidden sm:inline-flex" style={{ padding: '6px 14px', fontSize: 13 }}>
+            <button onClick={() => setTheme('dark')} className="hidden sm:inline-flex" style={{
+              alignItems: 'center', gap: 5,
+              padding: '6px 14px', borderRadius: 12, fontSize: 13, fontWeight: 600,
+              border: '1.5px solid rgba(0,0,0,0.15)', color: '#333', background: 'transparent',
+              cursor: 'pointer', transition: 'all 0.2s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.25)'; e.currentTarget.style.color = '#111' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.15)'; e.currentTarget.style.color = '#333' }}>
               <Moon size={13} /> Dark
             </button>
             {savedName ? (
               <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }} onClick={onContinue} className="btn-black"
-                style={{ padding: '8px 18px', fontSize: 13, maxWidth: 220 }}>
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                style={{ padding: '8px 18px', fontSize: 13 }}>
+                <span className="hidden sm:inline-block" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>
                   {t('continue_btn')} — {savedName}
                 </span>
+                <span className="sm:hidden">{t('continue_btn')}</span>
                 <ChevronRight style={{ width: 14, height: 14, flexShrink: 0 }} />
               </motion.button>
             ) : (
@@ -500,11 +508,8 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
       </header>
 
       {/* ── HERO ── */}
-      <section style={{
-        background: '#ffffff',
-        minHeight: '92vh', position: 'relative', overflowX: 'clip',
-        display: 'flex', alignItems: 'center',
-      }}>
+      <section className="flex items-start xl:min-h-[92vh] xl:items-center"
+        style={{ background: '#ffffff', position: 'relative', overflowX: 'clip' }}>
 
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: 'clamp(48px, 8vw, 80px) clamp(16px, 4vw, 24px)', width: '100%',
           display: 'flex', alignItems: 'center', gap: 'clamp(24px, 4vw, 48px)', position: 'relative', zIndex: 1 }}>
@@ -568,9 +573,9 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
 
             {savedName && (
               <motion.p custom={3.5} variants={fadeUp} initial="hidden" animate="show"
-                style={{ fontSize: 14, color: '#16a34a', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 24 }}>
+                style={{ fontSize: 13, color: '#16a34a', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 24 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#16a34a', flexShrink: 0 }} />
-                {t('progress_saved')} <strong>{savedName}</strong> {t('pick_up')}
+                <span>{t('progress_saved')} <strong>{savedName}</strong> {t('pick_up')}</span>
               </motion.p>
             )}
 
@@ -876,6 +881,75 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
         </div>
       </section>
 
+      {/* ── BLOG GUIDES ── */}
+      <section style={{ background: '#f9fafb', padding: 'clamp(64px, 10vw, 112px) clamp(16px, 4vw, 24px)',
+        borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+        <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+          <motion.div initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} transition={{ duration: 0.7 }}
+            style={{ marginBottom: 48 }}>
+            <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase',
+              color: '#6b7280', marginBottom: 14 }}>Guides & Tips</p>
+            <h2 className="leading-tight" style={{ fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: 'clamp(28px, 4.5vw, 44px)', fontWeight: 700, color: '#0a0a0a',
+              letterSpacing: '-0.02em', marginBottom: 14 }}>
+              From our guides
+            </h2>
+            <p style={{ color: '#6b7280', fontSize: 'clamp(14px, 2vw, 16px)', maxWidth: 480, lineHeight: 1.7 }}>
+              Real advice on writing a biodata that actually gets responses.
+            </p>
+          </motion.div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: 20 }}>
+            {[
+              { href: '/blog/how-to-write-marriage-biodata/', tag: 'Writing Guide', tagColor: '#7c3aed',
+                title: 'How to Write a Biodata That Gets Responses', time: '8 min read', date: 'Jun 2, 2026' },
+              { href: '/blog/what-to-include-in-marriage-biodata/', tag: 'Content Guide', tagColor: '#0d9488',
+                title: 'What to Include — and What to Leave Out', time: '7 min read', date: 'May 20, 2026' },
+              { href: '/blog/biodata-about-me-examples/', tag: 'Examples', tagColor: '#d97706',
+                title: 'About Me Section: What Actually Works', time: '9 min read', date: 'May 8, 2026' },
+              { href: '/blog/marriage-biodata-format-by-religion/', tag: 'Format Guide', tagColor: '#be185d',
+                title: 'How Biodata Format Changes by Religion', time: '10 min read', date: 'Apr 28, 2026' },
+              { href: '/blog/marriage-biodata-photo-guide/', tag: 'Photo Guide', tagColor: '#059669',
+                title: 'The Honest Guide to Your Biodata Photo', time: '6 min read', date: 'Apr 14, 2026' },
+              { href: '/blog/biodata-mistakes-to-avoid/', tag: 'Common Mistakes', tagColor: '#dc2626',
+                title: '5 Things That Get Biodatas Dismissed Immediately', time: '7 min read', date: 'Apr 1, 2026' },
+            ].map(({ href, tag, tagColor, title, time, date }, i) => (
+              <motion.a key={href} href={href}
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.07 }}
+                style={{ display: 'block', padding: '24px', borderRadius: 16, textDecoration: 'none',
+                  background: '#ffffff', border: '1.5px solid rgba(0,0,0,0.07)',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                  transition: 'border-color 0.2s, box-shadow 0.2s, transform 0.2s' }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = 'rgba(0,0,0,0.18)'
+                  e.currentTarget.style.boxShadow = '0 4px 18px rgba(0,0,0,0.09)'
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'rgba(0,0,0,0.07)'
+                  e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}>
+                <span style={{ display: 'inline-block', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
+                  textTransform: 'uppercase', color: tagColor, background: `${tagColor}12`,
+                  padding: '3px 10px', borderRadius: 100, marginBottom: 14, border: `1px solid ${tagColor}28` }}>
+                  {tag}
+                </span>
+                <p style={{ fontSize: 15, fontWeight: 600, color: '#111827', lineHeight: 1.5, marginBottom: 16 }}>
+                  {title}
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: 12, color: '#9ca3af' }}>{time} · {date}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#0a0a0a' }}>Read →</span>
+                </div>
+              </motion.a>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── FINAL CTA ── */}
       <section style={{ background: '#ffffff', borderTop: '1px solid rgba(0,0,0,0.07)', padding: 'clamp(72px, 12vw, 128px) clamp(16px, 4vw, 24px)', position: 'relative', overflow: 'hidden' }}>
 
@@ -939,7 +1013,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
             </div>
 
             <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-              {[['#templates','Templates'],['#how','How it Works'],['#features','Features']].map(([href, label]) => (
+              {[['#templates','Templates'],['#how','How it Works'],['#features','Features'],['/blog/','Blog']].map(([href, label]) => (
                 <a key={href} href={href}
                   style={{ fontSize: 13, fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s',
                     color: '#9ca3af' }}

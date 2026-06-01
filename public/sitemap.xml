@@ -116,4 +116,60 @@
     <xhtml:link rel="alternate" hreflang="en"        href="https://bandhan.app/"/>
   </url>
 
+  <!-- Blog index -->
+  <url>
+    <loc>https://bandhan.app/blog/</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog: How to write marriage biodata -->
+  <url>
+    <loc>https://bandhan.app/blog/how-to-write-marriage-biodata/</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog: What to include in marriage biodata -->
+  <url>
+    <loc>https://bandhan.app/blog/what-to-include-in-marriage-biodata/</loc>
+    <lastmod>2026-05-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Blog: About Me examples -->
+  <url>
+    <loc>https://bandhan.app/blog/biodata-about-me-examples/</loc>
+    <lastmod>2026-05-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Blog: Biodata format by religion -->
+  <url>
+    <loc>https://bandhan.app/blog/marriage-biodata-format-by-religion/</loc>
+    <lastmod>2026-04-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog: Photo guide -->
+  <url>
+    <loc>https://bandhan.app/blog/marriage-biodata-photo-guide/</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Blog: Mistakes to avoid -->
+  <url>
+    <loc>https://bandhan.app/blog/biodata-mistakes-to-avoid/</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
 </urlset>

@@ -1729,7 +1729,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
               boxShadow: T.logoIconShadow }}>
               <span style={{ fontFamily: 'Georgia, serif', fontSize: 16, fontWeight: 700, color: T.logoIconColor, lineHeight: 1 }}>B</span>
             </div>
-            <span style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 700, color: T.text, letterSpacing: '-0.01em' }}>Bandhan</span>
+            <span className="hidden sm:inline" style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 700, color: T.text, letterSpacing: '-0.01em' }}>Bandhan</span>
           </button>
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <LanguageSwitcher compact />
