@@ -524,7 +524,7 @@ Note: `_headers` is Netlify-specific syntax — on AWS CloudFront, response head
 - `object-fit` on `<img>` ignored by html2canvas → use `background-image` for all photos in templates
 - `inset` shorthand not supported by html2canvas → use explicit `top/right/bottom/left`
 - `borderBottom` on inline `<span>` renders inconsistently in html2canvas → use a `<div>` for underlines
-- Browser back button going to Google instead of landing: fixed via `history.pushState({ view: 'builder' }, '', '/')` in `goToBuilder()` and `popstate` listener in `App.jsx`. `onBack` must call `history.back()` (not `setView`) to trigger the popstate handler correctly.
+- Browser back button going to Google instead of landing: fixed via `history.pushState({ view: 'builder' }, '', '/')` in `goToBuilder()` and `popstate` listener in `App.jsx`. The React back button (`onBack`) calls `setView('landing') + window.scrollTo(0,0)` directly — this scrolls to top correctly. Do NOT use `history.back()` in `onBack` as that would navigate to `/#templates` anchor and scroll the page down to the templates section instead of the top.
 - Language switcher dropdown clipped if nav has same z-index as sibling content → keep nav at `z-50`
 - `italic` on Indic script text causes synthetic slant → glyphs overflow line box → gate italic on `lang === 'en'` only (hero headline2 AND bottom CTA title2)
 - Indic hero headline2 that wraps on narrow screens (320px) → keep headline2 under 6 chars

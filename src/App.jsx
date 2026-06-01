@@ -56,7 +56,10 @@ function AppInner() {
 
   // Handle browser back button — popstate fires when user presses browser back
   useEffect(() => {
-    const handlePopState = () => setView('landing')
+    const handlePopState = () => {
+      setView('landing')
+      window.scrollTo(0, 0)
+    }
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
@@ -108,7 +111,8 @@ function AppInner() {
           formData={formData}
           updateForm={updateForm}
           onBack={() => {
-            history.back()
+            setView('landing')
+            window.scrollTo(0, 0)
           }}
         />
       )}

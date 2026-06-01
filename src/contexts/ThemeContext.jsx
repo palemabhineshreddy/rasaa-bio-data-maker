@@ -6,6 +6,7 @@ export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState('light')
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
+    try { localStorage.setItem('bandhan_blog_theme', theme) } catch {}
   }, [theme])
   return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>
 }
