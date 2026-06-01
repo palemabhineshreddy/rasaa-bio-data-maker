@@ -1695,8 +1695,8 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
         background: T.headerBg, backdropFilter: 'blur(24px)',
         borderBottom: `1px solid ${T.border}`,
       }}>
-        <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 20px',
-          display: 'flex', alignItems: 'center', gap: 14, height: 64 }}>
+        <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 clamp(12px, 3vw, 20px)',
+          display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)', height: 'clamp(52px, 7vh, 64px)' }}>
           <button onClick={onBack}
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px 8px', borderRadius: 8,
               color: T.backBtnColor, display: 'flex', alignItems: 'center', transition: 'all 0.2s' }}
@@ -1743,12 +1743,12 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-2 sm:px-4 py-6 sm:py-10">
+      <main className="max-w-6xl mx-auto px-3 sm:px-5 md:px-6 py-4 sm:py-6 md:py-10">
         {!isPreview && (
-          <div style={{ position: 'sticky', top: 64, zIndex: 20, margin: '0 -8px',
+          <div style={{ position: 'sticky', top: 'clamp(52px, 7vh, 64px)', zIndex: 20, margin: '0 -8px',
             marginBottom: 24, borderBottom: `1px solid ${T.border}`,
             background: T.stickyBg, backdropFilter: 'blur(20px)',
-            padding: '10px 20px' }}>
+            padding: 'clamp(8px, 1.5vw, 10px) clamp(12px, 3vw, 20px)' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
                 {STEPS.map((section, index) => (
@@ -1861,8 +1861,8 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
             </div>
 
             {/* RIGHT: live preview — exactly card width, no extra space */}
-            <div className="hidden sm:flex flex-col items-end sticky top-20 self-start" style={{ width: 420, flexShrink: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: 420, marginBottom: 12 }}>
+            <div className="hidden sm:flex flex-col items-end sticky top-20 self-start sm:w-[260px] md:w-[320px] lg:w-[420px]" style={{ flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', marginBottom: 12 }}>
                 <button onClick={() => setShowDesignModal(true)}
                   style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', borderRadius: 100,
                     fontSize: 11, fontWeight: 700, letterSpacing: '0.03em', cursor: 'pointer',

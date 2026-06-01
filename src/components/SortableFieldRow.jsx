@@ -26,7 +26,7 @@ export default function SortableFieldRow({ id, children }) {
         aria-label="Drag to reorder"
         style={{
           flexShrink: 0,
-          marginTop: 28,
+          marginTop: 'clamp(20px, 3vw, 28px)',
           background: 'none',
           border: 'none',
           padding: '4px 2px',

@@ -439,8 +439,8 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
         background: 'rgba(6,6,8,0.92)', backdropFilter: 'blur(24px)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 clamp(16px, 4vw, 24px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 'clamp(56px, 8vh, 68px)' }}>
 
           {/* Logo */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
@@ -529,8 +529,8 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             maskImage: 'radial-gradient(ellipse 85% 85% at 50% 50%, black 30%, transparent 100%)' }} />
         </div>
 
-        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '80px 24px', width: '100%',
-          display: 'flex', alignItems: 'center', gap: 48, position: 'relative', zIndex: 1 }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: 'clamp(48px, 8vw, 80px) clamp(16px, 4vw, 24px)', width: '100%',
+          display: 'flex', alignItems: 'center', gap: 'clamp(24px, 4vw, 48px)', position: 'relative', zIndex: 1 }}>
 
           {/* Left column */}
           <div style={{ flex: 1, maxWidth: 600 }}>
@@ -547,7 +547,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             {/* Headline */}
             <motion.h1 custom={1} variants={fadeUp} initial="hidden" animate="show"
               style={{ fontFamily: 'Georgia, serif',
-                fontSize: 'clamp(42px, 6vw, 78px)',
+                fontSize: 'clamp(28px, 6vw, 78px)',
                 fontWeight: 700, lineHeight: 1.07, color: '#FFFFFF', marginBottom: 28,
                 letterSpacing: '-0.02em' }}>
               {t('headline1')}<br />
@@ -564,7 +564,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
 
             {/* Tagline */}
             <motion.p custom={2} variants={fadeUp} initial="hidden" animate="show"
-              style={{ fontSize: 19, color: 'rgba(255,255,255,0.46)', lineHeight: 1.78, marginBottom: 40, maxWidth: 500 }}>
+              style={{ fontSize: 'clamp(15px, 2.5vw, 19px)', color: 'rgba(255,255,255,0.46)', lineHeight: 1.78, marginBottom: 'clamp(24px, 4vw, 40px)', maxWidth: 500 }}>
               {t('tagline')}
             </motion.p>
 
@@ -573,19 +573,19 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
               style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginBottom: 40 }}>
               {savedName ? (
                 <>
-                  <button onClick={onContinue} className="btn-amber" style={{ fontSize: 17, padding: '15px 32px', borderRadius: 14 }}>
+                  <button onClick={onContinue} className="btn-amber" style={{ fontSize: 'clamp(14px, 2vw, 17px)', padding: 'clamp(11px, 2vw, 15px) clamp(20px, 4vw, 32px)', borderRadius: 14 }}>
                     {t('cta_continue')} <ChevronRight style={{ width: 18, height: 18 }} />
                   </button>
-                  <button onClick={onStart} className="btn-ghost" style={{ fontSize: 17, padding: '15px 32px', borderRadius: 14 }}>
+                  <button onClick={onStart} className="btn-ghost" style={{ fontSize: 'clamp(14px, 2vw, 17px)', padding: 'clamp(11px, 2vw, 15px) clamp(20px, 4vw, 32px)', borderRadius: 14 }}>
                     {t('cta_fresh')}
                   </button>
                 </>
               ) : (
                 <>
-                  <button onClick={onStart} className="btn-amber" style={{ fontSize: 17, padding: '15px 32px', borderRadius: 14 }}>
+                  <button onClick={onStart} className="btn-amber" style={{ fontSize: 'clamp(14px, 2vw, 17px)', padding: 'clamp(11px, 2vw, 15px) clamp(20px, 4vw, 32px)', borderRadius: 14 }}>
                     {t('cta_create')} <ChevronRight style={{ width: 18, height: 18 }} />
                   </button>
-                  <a href="#templates" className="btn-ghost" style={{ fontSize: 17, padding: '15px 32px', borderRadius: 14, textDecoration: 'none' }}>
+                  <a href="#templates" className="btn-ghost" style={{ fontSize: 'clamp(14px, 2vw, 17px)', padding: 'clamp(11px, 2vw, 15px) clamp(20px, 4vw, 32px)', borderRadius: 14, textDecoration: 'none' }}>
                     {t('cta_explore')}
                   </a>
                 </>
@@ -672,8 +672,8 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
       </section>
 
       {/* ── STATS STRIP ── */}
-      <div style={{ background: '#0A0A10', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '52px 24px' }}>
-        <div style={{ maxWidth: 960, margin: '0 auto', display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: 0 }}>
+      <div style={{ background: '#0A0A10', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: 'clamp(32px, 5vw, 52px) clamp(16px, 4vw, 24px)' }}>
+        <div style={{ maxWidth: 960, margin: '0 auto', display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: '24px 0' }}>
           {[
             { value: '19',      label: 'Unique Templates' },
             { value: '12,000+', label: 'Families Trusted'  },
@@ -683,11 +683,11 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             <motion.div key={label}
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}
-              style={{ textAlign: 'center', minWidth: 140, padding: '0 28px',
+              style={{ textAlign: 'center', minWidth: 'min(140px, 45%)', padding: '0 clamp(12px, 2.5vw, 28px)',
                 borderRight: i < 3 ? '1px solid rgba(255,255,255,0.055)' : 'none' }}>
-              <div style={{ fontFamily: 'Georgia, serif', fontSize: 52, fontWeight: 700, color: '#ed8936',
-                lineHeight: 1, letterSpacing: '-0.02em', marginBottom: 10 }}>{value}</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.33)', fontWeight: 500, letterSpacing: '0.03em' }}>{label}</div>
+              <div style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 700, color: '#ed8936',
+                lineHeight: 1, letterSpacing: '-0.02em', marginBottom: 8 }}>{value}</div>
+              <div style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: 'rgba(255,255,255,0.33)', fontWeight: 500, letterSpacing: '0.03em' }}>{label}</div>
             </motion.div>
           ))}
         </div>
@@ -697,11 +697,11 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
       <TemplatesSection onStart={onStart} />
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how" style={{ background: '#060608', padding: '108px 24px' }}>
+      <section id="how" style={{ background: '#060608', padding: 'clamp(64px, 10vw, 108px) clamp(16px, 4vw, 24px)' }}>
         <div style={{ maxWidth: 1024, margin: '0 auto' }}>
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }}
-            style={{ textAlign: 'center', marginBottom: 80 }}>
+            style={{ textAlign: 'center', marginBottom: 'clamp(40px, 6vw, 80px)' }}>
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase',
               color: '#ed8936', marginBottom: 16 }}>{t('how_label')}</p>
             <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(28px, 4vw, 50px)', fontWeight: 700,
@@ -710,8 +710,8 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             </h2>
           </motion.div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 52, position: 'relative' }}>
-            <div className="hidden md:block" style={{ position: 'absolute', top: 43, left: '18%', right: '18%', height: 2,
+          <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 'clamp(32px, 4vw, 52px)', position: 'relative' }}>
+            <div className="hidden sm:block" style={{ position: 'absolute', top: 43, left: '18%', right: '18%', height: 2,
               background: 'linear-gradient(to right, transparent, rgba(237,137,54,0.65) 20%, rgba(237,137,54,0.65) 80%, transparent)',
               zIndex: 0 }} />
 
@@ -741,7 +741,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
       </section>
 
       {/* ── FEATURES ── */}
-      <section id="features" style={{ background: '#060608', padding: '108px 24px' }}>
+      <section id="features" style={{ background: '#060608', padding: 'clamp(64px, 10vw, 108px) clamp(16px, 4vw, 24px)' }}>
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }}
@@ -760,7 +760,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
                 initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ duration: 0.55, delay: i * 0.1 }}
                 style={{ background: 'rgba(255,255,255,0.032)', border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: 24, padding: '36px 32px', display: 'flex', flexDirection: 'column', gap: 22,
+                  borderRadius: 24, padding: 'clamp(24px, 4vw, 36px) clamp(20px, 3vw, 32px)', display: 'flex', flexDirection: 'column', gap: 22,
                   cursor: 'default' }}
                 whileHover={{ background: 'rgba(255,255,255,0.058)', borderColor: 'rgba(237,137,54,0.28)',
                   boxShadow: '0 20px 64px rgba(237,137,54,0.12)', y: -5 }}
@@ -783,7 +783,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
       </section>
 
       {/* ── TESTIMONIALS ── */}
-      <section style={{ background: '#0A0A10', padding: '108px 24px' }}>
+      <section style={{ background: '#0A0A10', padding: 'clamp(64px, 10vw, 108px) clamp(16px, 4vw, 24px)' }}>
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }}
@@ -845,9 +845,9 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
       </section>
 
       {/* ── FAQ ── */}
-      <section style={{ background: '#060608', padding: '108px 24px' }}>
-        <div style={{ maxWidth: 1024, margin: '0 auto', display: 'grid', gap: 64, gridTemplateColumns: '1fr' }}
-          className="lg:grid-cols-[1fr_1.3fr]">
+      <section style={{ background: '#060608', padding: 'clamp(64px, 10vw, 108px) clamp(16px, 4vw, 24px)' }}>
+        <div style={{ maxWidth: 1024, margin: '0 auto', display: 'grid', gap: 'clamp(40px, 6vw, 64px)', gridTemplateColumns: '1fr' }}
+          className="md:grid-cols-[1fr_1.3fr]">
 
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }}
@@ -912,7 +912,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
       </section>
 
       {/* ── FINAL CTA ── */}
-      <section style={{ background: '#0A0A10', padding: '128px 24px', position: 'relative', overflow: 'hidden',
+      <section style={{ background: '#0A0A10', padding: 'clamp(72px, 12vw, 128px) clamp(16px, 4vw, 24px)', position: 'relative', overflow: 'hidden',
         borderTop: '1px solid rgba(255,255,255,0.05)' }}>
 
         <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
@@ -940,10 +940,10 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
           </p>
 
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 28 }}>
-            <button onClick={onStart} className="btn-amber" style={{ fontSize: 18, padding: '18px 52px', borderRadius: 14 }}>
+            <button onClick={onStart} className="btn-amber" style={{ fontSize: 'clamp(15px, 2vw, 18px)', padding: 'clamp(13px, 2vw, 18px) clamp(28px, 5vw, 52px)', borderRadius: 14 }}>
               {t('cta_btn')} <ChevronRight style={{ width: 20, height: 20 }} />
             </button>
-            <a href="#templates" className="btn-ghost" style={{ fontSize: 18, padding: '18px 34px', borderRadius: 14, textDecoration: 'none' }}>
+            <a href="#templates" className="btn-ghost" style={{ fontSize: 'clamp(15px, 2vw, 18px)', padding: 'clamp(13px, 2vw, 18px) clamp(22px, 3.5vw, 34px)', borderRadius: 14, textDecoration: 'none' }}>
               {t('cta_explore')}
             </a>
           </div>
@@ -955,7 +955,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer style={{ background: '#060608', padding: '48px 24px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <footer style={{ background: '#060608', padding: 'clamp(32px, 5vw, 48px) clamp(16px, 4vw, 24px)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center',
             justifyContent: 'space-between', gap: 24, marginBottom: 32, paddingBottom: 32,
