@@ -957,16 +957,26 @@ function DesignLivePreview({ formData }) {
   )
 }
 
-/* ── Side panel preview — fixed A4 card, scrollable inside when content overflows ── */
+/* ── Side panel preview — responsive A4 card, scrollable inside when content overflows ── */
 function SidePanelPreview({ formData }) {
   const T = useBuilderTheme()
+  const outerRef = useRef(null)
   const innerRef = useRef()
+  const [panelW, setPanelW] = useState(() =>
+    typeof window !== 'undefined' ? Math.min(420, window.innerWidth - 48) : 420
+  )
   const [contentH, setContentH] = useState(0)
   const naturalW = 760
-  const panelW = 420
-  const scale = panelW / naturalW
-  const a4H = Math.round(naturalW * 1.414)   // 1075px — template natural height
-  const cardH = Math.round(panelW * 1.414)   // 594px  — fixed outer card height
+
+  useLayoutEffect(() => {
+    const el = outerRef.current
+    if (!el) return
+    const update = () => { const w = el.offsetWidth; if (w > 0) setPanelW(w) }
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   useLayoutEffect(() => {
     if (!innerRef.current) return
@@ -974,11 +984,13 @@ function SidePanelPreview({ formData }) {
     if (h > 0) setContentH(h)
   })
 
-  // Scroll track height = visual (scaled) content height so scroll speed matches the template
+  const scale = panelW / naturalW
+  const a4H = Math.round(naturalW * 1.414)
+  const cardH = Math.round(panelW * 1.414)
   const scrollTrackH = contentH > 0 ? Math.round(contentH * scale) : cardH
 
   return (
-    <div style={{ width: panelW }}>
+    <div ref={outerRef} style={{ width: '100%' }}>
       {/* Clip layer — hard clips at panelW, hides the scrollbar sitting 20px to the right */}
       <div style={{
         width: panelW,
@@ -1525,7 +1537,9 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef }) {
 
       {/* Biodata preview — same card view as the live preview panel */}
       <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <SidePanelPreview formData={applyEnabledSections(formData)} />
+        <div style={{ width: '100%', maxWidth: 420 }}>
+          <SidePanelPreview formData={applyEnabledSections(formData)} />
+        </div>
       </div>
 
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
@@ -1901,6 +1915,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                 initial={{ opacity: 0.7, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                style={{ width: '100%' }}
               >
                 <SidePanelPreview formData={previewFormData} />
               </motion.div>

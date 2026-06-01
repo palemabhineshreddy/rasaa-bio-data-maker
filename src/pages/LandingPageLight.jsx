@@ -153,9 +153,10 @@ function TemplateRow({ groupStyles, onSelect }) {
         )}
       </AnimatePresence>
 
-      <div ref={scrollRef} style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      <div ref={scrollRef} style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none',
+        WebkitOverflowScrolling: 'touch', touchAction: 'pan-x' }}
         className="[&::-webkit-scrollbar]:hidden">
-        <div style={{ display: 'flex', gap: 14, padding: '4px 24px 16px' }}>
+        <div style={{ display: 'flex', gap: 14, padding: '4px 16px 16px' }}>
           {groupStyles.map((s, i) => (
             <StyleCard key={s.id} s={s} i={i} onClick={() => onSelect(s)} />
           ))}
@@ -339,7 +340,7 @@ function TemplatesSection({ onStart }) {
   const groupStyles = STYLES.filter(s => currentGroup.ids.includes(s.id))
 
   return (
-    <section id="templates" style={{ background: '#f9fafb', padding: '96px 0' }}>
+    <section id="templates" style={{ background: '#f9fafb', padding: 'clamp(48px, 8vw, 96px) 0' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto' }}>
 
         <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
@@ -473,9 +474,9 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
           </nav>
 
           {/* Right */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
             <LanguageSwitcher compact />
-            <button onClick={() => setTheme('dark')} className="btn-outline-dark" style={{ padding: '6px 14px', fontSize: 13 }}>
+            <button onClick={() => setTheme('dark')} className="btn-outline-dark hidden sm:inline-flex" style={{ padding: '6px 14px', fontSize: 13 }}>
               <Moon size={13} /> Dark
             </button>
             {savedName ? (
@@ -713,7 +714,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }}
-            style={{ textAlign: 'center', marginBottom: 68 }}>
+            style={{ textAlign: 'center', marginBottom: 'clamp(32px, 5vw, 68px)' }}>
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase',
               color: '#6b7280', marginBottom: 16 }}>{t('feat_label')}</p>
             <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(28px, 4vw, 50px)', fontWeight: 700,
@@ -752,7 +753,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }}
-            style={{ textAlign: 'center', marginBottom: 68 }}>
+            style={{ textAlign: 'center', marginBottom: 'clamp(32px, 5vw, 68px)' }}>
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase',
               color: '#6b7280', marginBottom: 16 }}>Loved by families</p>
             <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(28px, 4vw, 50px)', fontWeight: 700,
@@ -769,7 +770,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
                 initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ duration: 0.55, delay: i * 0.12 }}
                 style={{ background: '#ffffff', border: '1px solid #f3f4f6',
-                  borderRadius: 24, padding: '36px 30px', display: 'flex', flexDirection: 'column', gap: 22,
+                  borderRadius: 24, padding: 'clamp(20px,4vw,36px) clamp(16px,3vw,30px)', display: 'flex', flexDirection: 'column', gap: 22,
                   position: 'relative', overflow: 'hidden' }}
                 whileHover={{ borderColor: '#e5e7eb', boxShadow: '0 8px 32px rgba(0,0,0,0.06)' }}>
 

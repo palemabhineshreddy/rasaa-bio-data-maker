@@ -153,9 +153,10 @@ function TemplateRow({ groupStyles, onSelect }) {
         )}
       </AnimatePresence>
 
-      <div ref={scrollRef} style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      <div ref={scrollRef} style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none',
+        WebkitOverflowScrolling: 'touch', touchAction: 'pan-x' }}
         className="[&::-webkit-scrollbar]:hidden">
-        <div style={{ display: 'flex', gap: 14, padding: '4px 24px 16px' }}>
+        <div style={{ display: 'flex', gap: 14, padding: '4px 16px 16px' }}>
           {groupStyles.map((s, i) => (
             <StyleCard key={s.id} s={s} i={i} onClick={() => onSelect(s)} />
           ))}
@@ -340,7 +341,7 @@ function TemplatesSection({ onStart }) {
   const groupStyles = STYLES.filter(s => currentGroup.ids.includes(s.id))
 
   return (
-    <section id="templates" style={{ background: '#0A0A10', padding: '96px 0' }}>
+    <section id="templates" style={{ background: '#0A0A10', padding: 'clamp(48px, 8vw, 96px) 0' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto' }}>
 
         <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
@@ -482,10 +483,10 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
           </nav>
 
           {/* Right */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
             <LanguageSwitcher compact />
-            <button onClick={() => setTheme('light')} style={{
-              display: 'inline-flex', alignItems: 'center', gap: 5,
+            <button onClick={() => setTheme('light')} className="hidden sm:inline-flex" style={{
+              alignItems: 'center', gap: 5,
               padding: '6px 14px', borderRadius: 100, fontSize: 13, fontWeight: 600,
               background: 'transparent', border: '1.5px solid rgba(255,255,255,0.18)',
               color: 'rgba(255,255,255,0.55)', cursor: 'pointer', transition: 'all 0.2s',
@@ -745,7 +746,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }}
-            style={{ textAlign: 'center', marginBottom: 68 }}>
+            style={{ textAlign: 'center', marginBottom: 'clamp(32px, 5vw, 68px)' }}>
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase',
               color: '#ed8936', marginBottom: 16 }}>{t('feat_label')}</p>
             <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(28px, 4vw, 50px)', fontWeight: 700,
@@ -787,7 +788,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6 }}
-            style={{ textAlign: 'center', marginBottom: 68 }}>
+            style={{ textAlign: 'center', marginBottom: 'clamp(32px, 5vw, 68px)' }}>
             <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase',
               color: '#ed8936', marginBottom: 16 }}>Loved by families</p>
             <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(28px, 4vw, 50px)', fontWeight: 700,
@@ -804,7 +805,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
                 initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ duration: 0.55, delay: i * 0.12 }}
                 style={{ background: 'rgba(255,255,255,0.038)', border: '1px solid rgba(255,255,255,0.075)',
-                  borderRadius: 24, padding: '36px 30px', display: 'flex', flexDirection: 'column', gap: 22,
+                  borderRadius: 24, padding: 'clamp(20px,4vw,36px) clamp(16px,3vw,30px)', display: 'flex', flexDirection: 'column', gap: 22,
                   position: 'relative', overflow: 'hidden' }}
                 whileHover={{ borderColor: 'rgba(255,255,255,0.13)', background: 'rgba(255,255,255,0.055)' }}>
 
@@ -934,8 +935,8 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
             </span>
           </h2>
 
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 18, lineHeight: 1.8,
-            maxWidth: 500, margin: '0 auto 52px' }}>
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 'clamp(15px,2vw,18px)', lineHeight: 1.8,
+            maxWidth: 500, margin: '0 auto clamp(24px,5vw,52px)' }}>
             {t('cta_subtitle').split('\n').map((l, i) => <span key={i}>{l}{i === 0 && <br />}</span>)}
           </p>
 
