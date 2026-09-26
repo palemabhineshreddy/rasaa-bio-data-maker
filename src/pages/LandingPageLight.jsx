@@ -1,6 +1,6 @@
 import { useState, useRef, useLayoutEffect, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, Shield, Download, ChevronRight, ChevronLeft, Heart, Lock, Zap, X, Globe, Moon } from 'lucide-react'
+import { Sparkles, Shield, Download, ChevronRight, ChevronLeft, Heart, Lock, Zap, X, Globe, Moon, Menu, LayoutTemplate, BookOpen } from 'lucide-react'
 import BioTemplate from '../components/BioTemplate'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -416,10 +416,13 @@ const FEATURE_ICONS = [
 
 /* ── Main landing page ── */
 export default function LandingPageLight({ onStart, onContinue, savedName }) {
-  const { t, lang } = useLanguage()
+  const { t, lang, setLang, LANGUAGES } = useLanguage()
   const { setTheme } = useTheme()
   const [openFaq, setOpenFaq] = useState(null)
   const [scrolled, setScrolled] = useState(false)
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const NAV_LINKS = [['#templates','Templates'],['#how','How it Works'],['#features','Features'],['/blog/','Blog']]
+  const NAV_ICONS = { '#templates': LayoutTemplate, '#how': Zap, '#features': Sparkles, '/blog/': BookOpen }
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4)
     window.addEventListener('scroll', onScroll)
@@ -461,9 +464,9 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
             <span className="hidden sm:inline" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 700, color: '#0a0a0a', letterSpacing: '-0.01em' }}>Bandhan</span>
           </motion.div>
 
-          {/* Nav links – desktop only */}
-          <nav className="hidden md:flex" style={{ gap: 32 }}>
-            {[['#templates','Templates'],['#how','How it Works'],['#features','Features'],['/blog/','Blog']].map(([href, label]) => (
+          {/* Nav links – laptop/desktop only, everything else uses the hamburger menu */}
+          <nav className="hidden lg:flex" style={{ gap: 32 }}>
+            {NAV_LINKS.map(([href, label]) => (
               <a key={href} href={href}
                 style={{ fontSize: 13, fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s', color: '#6b7280' }}
                 onMouseEnter={e => { e.currentTarget.style.color = '#0a0a0a' }}
@@ -475,8 +478,15 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
 
           {/* Right */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-            <LanguageSwitcher compact />
-            <button onClick={() => setTheme('dark')} className="hidden sm:inline-flex" style={{
+            <div className="hidden lg:block"><LanguageSwitcher compact /></div>
+            <button onClick={() => setShowMobileMenu(true)} className="lg:hidden" aria-label="Open menu"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: 32, height: 32, borderRadius: 9, background: 'transparent',
+                border: '1.5px solid rgba(0,0,0,0.15)', color: '#333',
+                cursor: 'pointer' }}>
+              <Menu size={16} />
+            </button>
+            <button onClick={() => setTheme('dark')} className="hidden lg:inline-flex" style={{
               alignItems: 'center', gap: 5,
               padding: '6px 14px', borderRadius: 12, fontSize: 13, fontWeight: 600,
               border: '1.5px solid rgba(0,0,0,0.15)', color: '#333', background: 'transparent',
@@ -486,26 +496,115 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.15)'; e.currentTarget.style.color = '#333' }}>
               <Moon size={13} /> Dark
             </button>
-            {savedName ? (
-              <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }} onClick={onContinue} className="btn-black"
-                style={{ padding: '8px 18px', fontSize: 13 }}>
-                <span className="hidden sm:inline-block" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>
-                  {t('continue_btn')} — {savedName}
-                </span>
-                <span className="sm:hidden">{t('continue_btn')}</span>
-                <ChevronRight style={{ width: 14, height: 14, flexShrink: 0 }} />
-              </motion.button>
-            ) : (
-              <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }} onClick={onStart} className="btn-black"
-                style={{ padding: '8px 18px', fontSize: 13 }}>
-                {t('begin_free')} <ChevronRight style={{ width: 14, height: 14 }} />
-              </motion.button>
-            )}
+            <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }} onClick={() => (savedName ? onContinue() : onStart())} className="hidden lg:inline-flex btn-black"
+              style={{ padding: '8px 18px', fontSize: 13 }}>
+              {t('begin_free')} <ChevronRight style={{ width: 14, height: 14 }} />
+            </motion.button>
           </div>
         </div>
       </header>
+
+      {/* Menu — bottom sheet, everything below laptop width (phones, tablets) */}
+      <AnimatePresence>
+        {showMobileMenu && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setShowMobileMenu(false)}
+            className="lg:hidden"
+            style={{ position: 'fixed', inset: 0, zIndex: 150, background: 'rgba(0,0,0,0.4)',
+              display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+          >
+            <motion.div
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 26, stiffness: 300 }}
+              onClick={e => e.stopPropagation()}
+              style={{ background: '#ffffff', borderTopLeftRadius: 28, borderTopRightRadius: 28,
+                width: '100%', maxWidth: 480, maxHeight: '85vh', overflowY: 'auto', padding: '10px 24px 28px',
+                boxShadow: '0 -8px 32px rgba(0,0,0,0.12)' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
+                <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(0,0,0,0.15)' }} />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                  <div style={{ width: 26, height: 26, borderRadius: 7, background: '#0a0a0a',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontFamily: 'Georgia, serif', fontSize: 14, fontWeight: 700, color: '#ffffff', lineHeight: 1 }}>B</span>
+                  </div>
+                  <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 17, fontWeight: 700, color: '#0a0a0a' }}>Menu</span>
+                </div>
+                <button onClick={() => setShowMobileMenu(false)} aria-label="Close menu"
+                  style={{ background: '#f3f4f6', border: 'none', cursor: 'pointer', color: '#6b7280',
+                    width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Nav links */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 20 }}>
+                {NAV_LINKS.map(([href, label], i) => {
+                  const Icon = NAV_ICONS[href]
+                  return (
+                    <motion.a key={href} href={href} onClick={() => setShowMobileMenu(false)}
+                      initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05, duration: 0.25 }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 16, fontWeight: 600,
+                        color: '#0a0a0a', textDecoration: 'none', padding: '13px 10px', borderRadius: 12 }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#f9fafb'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                      <span style={{ width: 34, height: 34, borderRadius: 10, flexShrink: 0,
+                        background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Icon size={16} color="#0a0a0a" />
+                      </span>
+                      {label}
+                      <ChevronRight size={15} style={{ marginLeft: 'auto', color: '#9ca3af' }} />
+                    </motion.a>
+                  )
+                })}
+              </div>
+
+              <div style={{ height: 1, background: 'rgba(0,0,0,0.06)', margin: '4px 0 18px' }} />
+
+              {/* Language — flat grid, no nested dropdown inside the sheet */}
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                  <Globe size={14} color="#6b7280" />
+                  <span style={{ fontSize: 12, color: '#6b7280', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Language</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                  {LANGUAGES.map(l => (
+                    <button key={l.code} onClick={() => { setLang(l.code); setShowMobileMenu(false) }}
+                      style={{ padding: '10px 4px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                        background: lang === l.code ? '#0a0a0a' : '#f9fafb',
+                        border: `1px solid ${lang === l.code ? '#0a0a0a' : '#e5e7eb'}`,
+                        color: lang === l.code ? '#ffffff' : '#374151' }}>
+                      {l.nativeName}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Theme */}
+              <button onClick={() => { setTheme('dark'); setShowMobileMenu(false) }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', marginBottom: 20,
+                  padding: '11px 16px', borderRadius: 12, fontSize: 14, fontWeight: 600,
+                  background: 'transparent', border: '1.5px solid rgba(0,0,0,0.15)',
+                  color: '#333', cursor: 'pointer' }}>
+                <Moon size={14} /> Switch to Dark theme
+              </button>
+
+              {/* CTA */}
+              <button onClick={() => { setShowMobileMenu(false); savedName ? onContinue() : onStart() }} className="btn-black"
+                style={{ width: '100%', justifyContent: 'center', padding: '14px 0', fontSize: 15 }}>
+                {t('begin_free')} <ChevronRight size={16} />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── HERO ── */}
       <section className="flex items-start xl:min-h-[92vh] xl:items-center"
@@ -1013,7 +1112,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
             </div>
 
             <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-              {[['#templates','Templates'],['#how','How it Works'],['#features','Features'],['/blog/','Blog']].map(([href, label]) => (
+              {NAV_LINKS.map(([href, label]) => (
                 <a key={href} href={href}
                   style={{ fontSize: 13, fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s',
                     color: '#9ca3af' }}

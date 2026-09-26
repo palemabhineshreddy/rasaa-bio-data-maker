@@ -38,6 +38,10 @@ export const track = {
   photoUploaded: () => trackEvent('photo_uploaded'),
   photoRemoved: () => trackEvent('photo_removed'),
 
+  // Floating preview button tapped (mobile only — no side-panel preview at that width)
+  mobilePreviewOpened: (stepIndex) =>
+    trackEvent('mobile_preview_opened', { step_number: stepIndex + 1 }),
+
   // ── Core conversion funnel ──────────────────────────────────────────────
 
   // Reached the final preview screen
