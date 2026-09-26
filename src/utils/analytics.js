@@ -48,6 +48,10 @@ export const track = {
   pdfDownloaded: (template) =>
     trackEvent('pdf_downloaded', { template, value: 1 }),
 
+  // PDF generation/download threw — lets us see failures GA previously couldn't distinguish from abandonment
+  pdfDownloadFailed: (template, message) =>
+    trackEvent('pdf_download_failed', { template, error_message: String(message).slice(0, 100) }),
+
   // WhatsApp share button clicked
   // method: 'native' (Web Share API with real PDF) | 'link' (wa.me fallback)
   whatsappShared: (method = 'link') =>
