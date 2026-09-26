@@ -28,7 +28,7 @@ export const track = {
 
   // Template card clicked
   templateSelected: (templateId, templateName) =>
-    trackEvent('template_selected', { template_id: templateId, template_name: templateName }),
+    trackEvent('template_selected', { template: templateId, template_name: templateName }),
 
   // Slogan language changed from dropdown
   sloganChanged: (language) =>
@@ -54,9 +54,6 @@ export const track = {
     trackEvent('whatsapp_shared', { method }),
 
   // ── Engagement signals ──────────────────────────────────────────────────
-
-  // "Try sample" button — shows engagement intent
-  sampleLoaded: () => trackEvent('sample_data_loaded'),
 
   // Custom field added — shows power-user behaviour
   customFieldAdded: (section) =>
