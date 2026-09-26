@@ -1428,17 +1428,22 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef }) {
   const [sharing, setSharing] = useState(false)
   const [downloaded, setDownloaded] = useState(false)
   const [showModal, setShowModal] = useState(false)
+  const [downloadError, setDownloadError] = useState(false)
   const pdfBlobRef = useRef(null)
 
   const handleDownload = async () => {
     setLoading(true)
     setShowModal(false)
+    setDownloadError(false)
     try {
       const { blob } = await exportPDF(exportRef.current, formData.fullName || 'biodata')
       pdfBlobRef.current = blob
       setDownloaded(true)
       setShowModal(true)
       track.pdfDownloaded(formData.template || 'lotus')
+    } catch (err) {
+      setDownloadError(true)
+      track.pdfDownloadFailed(formData.template || 'lotus', err?.message || 'unknown error')
     } finally {
       setLoading(false)
     }
@@ -1519,6 +1524,12 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef }) {
           </button>
         </div>
       </div>
+
+      {downloadError && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, borderRadius: 12, border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.08)', color: '#ef4444', padding: '12px 16px', fontSize: 14 }}>
+          Something went wrong generating your PDF. Please try again — if it keeps failing, try a different browser or device.
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }} className="md:grid-cols-6">
         {steps.map((label, index) => (
@@ -1626,6 +1637,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
   const [downloading, setDownloading] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
   const [savedFlash, setSavedFlash] = useState(false)
+  const [quickDownloadError, setQuickDownloadError] = useState(false)
   const savedFlashTimer = useRef(null)
   const downloadRef = useRef(null)
 
@@ -1640,10 +1652,14 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
     if (!downloadRef.current) return
     setDownloading(true)
     setShowFeedbackModal(false)
+    setQuickDownloadError(false)
     try {
       await exportPDF(downloadRef.current, formData.fullName || 'biodata')
       track.pdfDownloaded(formData.template || 'lotus')
       setShowFeedbackModal(true)
+    } catch (err) {
+      setQuickDownloadError(true)
+      track.pdfDownloadFailed(formData.template || 'lotus', err?.message || 'unknown error')
     } finally {
       setDownloading(false)
     }
@@ -1910,6 +1926,11 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                 </button>
                 <p style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: T.textFaint }}>Live Preview</p>
               </div>
+              {quickDownloadError && (
+                <p style={{ width: '100%', fontSize: 12, color: '#ef4444', marginBottom: 10 }}>
+                  PDF generation failed — please try again.
+                </p>
+              )}
               <motion.div
                 key={formData.template || 'lotus'}
                 initial={{ opacity: 0.7, y: 8 }}
