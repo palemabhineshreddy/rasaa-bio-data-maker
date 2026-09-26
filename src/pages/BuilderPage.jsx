@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Check, Download, RotateCcw, Search, Plus, Trash2, MessageCircle, LayoutTemplate, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, Download, RotateCcw, Search, Plus, Trash2, MessageCircle, LayoutTemplate, X, Eye } from 'lucide-react'
 import { useForm } from '@formspree/react'
 import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
@@ -642,104 +642,7 @@ function TemplateCard({ style, isSelected, formData, onSelect }) {
   )
 }
 
-/* 2-row grid scroller — scroll-aware ghost arrows, framer-motion fades */
-function BuilderTemplateRow({ styles, formData, onSelect }) {
-  const T = useBuilderTheme()
-  const scrollRef = useRef(null)
-  const [canLeft, setCanLeft] = useState(false)
-  const [canRight, setCanRight] = useState(true)
-  const SCROLL_STEP = 380 // 2 columns at a time
-
-  const scrollTo = useCallback((dir) => {
-    const el = scrollRef.current
-    if (!el) return
-    const max = el.scrollWidth - el.clientWidth
-    if (dir > 0) {
-      el.scrollLeft >= max - 8 ? (el.scrollLeft = 0) : el.scrollBy({ left: SCROLL_STEP, behavior: 'smooth' })
-    } else {
-      el.scrollLeft <= 8 ? (el.scrollLeft = max) : el.scrollBy({ left: -SCROLL_STEP, behavior: 'smooth' })
-    }
-  }, [])
-
-  useEffect(() => {
-    const el = scrollRef.current
-    if (!el) return
-    const update = () => {
-      setCanLeft(el.scrollLeft > 8)
-      setCanRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 8)
-    }
-    update()
-    el.addEventListener('scroll', update, { passive: true })
-    return () => el.removeEventListener('scroll', update)
-  }, [styles])
-
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollLeft = 0
-  }, [styles])
-
-  return (
-    <div style={{ position: 'relative' }}>
-
-      {/* Left fade + ghost arrow — hidden at scroll start so first card is fully visible */}
-      <AnimatePresence>
-        {canLeft && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="absolute left-0 top-0 bottom-3 w-10 z-[3] flex items-center justify-start pl-0.5"
-            style={{ background: T.scrollFadeLeft }}>
-            <motion.button
-              onClick={() => scrollTo(-1)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: T.textFaint, display: 'flex' }}
-              whileHover={{ scale: 1.3 }}
-              whileTap={{ scale: 0.85 }}
-              transition={{ duration: 0.15 }}>
-              <ChevronLeft size={16} />
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div ref={scrollRef} style={{ overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        className="[&::-webkit-scrollbar]:hidden">
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 180px)',
-          gap: 10,
-          padding: '4px 6px 12px',
-          width: 'max-content',
-        }}>
-          {styles.map(s => (
-            <TemplateCard key={s.id} style={s} isSelected={formData.template === s.id}
-              formData={formData} onSelect={onSelect} />
-          ))}
-        </div>
-      </div>
-
-      {/* Right fade + ghost arrow — hidden when all cards are visible */}
-      <AnimatePresence>
-        {canRight && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="absolute right-0 top-0 bottom-3 w-10 z-[3] flex items-center justify-end pr-0.5"
-            style={{ background: T.scrollFadeRight }}>
-            <motion.button
-              onClick={() => scrollTo(1)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: T.textFaint, display: 'flex' }}
-              whileHover={{ scale: 1.3 }}
-              whileTap={{ scale: 0.85 }}
-              transition={{ duration: 0.15 }}>
-              <ChevronRight size={16} />
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
-
-/* Groups for the Step 6 picker */
+/* Groups for the template picker modal */
 const TEMPLATE_GROUPS = [
   { label: 'Classic Collection', ids: ['lotus', 'artDeco', 'floralVine', 'peacock', 'mandala', 'celestial', 'bridal'] },
   { label: 'Modern & Minimal',   ids: ['minimal', 'royal', 'modern', 'amethyst', 'ember', 'rose', 'midnight'] },
@@ -829,10 +732,11 @@ function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace 
 }
 
 /* ── Step 5: Photo & Slogan ── */
-function Step5({ formData, updateForm }) {
+function Step5({ formData, updateForm, onOpenTemplatePicker }) {
   const { t } = useLanguage()
   const T = useBuilderTheme()
   const fileRef = useRef()
+  const selectedStyle = TEMPLATE_STYLES.find(s => s.id === (formData.template || 'lotus'))
 
   const handlePhoto = (e) => {
     const file = e.target.files?.[0]
@@ -888,71 +792,25 @@ function Step5({ formData, updateForm }) {
       </div>
 
       <SloganPicker formData={formData} updateForm={updateForm} />
-    </div>
-  )
-}
 
-/* ── Step 6: Design picker with large live preview ── */
-function DesignLivePreview({ formData }) {
-  const T = useBuilderTheme()
-  const innerRef = useRef()
-  const [containerH, setContainerH] = useState(0)
-  const naturalW = 760
-  const outerRef = useRef(null)
-  const [previewW, setPreviewW] = useState(420)
-
-  useLayoutEffect(() => {
-    if (!outerRef.current) return
-    const w = outerRef.current.offsetWidth
-    if (w > 0) setPreviewW(Math.min(420, w))
-  })
-
-  const scale = previewW / naturalW
-
-  useLayoutEffect(() => {
-    if (!innerRef.current) return
-    const h = innerRef.current.scrollHeight
-    if (h > 0) setContainerH(h)
-  })
-
-  const selectedStyle = TEMPLATE_STYLES.find(s => s.id === (formData.template || 'lotus'))
-  const displayH = containerH ? Math.round(containerH * scale) : Math.round(previewW * 1.39)
-
-  return (
-    <div ref={outerRef} style={{ width: '100%', maxWidth: 420 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <p style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: T.textFaint }}>Your Biodata</p>
-        {selectedStyle && (
-          <span style={{ fontSize: 12, fontWeight: 600, color: T.accentGold,
-            background: T.accentGoldMuted, border: `1px solid ${T.borderStrong}`,
-            borderRadius: 100, padding: '3px 12px' }}>
-            {selectedStyle.name}
-          </span>
-        )}
-      </div>
-      <div
-        style={{
-          width: previewW,
-          height: displayH,
-          overflow: 'hidden',
-          borderRadius: 12,
-          border: `1.5px solid ${T.borderStrong}`,
-          boxShadow: '0 12px 40px rgba(0,0,0,0.2)',
-        }}
-      >
-        <div
-          ref={innerRef}
-          style={{
-            width: naturalW,
-            transform: `scale(${scale})`,
-            transformOrigin: 'top left',
-            pointerEvents: 'none',
-          }}
-        >
-          <BioTemplate data={formData} />
+      {/* Template — reuses the same picker modal as the header/side-panel Templates button */}
+      <div className="space-y-4">
+        <SectionTitle>Design Template</SectionTitle>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, borderRadius: 14, border: `1px solid ${T.borderStrong}`, background: T.cardBg, padding: 14 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 9, background: selectedStyle?.gradient, flexShrink: 0 }} />
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <p style={{ fontSize: 14, fontWeight: 600, color: T.text }}>{selectedStyle?.name || 'Lotus'}</p>
+            <p style={{ fontSize: 12, color: T.textFaint, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedStyle?.desc}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onOpenTemplatePicker}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', background: T.stepActiveBg, border: `1.5px solid ${T.stepActiveBorder}`, color: T.stepActiveText, flexShrink: 0 }}
+          >
+            <LayoutTemplate size={14} /> Change
+          </button>
         </div>
       </div>
-      <p style={{ fontSize: 10, color: T.textFaint, textAlign: 'center', marginTop: 8 }}>Updates instantly as you select</p>
     </div>
   )
 }
@@ -1182,96 +1040,6 @@ function BuilderTemplateModal({ s, formData, onClose, onSelect }) {
   )
 }
 
-function Step6({ formData, updateForm }) {
-  const { t } = useLanguage()
-  const T = useBuilderTheme()
-  const [previewStyle, setPreviewStyle] = useState(null)
-  const selectedStyle = TEMPLATE_STYLES.find(s => s.id === (formData.template || 'lotus'))
-  const previewFormData = {
-    ...(formData.fullName ? formData : DESIGN_SAMPLE),
-    template: formData.template || 'lotus',
-  }
-
-  return (
-    <div className="space-y-6">
-      <StepHeading title={t('b_s6_title')} sub={t('b_s6_sub')} />
-
-      <div className="space-y-6">
-
-        {/* All groups shown — each with a section label */}
-        {TEMPLATE_GROUPS.map(group => {
-          const groupStyles = group.ids
-            .map(id => TEMPLATE_STYLES.find(st => st.id === id))
-            .filter(Boolean)
-          return (
-            <div key={group.label}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.09em',
-                  textTransform: 'uppercase', color: T.textFaint, whiteSpace: 'nowrap' }}>
-                  {group.label}
-                </span>
-                <div style={{ flex: 1, height: 1, background: T.border }} />
-                <span style={{ fontSize: 10, color: T.textFaint, flexShrink: 0 }}>
-                  {groupStyles.length}
-                </span>
-              </div>
-              <BuilderTemplateRow
-                styles={groupStyles}
-                formData={formData}
-                onSelect={style => setPreviewStyle(style)}
-              />
-            </div>
-          )
-        })}
-
-        {/* Selected info chip */}
-        {selectedStyle && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, borderRadius: 12,
-            border: `1px solid ${T.borderStrong}`, background: T.cardBg, padding: 12 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 7, background: selectedStyle.gradient, flexShrink: 0 }} />
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <p style={{ fontSize: 14, fontWeight: 600, color: T.text }}>{selectedStyle.name}</p>
-              <p style={{ fontSize: 12, color: T.textFaint, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedStyle.desc}</p>
-            </div>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#16a34a', background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.25)', borderRadius: 100, padding: '4px 12px', flexShrink: 0 }}>
-              {t('design_selected')}
-            </span>
-          </div>
-        )}
-
-        {/* Mobile-only preview */}
-        <div className="sm:hidden mt-2">
-          <div style={{ maxHeight: 288, overflow: 'hidden', borderRadius: 12 }}>
-            <motion.div key={formData.template || 'lotus'}
-              initial={{ opacity: 0.7, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}>
-              <DesignLivePreview formData={previewFormData} />
-            </motion.div>
-          </div>
-          <p style={{ textAlign: 'center', fontSize: 10, color: T.textFaint, marginTop: 8 }}>
-            ↑ preview clipped · tap Preview in nav for full view
-          </p>
-        </div>
-
-      </div>
-
-      {/* Template preview modal */}
-      <AnimatePresence>
-        {previewStyle && (
-          <BuilderTemplateModal
-            s={previewStyle}
-            formData={formData}
-            onClose={() => setPreviewStyle(null)}
-            onSelect={id => updateForm({ template: id })}
-          />
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
-
-
 /* ── Steps config — labels resolved via t() at render time ── */
 const STEP_KEYS = ['s_personal','s_career','s_family','s_about','s_photo']
 
@@ -1421,7 +1189,7 @@ const WA_FALLBACK_TEXT = encodeURIComponent(
   'I just created my marriage biodata on Bandhan — free, no sign-up, takes 5 minutes! Try it: https://bandhan.app'
 )
 
-function PreviewStep({ formData, onBack, onEditStep, steps, exportRef }) {
+function PreviewStep({ formData, onBack, onEditStep, steps, exportRef, feedbackShown, onFeedbackShown }) {
   const { t } = useLanguage()
   const T = useBuilderTheme()
   const [loading, setLoading] = useState(false)
@@ -1439,7 +1207,12 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef }) {
       const { blob } = await exportPDF(exportRef.current, formData.fullName || 'biodata')
       pdfBlobRef.current = blob
       setDownloaded(true)
-      setShowModal(true)
+      // Ask for feedback at most once per session — repeat downloads (edits, re-generates)
+      // were re-triggering this every time, producing duplicate ratings from the same visitor
+      if (!feedbackShown) {
+        setShowModal(true)
+        onFeedbackShown()
+      }
       track.pdfDownloaded(formData.template || 'lotus')
     } catch (err) {
       setDownloadError(true)
@@ -1636,8 +1409,11 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
   const [showDesignModal, setShowDesignModal] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
+  const [feedbackShown, setFeedbackShown] = useState(false)
   const [savedFlash, setSavedFlash] = useState(false)
   const [quickDownloadError, setQuickDownloadError] = useState(false)
+  const [showMobilePreview, setShowMobilePreview] = useState(false)
+  const [showPreviewHint, setShowPreviewHint] = useState(false)
   const savedFlashTimer = useRef(null)
   const downloadRef = useRef(null)
 
@@ -1648,6 +1424,19 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
     return () => clearTimeout(savedFlashTimer.current)
   }, [formData])
 
+  // Coach mark pointing at the floating preview button — phones/tablets only, since that's
+  // the only place the eye icon replaces the always-visible side panel. Shows every time the
+  // builder is opened (not just once ever) so infrequent visitors keep getting the reminder.
+  useEffect(() => {
+    const showTimer = setTimeout(() => setShowPreviewHint(true), 600)
+    const hideTimer = setTimeout(() => setShowPreviewHint(false), 7000)
+    return () => { clearTimeout(showTimer); clearTimeout(hideTimer) }
+  }, [])
+
+  const dismissPreviewHint = () => {
+    setShowPreviewHint(false)
+  }
+
   const handleQuickDownload = async () => {
     if (!downloadRef.current) return
     setDownloading(true)
@@ -1656,7 +1445,11 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
     try {
       await exportPDF(downloadRef.current, formData.fullName || 'biodata')
       track.pdfDownloaded(formData.template || 'lotus')
-      setShowFeedbackModal(true)
+      // Ask for feedback at most once per session, shared with the PreviewStep download button
+      if (!feedbackShown) {
+        setShowFeedbackModal(true)
+        setFeedbackShown(true)
+      }
     } catch (err) {
       setQuickDownloadError(true)
       track.pdfDownloadFailed(formData.template || 'lotus', err?.message || 'unknown error')
@@ -1792,7 +1585,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                     {section.label}
                   </button>
                 ))}
-                <button onClick={() => setShowDesignModal(true)} className="sm:hidden"
+                <button onClick={() => setShowDesignModal(true)} className="lg:hidden"
                   style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 13px', borderRadius: 100,
                     fontSize: 11, fontWeight: 600, background: T.stepIdleBg,
                     color: T.stepIdleText, border: `1px solid ${T.stepIdleBorder}`,
@@ -1846,7 +1639,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
               exit={{ opacity: 0, x: -24 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             >
-              <PreviewStep formData={formData} onBack={() => setStep(4)} onEditStep={setStep} steps={STEPS.map(s => s.label)} exportRef={downloadRef} />
+              <PreviewStep formData={formData} onBack={() => setStep(totalSteps - 1)} onEditStep={setStep} steps={STEPS.map(s => s.label)} exportRef={downloadRef} feedbackShown={feedbackShown} onFeedbackShown={() => setFeedbackShown(true)} />
             </motion.div>
           </AnimatePresence>
         ) : (
@@ -1866,11 +1659,11 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                   {step === 1 && <Step2 formData={formData} updateForm={updateForm} />}
                   {step === 2 && <Step3 formData={formData} updateForm={updateForm} />}
                   {step === 3 && <Step4 formData={formData} updateForm={updateForm} />}
-                  {step === 4 && <Step5 formData={formData} updateForm={updateForm} />}
+                  {step === 4 && <Step5 formData={formData} updateForm={updateForm} onOpenTemplatePicker={() => setShowDesignModal(true)} />}
                 </motion.div>
               </AnimatePresence>
 
-              <div style={{ display: 'flex', gap: 12, marginTop: 36 }}>
+              <div className="mb-20 lg:mb-0" style={{ display: 'flex', gap: 12, marginTop: 36 }}>
                 <button onClick={prev}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', fontSize: 14, fontWeight: 600, borderRadius: 12, cursor: 'pointer', background: T.cardBg, border: `1.5px solid ${T.borderStrong}`, color: T.text }}>
                   <ChevronLeft style={{ width: 16, height: 16 }} />
@@ -1890,8 +1683,49 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
               </div>
             </div>
 
-            {/* RIGHT: live preview — exactly card width, no extra space */}
-            <div className="hidden sm:flex flex-col items-end sticky top-20 self-start sm:w-[260px] md:w-[320px] lg:w-[420px]" style={{ flexShrink: 0 }}>
+            {/* Floating preview trigger — phones and tablets, only laptop width gets the side panel */}
+            <AnimatePresence>
+              {showPreviewHint && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                  transition={{ duration: 0.25 }}
+                  onClick={dismissPreviewHint}
+                  className="lg:hidden"
+                  style={{
+                    position: 'fixed', bottom: 82, right: 20, zIndex: 91, maxWidth: 220,
+                    background: T.stepActiveBg, color: T.stepActiveText,
+                    border: `1.5px solid ${T.stepActiveBorder}`,
+                    borderRadius: 14, padding: '10px 14px', fontSize: 13, fontWeight: 600,
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.3)', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 8,
+                  }}
+                >
+                  👀 Tap to see your biodata live
+                  <span style={{ position: 'absolute', bottom: -6, right: 24, width: 12, height: 12,
+                    background: T.stepActiveBg, borderRight: `1.5px solid ${T.stepActiveBorder}`,
+                    borderBottom: `1.5px solid ${T.stepActiveBorder}`, transform: 'rotate(45deg)' }} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <button
+              onClick={() => { track.mobilePreviewOpened(step); setShowMobilePreview(true); dismissPreviewHint() }}
+              className="lg:hidden"
+              aria-label="Preview your biodata"
+              style={{
+                position: 'fixed', bottom: 20, right: 20, zIndex: 90,
+                width: 54, height: 54, borderRadius: '50%',
+                background: T.stepActiveBg, border: `1.5px solid ${T.stepActiveBorder}`,
+                color: T.stepActiveText, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.3)', cursor: 'pointer',
+              }}
+            >
+              <Eye style={{ width: 22, height: 22 }} />
+            </button>
+
+            {/* RIGHT: live preview — laptop width and up only */}
+            <div className="hidden lg:flex flex-col items-end sticky top-20 self-start lg:w-[420px]" style={{ flexShrink: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', marginBottom: 12 }}>
                 <button onClick={() => setShowDesignModal(true)}
                   style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', borderRadius: 100,
@@ -1948,6 +1782,41 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
           </div>
         )}
       </main>
+
+      {/* Mobile/tablet preview bottom sheet — opened by the floating button */}
+      <AnimatePresence>
+        {showMobilePreview && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setShowMobilePreview(false)}
+            className="lg:hidden"
+            style={{ position: 'fixed', inset: 0, zIndex: 150, background: 'rgba(0,0,0,0.75)',
+              display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+          >
+            <motion.div
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 26, stiffness: 300 }}
+              onClick={e => e.stopPropagation()}
+              style={{ background: T.modalBg, borderTopLeftRadius: 24, borderTopRightRadius: 24,
+                width: '100%', maxHeight: '85vh', overflowY: 'auto', padding: '10px 16px 28px' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}>
+                <div style={{ width: 40, height: 4, borderRadius: 2, background: T.borderStrong }} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: T.text }}>Live Preview</p>
+                <button onClick={() => setShowMobilePreview(false)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.textFaint, padding: 4 }}
+                  aria-label="Close preview">
+                  <X size={18} />
+                </button>
+              </div>
+              <SidePanelPreview formData={previewFormData} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Feedback modal — shown after quick download from preview panel */}
       <AnimatePresence>
