@@ -35,7 +35,15 @@ const PAGE_TITLES = {
   gu: 'Bandhan — મફત ગુજરાતી લગ્ન બાયોડેટા મેકર',
 }
 
+/* SEO landing pages (/<topic>/) ship their own language and URL via window.__SEO_PAGE__ */
+function seoPage() {
+  try { return window.__SEO_PAGE__ || null } catch { return null }
+}
+
 function detectLang() {
+  const seo = seoPage()
+  if (seo && translations[seo.lang]) return seo.lang
+
   /* 1. URL path — highest priority (direct link or bookmark) */
   try {
     const slug = window.location.pathname.replace(/^\//, '').replace(/\/$/, '')
@@ -73,8 +81,8 @@ function applyLangToURL(code) {
 export function LanguageProvider({ children }) {
   const [lang, setLangState] = useState(() => {
     const detected = detectLang()
-    /* Sync URL and title on initial load */
-    applyLangToURL(detected)
+    /* Sync URL and title on initial load (SEO pages keep their own URL and title) */
+    if (!seoPage()) applyLangToURL(detected)
     setAnalyticsLang(detected)
     return detected
   })

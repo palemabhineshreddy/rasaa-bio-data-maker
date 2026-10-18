@@ -4,6 +4,7 @@ import LandingPageLight from './pages/LandingPageLight'
 import BuilderPage from './pages/BuilderPage'
 import { ThemeProvider, useTheme } from './contexts/ThemeContext'
 import { track } from './utils/analytics'
+import SeoContent from './components/SeoContent'
 import { DEFAULT_FIELD_ORDER } from './utils/fieldGroups'
 
 const LS_KEY = 'bandhan_biodata_v1'
@@ -89,7 +90,7 @@ function AppInner() {
 
   const startBuilder = (rawStyleId) => {
     // Some buttons pass `onClick={onStart}` directly, so the arg can be a click event, not an ID
-    const styleId = typeof rawStyleId === 'string' ? rawStyleId : 'lotus'
+    const styleId = typeof rawStyleId === 'string' ? rawStyleId : (window.__SEO_PAGE__?.template || 'lotus')
     track.builderStarted(styleId)
     setFormData({ ...EMPTY_FORM, template: styleId })
     try { localStorage.removeItem(LS_KEY) } catch {}
@@ -116,6 +117,7 @@ function AppInner() {
           savedName={savedName}
         />
       )}
+      {view === 'landing' && <SeoContent />}
       {view === 'builder' && (
         <BuilderPage
           formData={formData}
