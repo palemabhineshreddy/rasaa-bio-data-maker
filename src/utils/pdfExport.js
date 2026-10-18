@@ -14,9 +14,35 @@ async function buildPDF(element, name) {
     import('jspdf'),
   ])
 
-  const canvas = await html2canvas(element, {
+  // Low-memory Android browsers can fail to allocate a 2x canvas; retry at lower scales
+  let canvas, scale, lastErr
+  for (scale of [2, 1.5, 1]) {
+    try { canvas = await renderCanvas(html2canvas, element, scale); break } catch (e) { lastErr = e }
+  }
+  if (!canvas) throw lastErr
+
+  const MM_PER_CSS_PX = 25.4 / 96
+  const cssW = canvas.width / scale
+  const cssH = canvas.height / scale
+  const pdfW = cssW * MM_PER_CSS_PX
+  const pdfH = cssH * MM_PER_CSS_PX
+
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: [pdfW, pdfH],
+    compress: true,
+  })
+
+  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfW, pdfH)
+
+  return { pdf, fileName: `${safeFileName(name)}-biodata.pdf` }
+}
+
+function renderCanvas(html2canvas, element, scale) {
+  return html2canvas(element, {
     backgroundColor: '#FDFDF9',
-    scale: 2,
+    scale,
     useCORS: true,
     logging: false,
     onclone: (_doc, clonedElement) => {
@@ -34,23 +60,6 @@ async function buildPDF(element, name) {
       }
     },
   })
-
-  const MM_PER_CSS_PX = 25.4 / 96
-  const cssW = canvas.width / 2
-  const cssH = canvas.height / 2
-  const pdfW = cssW * MM_PER_CSS_PX
-  const pdfH = cssH * MM_PER_CSS_PX
-
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: [pdfW, pdfH],
-    compress: true,
-  })
-
-  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfW, pdfH)
-
-  return { pdf, fileName: `${safeFileName(name)}-biodata.pdf` }
 }
 
 // Download the PDF and return the blob so the caller can reuse it for sharing
