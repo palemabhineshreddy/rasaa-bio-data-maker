@@ -2,6 +2,7 @@ import { useState, useRef, useLayoutEffect, useEffect, useCallback } from 'react
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, Shield, Download, ChevronRight, ChevronLeft, Heart, Lock, Zap, X, Globe, Moon, Menu, LayoutTemplate, BookOpen } from 'lucide-react'
 import BioTemplate from '../components/BioTemplate'
+import LazyMount from '../components/LazyMount'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -772,7 +773,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
       </div>
 
       {/* ── TEMPLATES ── */}
-      <TemplatesSection onStart={onStart} />
+      <LazyMount id="templates" minHeight={640}><TemplatesSection onStart={onStart} /></LazyMount>
 
       {/* ── HOW IT WORKS ── */}
       <section id="how" style={{ background: '#ffffff', padding: 'clamp(64px, 10vw, 108px) clamp(16px, 4vw, 24px)' }}>
