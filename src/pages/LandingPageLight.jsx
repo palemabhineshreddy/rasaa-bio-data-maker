@@ -70,7 +70,7 @@ function StyleCard({ s, i, onClick }) {
         <span style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{s.name}</span>
         {s.live
           ? <span style={{ fontSize: 9, fontWeight: 700, color: '#16a34a', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', padding: '2px 7px', borderRadius: 20 }}>Live</span>
-          : <span style={{ fontSize: 9, fontWeight: 600, color: '#9ca3af', padding: '2px 7px' }}>Soon</span>
+          : <span style={{ fontSize: 9, fontWeight: 600, color: '#6b7280', padding: '2px 7px' }}>Soon</span>
         }
       </div>
     </motion.div>
@@ -144,8 +144,8 @@ function TemplateRow({ groupStyles, onSelect }) {
             style={{ position: 'absolute', left: 0, top: 0, bottom: 16, width: 72, zIndex: 3,
               display: 'flex', alignItems: 'center', justifyContent: 'flex-start', paddingLeft: 4,
               background: 'linear-gradient(to right, #ffffff 35%, transparent)' }}>
-            <motion.button onClick={() => scrollTo(-1)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, color: '#9ca3af', display: 'flex' }}
+            <motion.button onClick={() => scrollTo(-1)} aria-label="Scroll templates left"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, color: '#6b7280', display: 'flex' }}
               whileHover={{ scale: 1.3, color: '#0a0a0a' }} whileTap={{ scale: 0.85 }} transition={{ duration: 0.15 }}>
               <ChevronLeft size={20} />
             </motion.button>
@@ -171,8 +171,8 @@ function TemplateRow({ groupStyles, onSelect }) {
             style={{ position: 'absolute', right: 0, top: 0, bottom: 16, width: 72, zIndex: 3,
               display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 4,
               background: 'linear-gradient(to left, #ffffff 35%, transparent)' }}>
-            <motion.button onClick={() => scrollTo(1)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, color: '#9ca3af', display: 'flex' }}
+            <motion.button onClick={() => scrollTo(1)} aria-label="Scroll templates right"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, color: '#6b7280', display: 'flex' }}
               whileHover={{ scale: 1.3, color: '#0a0a0a' }} whileTap={{ scale: 0.85 }} transition={{ duration: 0.15 }}>
               <ChevronRight size={20} />
             </motion.button>
@@ -252,7 +252,7 @@ function TemplateModal({ s, onClose, onStart }) {
           </div>
           <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: '50%', border: '1px solid #e5e7eb',
             background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#9ca3af', flexShrink: 0, marginLeft: 12 }}>
+            color: '#6b7280', flexShrink: 0, marginLeft: 12 }}>
             <X size={15} />
           </button>
         </div>
@@ -385,7 +385,7 @@ function TemplatesSection({ onStart }) {
         </motion.div>
 
         <div style={{ padding: '0 24px', marginBottom: 12 }}>
-          <span style={{ fontSize: 12, color: '#9ca3af' }}>{t(currentGroup.subKey)}</span>
+          <span style={{ fontSize: 12, color: '#6b7280' }}>{t(currentGroup.subKey)}</span>
         </div>
 
         <AnimatePresence mode="wait">
@@ -560,7 +560,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
                         <Icon size={16} color="#0a0a0a" />
                       </span>
                       {label}
-                      <ChevronRight size={15} style={{ marginLeft: 'auto', color: '#9ca3af' }} />
+                      <ChevronRight size={15} style={{ marginLeft: 'auto', color: '#6b7280' }} />
                     </motion.a>
                   )
                 })}
@@ -680,7 +680,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
 
             {/* Trust pills */}
             <motion.div custom={4} variants={fadeUp} initial="hidden" animate="show"
-              style={{ display: 'flex', flexWrap: 'wrap', gap: 24, fontSize: 13, color: '#9ca3af', marginBottom: 32 }}>
+              style={{ display: 'flex', flexWrap: 'wrap', gap: 24, fontSize: 13, color: '#6b7280', marginBottom: 32 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                 <Shield style={{ width: 14, height: 14, color: '#16a34a' }} /> {t('pill_private')}
               </span>
@@ -694,7 +694,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
 
             {/* Social proof */}
             <motion.div custom={5} variants={fadeUp} initial="hidden" animate="show"
-              style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13, color: '#9ca3af' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13, color: '#6b7280' }}>
               <div style={{ display: 'flex' }}>
                 {['#a78bfa','#f472b6','#fb923c','#34d399'].map((c, i) => (
                   <div key={i} style={{ width: 30, height: 30, borderRadius: '50%', background: c,
@@ -765,7 +765,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
                 borderRight: i < 3 ? '1px solid #e5e7eb' : 'none' }}>
               <div style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 700, color: '#0a0a0a',
                 lineHeight: 1, letterSpacing: '-0.02em', marginBottom: 8 }}>{value}</div>
-              <div style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: '#9ca3af', fontWeight: 500, letterSpacing: '0.03em' }}>{label}</div>
+              <div style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: '#6b7280', fontWeight: 500, letterSpacing: '0.03em' }}>{label}</div>
             </motion.div>
           ))}
         </div>
@@ -901,7 +901,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
                     fontSize: 14, fontWeight: 700, color: '#fff', flexShrink: 0 }}>{initials}</div>
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 700, color: '#0a0a0a', marginBottom: 3 }}>{name}</p>
-                    <p style={{ fontSize: 12, color: '#9ca3af', display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <p style={{ fontSize: 12, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 5 }}>
                       <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#16a34a', display: 'inline-block' }} />
                       {location}
                     </p>
@@ -1040,7 +1040,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
                   {title}
                 </p>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 12, color: '#9ca3af' }}>{time} · {date}</span>
+                  <span style={{ fontSize: 12, color: '#6b7280' }}>{time} · {date}</span>
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#0a0a0a' }}>Read →</span>
                 </div>
               </motion.a>
@@ -1057,7 +1057,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
           style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
 
           <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase',
-            color: '#9ca3af', marginBottom: 24 }}>Start for free</p>
+            color: '#6b7280', marginBottom: 24 }}>Start for free</p>
 
           <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 'clamp(36px, 5.5vw, 68px)', fontWeight: 700,
             lineHeight: 1.08, color: '#0a0a0a', marginBottom: 26, letterSpacing: '-0.025em' }}>
@@ -1115,9 +1115,9 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
               {NAV_LINKS.map(([href, label]) => (
                 <a key={href} href={href}
                   style={{ fontSize: 13, fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s',
-                    color: '#9ca3af' }}
+                    color: '#6b7280' }}
                   onMouseEnter={e => { e.currentTarget.style.color = '#0a0a0a' }}
-                  onMouseLeave={e => { e.currentTarget.style.color = '#9ca3af' }}>
+                  onMouseLeave={e => { e.currentTarget.style.color = '#6b7280' }}>
                   {label}
                 </a>
               ))}
@@ -1125,8 +1125,8 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-            <p style={{ color: '#9ca3af', fontSize: 12 }}>{t('footer_tagline')}</p>
-            <span style={{ color: '#9ca3af', fontSize: 12 }}>© 2026 Bandhan · bandhan.app</span>
+            <p style={{ color: '#6b7280', fontSize: 12 }}>{t('footer_tagline')}</p>
+            <span style={{ color: '#6b7280', fontSize: 12 }}>© 2026 Bandhan · bandhan.app</span>
           </div>
         </div>
       </footer>
