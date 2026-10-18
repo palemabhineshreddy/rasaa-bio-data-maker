@@ -73,6 +73,14 @@ function AppInner() {
     return next
   })
 
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem('bandhan_landing_seen')) return
+      sessionStorage.setItem('bandhan_landing_seen', '1')
+    } catch {}
+    track.landingViewed()
+  }, [])
+
   const goToBuilder = () => {
     // Push a history entry so browser back returns to landing, not Google
     history.pushState({ view: 'builder' }, '', '/')

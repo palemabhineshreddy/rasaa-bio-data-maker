@@ -7,13 +7,31 @@ function _gtag(...args) {
   } catch {}
 }
 
+// UI language, kept in sync by LanguageContext so every event can be split by language
+let _lang = 'en'
+export function setAnalyticsLang(code) { _lang = code }
+
 export function trackEvent(name, params = {}) {
-  _gtag('event', name, { app: 'bandhan', ...params })
+  _gtag('event', name, { app: 'bandhan', language: _lang, ...params })
 }
 
 // ─── Named events (full user journey) ─────────────────────────────────────
 
 export const track = {
+  // Landing page shown (once per session) — denominator for landing → Create conversion
+  landingViewed: () => trackEvent('landing_viewed'),
+
+  // UI language switched via the globe dropdown
+  languageChanged: (language) => trackEvent('language_changed', { to_language: language }),
+
+  // Continue pressed with a required field still empty (nothing blocks it, but it hurts the output)
+  requiredFieldEmpty: (stepIndex, field) =>
+    trackEvent('required_field_empty', { step_number: stepIndex + 1, field }),
+
+  // Builder left before reaching the preview — last_step shows where people give up
+  builderExited: (stepIndex, hasName) =>
+    trackEvent('builder_exited', { last_step: stepIndex + 1, has_name: hasName }),
+
   // Landing page → builder hand-off
   builderStarted: (template = 'lotus') =>
     trackEvent('builder_started', { template }),

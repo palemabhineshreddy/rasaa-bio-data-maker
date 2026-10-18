@@ -1,0 +1,7 @@
+{
+  "name": "bandhan-analytics",
+  "private": true,
+  "type": "module",
+  "scripts": { "report": "node report.mjs" },
+  "dependencies": { "@google-analytics/data": "^4.12.0" }
+}
