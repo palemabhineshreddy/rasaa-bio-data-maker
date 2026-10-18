@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react'
-import LandingPage from './pages/LandingPage'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import LandingPageLight from './pages/LandingPageLight'
-import BuilderPage from './pages/BuilderPage'
 import { ThemeProvider, useTheme } from './contexts/ThemeContext'
 import { track } from './utils/analytics'
 import SeoContent from './components/SeoContent'
 import { DEFAULT_FIELD_ORDER } from './utils/fieldGroups'
+
+// Only one landing page and (until Create is clicked) no builder is needed for first paint
+const LandingPage = lazy(() => import('./pages/LandingPage'))
+const loadBuilder = () => import('./pages/BuilderPage')
+const BuilderPage = lazy(loadBuilder)
 
 const LS_KEY = 'bandhan_biodata_v1'
 
@@ -74,6 +77,13 @@ function AppInner() {
     return next
   })
 
+  // Warm the builder chunk once the landing page has settled, so Create feels instant
+  useEffect(() => {
+    const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 2500))
+    const h = idle(() => { loadBuilder().catch(() => {}) })
+    return () => (window.cancelIdleCallback || clearTimeout)(h)
+  }, [])
+
   useEffect(() => {
     try {
       if (sessionStorage.getItem('bandhan_landing_seen')) return
@@ -103,6 +113,7 @@ function AppInner() {
 
   return (
     <main className="min-h-screen">
+      <Suspense fallback={null}>
       {view === 'landing' && theme === 'dark' && (
         <LandingPage
           onStart={startBuilder}
@@ -128,6 +139,7 @@ function AppInner() {
           }}
         />
       )}
+      </Suspense>
     </main>
   )
 }
