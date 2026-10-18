@@ -1484,7 +1484,17 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
 
   const canNext = () => true
 
+  const stepRef = useRef(step)
+  const nameRef = useRef(!!formData.fullName)
+  useEffect(() => { stepRef.current = step; nameRef.current = !!formData.fullName })
+  // Fires on unmount only when the user leaves before reaching the preview
+  useEffect(() => () => {
+    if (stepRef.current < totalSteps) track.builderExited(stepRef.current, nameRef.current)
+  }, [])
+
   const next = () => {
+    if (step === 0 && !formData.fullName?.trim()) track.requiredFieldEmpty(step, 'fullName')
+    if (step === 1 && !formData.occupation?.trim()) track.requiredFieldEmpty(step, 'occupation')
     if (step < totalSteps) {
       track.stepCompleted(step, STEPS[step]?.label ?? 'preview')
       setStep(s => s + 1)

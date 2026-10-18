@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react'
+import { setAnalyticsLang, track } from '../utils/analytics'
 import { translations, createT, LANGUAGES } from '../i18n/translations'
 
 const LanguageContext = createContext(null)
@@ -74,12 +75,15 @@ export function LanguageProvider({ children }) {
     const detected = detectLang()
     /* Sync URL and title on initial load */
     applyLangToURL(detected)
+    setAnalyticsLang(detected)
     return detected
   })
 
   const setLang = (code) => {
     if (!translations[code]) return
     setLangState(code)
+    setAnalyticsLang(code)
+    track.languageChanged(code)
     applyLangToURL(code)
     try { localStorage.setItem('bandhan_lang', code) } catch {}
   }
