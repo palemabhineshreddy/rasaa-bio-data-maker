@@ -87,9 +87,11 @@ function AppInner() {
     setView('builder')
   }
 
-  const startBuilder = (styleId) => {
-    track.builderStarted(styleId || 'lotus')
-    setFormData({ ...EMPTY_FORM, template: styleId || 'lotus' })
+  const startBuilder = (rawStyleId) => {
+    // Some buttons pass `onClick={onStart}` directly, so the arg can be a click event, not an ID
+    const styleId = typeof rawStyleId === 'string' ? rawStyleId : 'lotus'
+    track.builderStarted(styleId)
+    setFormData({ ...EMPTY_FORM, template: styleId })
     try { localStorage.removeItem(LS_KEY) } catch {}
     goToBuilder()
   }
