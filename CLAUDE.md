@@ -8,10 +8,16 @@ No backend, no auth, no database — all state lives in browser memory during th
 
 Deploy commands:
 ```bash
-npm run build
-aws s3 sync dist/ s3://bandhan.app --delete
+npm run build   # also runs scripts/generate-seo-pages.mjs → dist/<slug>/index.html + sitemap entries
+# Hashed assets: 1-year immutable cache. Use `cp --recursive` (not sync) so metadata is rewritten on unchanged files
+aws s3 cp dist/assets s3://bandhan.app/assets --recursive --cache-control "public, max-age=31536000, immutable"
+# Everything else (HTML, sitemap, etc.): always revalidate. --exclude also protects assets/ from --delete
+aws s3 sync dist s3://bandhan.app --exclude "assets/*" --delete --cache-control "public, max-age=0, must-revalidate"
+# Remove stale hashed assets
+aws s3 sync dist/assets s3://bandhan.app/assets --delete --cache-control "public, max-age=31536000, immutable"
 aws cloudfront create-invalidation --distribution-id EJU1GGP7C6SYH --paths "/*"
 ```
+Note: `curl -I` (HEAD) does not show compression — test with a GET and `Accept-Encoding: br,gzip`. CloudFront compression is already on.
 
 ---
 
@@ -490,9 +496,26 @@ Note: `_headers` is Netlify-specific syntax — on AWS CloudFront, response head
 
 ---
 
+## SEO Landing Pages (`src/seo/pages.js`)
+35 search pages (27 English topic/religion/community/design + 8 native-script regional-language) at `bandhan.app/<slug>/`.
+- Content lives in `src/seo/pages.js` (`PAGES`, `REGIONAL_PAGES`, `ALL_PAGES`). Add a page = add an entry; no other file needs changing.
+- `scripts/generate-seo-pages.mjs` (runs after `vite build`) writes `dist/<slug>/index.html` with unique title/meta/canonical, FAQ + Breadcrumb JSON-LD, crawlable HTML, `window.__SEO_PAGE__`, and appends all URLs to `dist/sitemap.xml`. It throws if `index.html` patterns it replaces no longer match.
+- `LanguageContext.jsx` uses `__SEO_PAGE__.lang` and does NOT rewrite the URL/title on SEO pages. `App.jsx startBuilder` defaults the template to `__SEO_PAGE__.template`.
+- `src/components/SeoContent.jsx` renders the article + internal links grid (data lazy-loaded, kept out of the main bundle).
+- Religion invocation wording must match `RELIGION_SLOGANS_MAP` in `BuilderPage.jsx` (Muslim Bismillah, Sikh Ik Onkar Sat Naam Karta Purakh, Christian "To God Be The Glory", Jain Jai Jinendra, Buddhist Namo Buddhaya).
+- Regional-language page text was written without native-speaker review — have one checked before relying on it.
+- Local preview: `npm run build && npx vite preview --port 4173` (the dev server does not serve generated pages).
+
+## GA4 report (`analytics/`)
+`cd analytics && GA4_PROPERTY_ID=536859155 npm run report` → `analytics/out/report.html` (funnel, step drop-off, audience). Auth: gcloud ADC impersonating `ga4-reader@bandhan-analytics.iam.gserviceaccount.com` (org policy blocks service-account keys; set up with `gcloud auth application-default login --impersonate-service-account=...`). Custom dimensions to register in GA4: `language`, `step_number`, `step_name`, `template`, `field`, `last_step`, `to_language`, `error_message`.
+
 ## Analytics Events (`src/utils/analytics.js`)
 | Event | When fired |
 |-------|-----------|
+| `landingViewed` | Landing shown, once per session |
+| `languageChanged` | UI language switched |
+| `requiredFieldEmpty` | Continue pressed with fullName/occupation empty |
+| `builderExited` | Builder left before preview (last_step, has_name) |
 | `builderStarted` | User clicks Create |
 | `stepViewed` | Each step loads |
 | `stepCompleted` | User advances past a step |
