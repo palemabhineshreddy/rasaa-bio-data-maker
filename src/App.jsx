@@ -102,7 +102,7 @@ function AppInner() {
   const savedName = formData.fullName?.trim() || null
 
   return (
-    <div className="min-h-screen">
+    <main className="min-h-screen">
       {view === 'landing' && theme === 'dark' && (
         <LandingPage
           onStart={startBuilder}
@@ -128,7 +128,7 @@ function AppInner() {
           }}
         />
       )}
-    </div>
+    </main>
   )
 }
 
