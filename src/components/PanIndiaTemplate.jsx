@@ -1,6 +1,8 @@
 import { formatDate } from '../utils/formatters'
+import { textScale, capsStyle } from '../utils/textStyle'
 import { useLanguage } from '../contexts/LanguageContext'
-import { getFieldOrder } from '../utils/fieldGroups'
+import { getSectionOrder } from '../utils/fieldGroups'
+import GradientStrip from './GradientStrip'
 
 /*
  * Bandhan — Biodata Template Engine
@@ -613,6 +615,12 @@ export default function PanIndiaTemplate({ data }) {
 
   const clean = customFields.filter(f => f.label?.trim() && f.value?.trim())
   const bySection = s => clean.filter(f => f.section === s)
+  // Built-in and added rows of a section, in the order the user arranged them
+  const ordered = (section, rowMap) => getSectionOrder(data, section).map(id => {
+    if (rowMap[id] !== undefined) return rowMap[id]
+    const f = clean.find(c => `cf:${c.id}` === id)
+    return f ? <Row key={f.id} label={f.label} value={f.value} /> : null
+  })
   const grouped = bySection('custom').reduce((acc, f) => {
     const t = f.customTitle?.trim() || 'Additional Details'
     return { ...acc, [t]: [...(acc[t] || []), f] }
@@ -622,15 +630,14 @@ export default function PanIndiaTemplate({ data }) {
 
   const hasPersonal = [fullName, dateOfBirth, age, height, weight, bloodGroup,
     religion, caste, subCaste, motherTongue, gender,
-    education, college, occupation, company, income, workLocation,
-    about, partnerExpectations].some(Boolean) ||
+    education, college, occupation, company, income, workLocation].some(Boolean) ||
     bySection('personal').length > 0 || bySection('career').length > 0 || hasHoroscope
 
   const hasFamily = [fatherName, fatherOccupation, motherName, motherOccupation,
     brothers, sisters, familyType, familyStatus, nativePlace].some(Boolean) ||
     bySection('family').length > 0
 
-  const hasContact = [phone, email, city, state, address].some(Boolean) ||
+  const hasContact = [phone, email, city, state, address, about, partnerExpectations].some(Boolean) ||
     bySection('contact').length > 0
 
   /* Row and Divider close over theme colors */
@@ -644,19 +651,20 @@ export default function PanIndiaTemplate({ data }) {
     )
   }
 
-  function Row({ label, value }) {
+  function Row({ label, value, keepCase }) {
     if (!value) return null
+    const k = textScale(data)
     return (
-      <div style={{ display: 'flex', alignItems: 'baseline', padding: '4px 0' }}>
-        <span style={{ width: 148, flexShrink: 0, fontSize: 10.5, fontWeight: 700, color: labelColor }}>{label}</span>
-        <span style={{ fontSize: 10.5, fontWeight: 700, color: gold, marginRight: 10 }}>:</span>
-        <span style={{ fontSize: 10.5, color: valueColor, fontWeight: 500, flex: 1, lineHeight: 1.5 }}>{value}</span>
+      <div data-pdf-row style={{ display: 'flex', alignItems: 'baseline', padding: `${4 * k}px 0` }}>
+        <span style={{ textTransform: capsStyle(data), width: 148 * k, flexShrink: 0, fontSize: 10.5 * k, fontWeight: 700, color: labelColor }}>{label}</span>
+        <span style={{ fontSize: 10.5 * k, fontWeight: 700, color: gold, marginRight: 10 }}>:</span>
+        <span style={{ textTransform: capsStyle(data, keepCase), fontSize: 10.5 * k, color: valueColor, fontWeight: 500, flex: 1, lineHeight: 1.5, whiteSpace: 'pre-line' }}>{value}</span>
       </div>
     )
   }
 
   return (
-    <div className="pdf-area" style={{ background: bg, fontFamily: 'Inter, sans-serif', position: 'relative', minHeight: 1075 }}>
+    <div className="pdf-area" data-pdf-bottom="72" style={{ background: bg, fontFamily: 'Inter, sans-serif', position: 'relative', minHeight: 1075 }}>
 
       <Border outer={outer} gold={gold} />
 
@@ -664,7 +672,7 @@ export default function PanIndiaTemplate({ data }) {
       <div style={{ padding: '48px 52px 56px 90px', position: 'relative', zIndex: 1 }}>
 
         {getSlogan(religion, motherTongue, sloganLanguage) && (
-          <header style={{ textAlign: 'center', marginBottom: 16 }}>
+          <header data-pdf-first style={{ textAlign: 'center', marginBottom: 16 }}>
             <div style={{ fontFamily: 'serif', fontSize: 13, color: gold, letterSpacing: '0.14em' }}>
               {getSlogan(religion, motherTongue, sloganLanguage)}
             </div>
@@ -685,8 +693,6 @@ export default function PanIndiaTemplate({ data }) {
             caste:               <Row key="caste"       label={t('pdf_community')}  value={[caste, subCaste].filter(Boolean).join(' / ')} />,
             subCaste:            null,
             motherTongue:        <Row key="tongue"      label={t('pdf_tongue')}     value={motherTongue} />,
-            about:               <Row key="about"       label="About Me"            value={about} />,
-            partnerExpectations: <Row key="partnerExp"  label="Partner Expectations" value={partnerExpectations} />,
           }
           const careerRowMap = {
             education:   <Row key="edu"    label={t('pdf_education')}  value={education} />,
@@ -707,15 +713,12 @@ export default function PanIndiaTemplate({ data }) {
               <Divider title={t('pdf_personal')} />
               <div style={{ display: 'grid', gridTemplateColumns: photo ? '1fr 160px' : '1fr', gap: 12, alignItems: 'flex-start' }}>
                 <div>
-                  {getFieldOrder(data, 'personal').map(id => personalRowMap[id] ?? null)}
-                  {bySection('personal').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
-                  {getFieldOrder(data, 'career').map(id => careerRowMap[id] ?? null)}
-                  {bySection('career').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
-                  {getFieldOrder(data, 'horoscope').map(id => horoscopeRowMap[id] ?? null)}
-                  {bySection('horoscope').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+                  {ordered('personal', personalRowMap)}
+                  {ordered('career', careerRowMap)}
+                  {ordered('horoscope', horoscopeRowMap)}
                 </div>
                 {photo && (
-                  <div style={{
+                  <div data-pdf-first style={{
                     width: 152, height: 192,
                     backgroundImage: `url(${photo})`,
                     backgroundSize: 'cover',
@@ -744,8 +747,7 @@ export default function PanIndiaTemplate({ data }) {
           return (
             <>
               <Divider title={t('pdf_family')} />
-              {getFieldOrder(data, 'family').map(id => familyRowMap[id] ?? null)}
-              {bySection('family').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+              {ordered('family', familyRowMap)}
             </>
           )
         })()}
@@ -754,7 +756,7 @@ export default function PanIndiaTemplate({ data }) {
         {hasContact && (() => {
           const contactRowMap = {
             phone:   <Row key="phone"    label={t('pdf_phone')}   value={phone} />,
-            email:   <Row key="email"    label={t('pdf_email')}   value={email} />,
+            email:   <Row key="email"    label={t('pdf_email')}   value={email} keepCase />,
             city:    <Row key="city"     label="City"             value={city} />,
             state:   <Row key="state"    label="State"            value={state} />,
             address: <Row key="address"  label={t('pdf_address')} value={address} />,
@@ -762,8 +764,9 @@ export default function PanIndiaTemplate({ data }) {
           return (
             <>
               <Divider title={t('pdf_contact')} />
-              {getFieldOrder(data, 'contact').map(id => contactRowMap[id] ?? null)}
-              {bySection('contact').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+              {ordered('contact', contactRowMap)}
+              <Row label={t('pdf_about')} value={about} keepCase />
+              <Row label={t('pdf_partner')} value={partnerExpectations} keepCase />
             </>
           )
         })()}
@@ -781,11 +784,11 @@ export default function PanIndiaTemplate({ data }) {
       {/* Footer ornament — absolutely pinned to the bottom of the card in live preview;
           in PDF export the parent has no explicit height so it sits just after the content */}
       <div style={{ position: 'absolute', bottom: 28, left: 90, width: 618, zIndex: 1, display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
-        <div style={{ flex: 1, height: 1, backgroundImage: `linear-gradient(to right, transparent, ${gold})`, backgroundRepeat: 'no-repeat' }} />
+        <GradientStrip stops={[[0, gold, 0], [1, gold]]} style={{ flex: 1, height: 1 }} />
         <svg width="14" height="14" viewBox="0 0 14 14" fill={gold}>
           <rect x="3.5" y="3.5" width="7" height="7" transform="rotate(45 7 7)" />
         </svg>
-        <div style={{ flex: 1, height: 1, backgroundImage: `linear-gradient(to left, transparent, ${gold})`, backgroundRepeat: 'no-repeat' }} />
+        <GradientStrip stops={[[0, gold], [1, gold, 0]]} style={{ flex: 1, height: 1 }} />
       </div>
 
     </div>

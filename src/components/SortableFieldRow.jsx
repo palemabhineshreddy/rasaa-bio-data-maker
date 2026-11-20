@@ -1,11 +1,24 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical } from 'lucide-react'
+import { ChevronUp, ChevronDown, GripVertical } from 'lucide-react'
 import { useBuilderTheme } from '../contexts/ThemeContext'
+import { useLanguage } from '../contexts/LanguageContext'
 
-export default function SortableFieldRow({ id, children }) {
+// Reorder rail: ↑ / drag handle / ↓. The arrows make reordering obvious and work with a tap,
+// for people who never discover that the handle can be dragged.
+export default function SortableFieldRow({ id, children, onMoveUp, onMoveDown }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
   const T = useBuilderTheme()
+  const { t } = useLanguage()
+
+  const railBtn = (enabled) => ({
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    width: 26, height: 22, padding: 0, background: 'none', border: 'none',
+    color: T.dragHandleColor, opacity: enabled ? 1 : 0.35,
+    cursor: enabled ? 'pointer' : 'default', transition: 'color 0.15s',
+  })
+  const hover = e => { e.currentTarget.style.color = T.dragHandleHover }
+  const unhover = e => { e.currentTarget.style.color = T.dragHandleColor }
 
   return (
     <div
@@ -16,30 +29,31 @@ export default function SortableFieldRow({ id, children }) {
         opacity: isDragging ? 0.45 : 1,
         display: 'flex',
         alignItems: 'flex-start',
-        gap: 6,
+        gap: 4,
       }}
     >
-      <button
-        type="button"
-        {...attributes}
-        {...listeners}
-        aria-label="Drag to reorder"
-        style={{
-          flexShrink: 0,
-          marginTop: 'clamp(20px, 3vw, 28px)',
-          background: 'none',
-          border: 'none',
-          padding: '4px 2px',
-          cursor: isDragging ? 'grabbing' : 'grab',
-          color: T.dragHandleColor,
-          touchAction: 'none',
-          transition: 'color 0.15s',
-        }}
-        onMouseEnter={e => { e.currentTarget.style.color = T.dragHandleHover }}
-        onMouseLeave={e => { e.currentTarget.style.color = T.dragHandleColor }}
-      >
-        <GripVertical size={15} />
-      </button>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, marginTop: 'clamp(14px, 2.4vw, 22px)' }}>
+        <button type="button" onClick={onMoveUp ?? undefined} disabled={!onMoveUp}
+          aria-label={t('move_up')} title={t('move_up')}
+          style={railBtn(!!onMoveUp)} onMouseEnter={hover} onMouseLeave={unhover}>
+          <ChevronUp size={16} />
+        </button>
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          aria-label="Drag to reorder"
+          style={{ ...railBtn(true), cursor: isDragging ? 'grabbing' : 'grab', touchAction: 'none' }}
+          onMouseEnter={hover} onMouseLeave={unhover}
+        >
+          <GripVertical size={16} />
+        </button>
+        <button type="button" onClick={onMoveDown ?? undefined} disabled={!onMoveDown}
+          aria-label={t('move_down')} title={t('move_down')}
+          style={railBtn(!!onMoveDown)} onMouseEnter={hover} onMouseLeave={unhover}>
+          <ChevronDown size={16} />
+        </button>
+      </div>
 
       <div style={{ flex: 1, minWidth: 0 }}>
         {children}

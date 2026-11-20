@@ -165,7 +165,7 @@ Key tokens (selected):
 | `logoIconBg` | `#0a0a0a` | `linear-gradient(135deg, #C8960C, #F0B820)` |
 | `logoIconColor` | `#ffffff` | `#1a0a00` |
 | `logoIconShadow` | `0 3px 12px rgba(0,0,0,0.18)` | `0 3px 12px rgba(200,150,12,0.4)` |
-| `dragHandleColor` | `rgba(0,0,0,0.22)` | `rgba(255,255,255,0.18)` |
+| `dragHandleColor` | `rgba(0,0,0,0.4)` | `rgba(255,255,255,0.38)` |
 | `dragHandleHover` | `rgba(0,0,0,0.55)` | `rgba(168,85,247,0.7)` |
 | `textFaint` | `#9ca3af` | `rgba(255,255,255,0.35)` |
 
@@ -228,19 +228,19 @@ Horoscope is a full drag-and-drop section (like Personal/Career/Family/Contact) 
 Wraps each draggable field row. Uses `@dnd-kit/sortable`.
 - Drag handle: `GripVertical` icon from lucide-react.
 - Handle colour is **themed** via `T.dragHandleColor` / `T.dragHandleHover` from `useBuilderTheme()`.
-  - Light theme: `rgba(0,0,0,0.22)` → `rgba(0,0,0,0.55)` on hover (visible on white backgrounds).
-  - Dark theme: `rgba(255,255,255,0.18)` → `rgba(168,85,247,0.7)` on hover.
+  - Light theme: `rgba(0,0,0,0.4)` → `rgba(0,0,0,0.55)` on hover (visible on white backgrounds).
+  - Dark theme: `rgba(255,255,255,0.38)` → `rgba(168,85,247,0.7)` on hover.
 - **Never hardcode `rgba(255,255,255,...)` for the handle** — it is invisible on the light theme background.
 
 ### `DragHint` component (inline in `BuilderPage.jsx`)
-Faint centred hint text shown below every DnD block in both themes:
-```
-⠿ Hold and drag to reorder fields
-```
-Uses `T.textFaint` for colour (11px, letterSpacing 0.02em). Placed after each `</DndContext>` closing tag in: personal (Step1), horoscope (Step1), career (Step2), family (Step3), contact (Step4).
+Faint centred hint (`t('drag_hint')`, translated) shown below every reorderable section, rendered by `SortableSection`. Uses `T.textFaint` (11px).
+
+### Reordering: `SortableSection` + ↑ ⠿ ↓ rail
+`SortableSection` renders one section's built-in fields **and the user's added fields** as one sortable list. Each `SortableFieldRow` has a rail: ↑ button, drag handle, ↓ button (arrows exist because many users never discovered dragging).
+Added fields are stored in the order as `'cf:<id>'`; `getSectionOrder(formData, section)` in `fieldGroups.js` merges them (new ones at the end, deleted ones dropped). **Both** `PanIndiaTemplate` and `GenZTemplates` (`extractRows`) render rows via `getSectionOrder`, so every template follows the user's order.
 
 ### DnD sections
-`useSectionSort(keys, formData, updateForm)` hook manages field order state. Sections with DnD:
+`useSectionSort(formData, updateForm, section)` returns `{ sensors, order, onDragEnd, move }`. Sections with DnD:
 - Personal fields (Step1)
 - Horoscope fields (Step1, inside SectionToggle)
 - Career fields (Step2)
@@ -428,7 +428,9 @@ Extracted from `LandingPage.jsx` so both pages share identical previews:
 ## PDF Export
 - `pdfExport.js` uses html2canvas on the element passed via `previewRef` (not a CSS selector)
 - Scale: `2` for high DPI
-- PDF dimensions match the element's exact pixel size — one page, no splitting
+- **A4 pages:** `paginate()` splits the biodata into A4-height pages (rows never split, a heading never ends a page, a continuing section repeats its heading). Templates must mark blocks: `data-pdf-row` (each Label : Value row), `data-pdf-divider` (section headings), `data-pdf-first` (name banner, photo, slogan — page 1 only), `data-pdf-last` (closing line — last page only), and optionally `data-pdf-bottom="<px>"` on `.pdf-area` to reserve footer space (default 40). **Any new template or row component must carry these attributes.**
+- Canvas size is capped (12M px, 4096px a side) so phones never refuse to render a page
+- **Text style (Preview step only):** `formData.textSize` (`xs|s|m|l|xl`, scale in `utils/textStyle.js`) and `formData.textCase` (`normal|upper`) scale/capitalise row label, colon and value in every template's `Row`; email and About/Partner paragraphs pass `keepCase`. The Preview panel shows the page count from `paginate()`.
 - Photo must use `background-image` + `background-position` — `object-fit` on `<img>` is ignored by html2canvas
 - `inset` CSS shorthand not supported by html2canvas — use explicit `top/right/bottom/left`
 - `borderBottom` on inline `<span>` renders inconsistently — use a separate `<div>` for underlines
@@ -500,8 +502,9 @@ Note: `_headers` is Netlify-specific syntax — on AWS CloudFront, response head
 35 search pages (27 English topic/religion/community/design + 8 native-script regional-language) at `bandhan.app/<slug>/`.
 - Content lives in `src/seo/pages.js` (`PAGES`, `REGIONAL_PAGES`, `ALL_PAGES`). Add a page = add an entry; no other file needs changing.
 - `scripts/generate-seo-pages.mjs` (runs after `vite build`) writes `dist/<slug>/index.html` with unique title/meta/canonical, FAQ + Breadcrumb JSON-LD, crawlable HTML, `window.__SEO_PAGE__`, and appends all URLs to `dist/sitemap.xml`. It throws if `index.html` patterns it replaces no longer match.
-- `LanguageContext.jsx` uses `__SEO_PAGE__.lang` and does NOT rewrite the URL/title on SEO pages. `App.jsx startBuilder` defaults the template to `__SEO_PAGE__.template`.
-- `src/components/SeoContent.jsx` renders the article + internal links grid (data lazy-loaded, kept out of the main bundle).
+- `LanguageContext.jsx` uses `__SEO_PAGE__.lang` and does NOT rewrite the URL/title on SEO pages.
+- `__SEO_PAGE__` also carries `h1` + `intro`: both landing pages swap the hero headline/tagline for the page topic and show a "See what to include ↓" link (`seo_guide_link`) that scrolls to `#guide` (the SeoContent article). Without this, every SEO page opened with the generic homepage hero and looked like a reload of the homepage. `App.jsx startBuilder` defaults the template to `__SEO_PAGE__.template`.
+- `src/components/SeoContent.jsx`: default export renders the SEO page article (`#guide`); named export `FormatLinks` is a small muted "All biodata formats ▾" `<details>` in both landing footers, grouped by `LINK_GROUPS` (`pages.js`). Keep these homepage links (they tell Google the pages matter). They must stay reachable by visitors — collapsed is fine, fully hidden links break Google's hidden-links policy. The generator also writes the grouped links into the raw HTML of every SEO page and the homepage crawler section.
 - Religion invocation wording must match `RELIGION_SLOGANS_MAP` in `BuilderPage.jsx` (Muslim Bismillah, Sikh Ik Onkar Sat Naam Karta Purakh, Christian "To God Be The Glory", Jain Jai Jinendra, Buddhist Namo Buddhaya).
 - Regional-language page text was written without native-speaker review — have one checked before relying on it.
 - Local preview: `npm run build && npx vite preview --port 4173` (the dev server does not serve generated pages).

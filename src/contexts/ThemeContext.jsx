@@ -50,6 +50,7 @@ const LIGHT = {
   backBtnHoverColor: 'rgba(0,0,0,0.75)',
   backBtnHoverBg: 'rgba(0,0,0,0.05)',
   savedFlashColor: '#16a34a',
+  warnText: '#b45309',
   savedFlashDim: 'rgba(22,163,74,0.35)',
   stepCountBg: 'rgba(0,0,0,0.06)',
   stepCountBorder: 'rgba(0,0,0,0.08)',
@@ -62,6 +63,7 @@ const LIGHT = {
   photoBorder: 'rgba(0,0,0,0.15)',
   photoBg: '#f3f4f6',
   photoText: '#9ca3af',
+  cropStageBg: '#111114',
   sliderTrack: 'rgba(0,0,0,0.1)',
   customFieldBg: '#f9fafb',
   customFieldBorder: 'rgba(0,0,0,0.08)',
@@ -71,7 +73,7 @@ const LIGHT = {
   logoIconShadow: '0 3px 12px rgba(0,0,0,0.18)',
   logoIconColor: '#ffffff',
   accentBar: '#0a0a0a',
-  dragHandleColor: 'rgba(0,0,0,0.22)',
+  dragHandleColor: 'rgba(0,0,0,0.4)',
   dragHandleHover: 'rgba(0,0,0,0.55)',
 }
 
@@ -104,6 +106,7 @@ const DARK = {
   backBtnHoverColor: 'rgba(255,255,255,0.75)',
   backBtnHoverBg: 'rgba(255,255,255,0.06)',
   savedFlashColor: 'rgba(52,211,153,0.9)',
+  warnText: '#fbbf24',
   savedFlashDim: 'rgba(52,211,153,0.35)',
   stepCountBg: 'rgba(255,255,255,0.05)',
   stepCountBorder: 'rgba(255,255,255,0.08)',
@@ -116,6 +119,7 @@ const DARK = {
   photoBorder: 'rgba(255,255,255,0.2)',
   photoBg: 'rgba(255,255,255,0.05)',
   photoText: 'rgba(255,255,255,0.3)',
+  cropStageBg: '#0b0b0e',
   sliderTrack: 'rgba(255,255,255,0.15)',
   customFieldBg: 'rgba(255,255,255,0.04)',
   customFieldBorder: 'rgba(255,255,255,0.08)',
@@ -125,6 +129,6 @@ const DARK = {
   logoIconShadow: '0 3px 12px rgba(200,150,12,0.4)',
   logoIconColor: '#1a0a00',
   accentBar: 'linear-gradient(180deg, #F0B820, #C8960C)',
-  dragHandleColor: 'rgba(255,255,255,0.18)',
+  dragHandleColor: 'rgba(255,255,255,0.38)',
   dragHandleHover: 'rgba(168,85,247,0.7)',
 }

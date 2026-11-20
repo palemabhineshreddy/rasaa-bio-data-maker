@@ -303,3 +303,7 @@ html[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
+
+/* <details> summary without the default disclosure triangle */
+.summary-plain { list-style: none; }
+.summary-plain::-webkit-details-marker { display: none; }

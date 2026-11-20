@@ -1,7 +1,7 @@
 // Post-build: writes dist/<slug>/index.html for every SEO page and appends them to dist/sitemap.xml.
 // Each page is the built SPA shell with its own <title>, meta, canonical, JSON-LD and crawlable HTML.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
-import { ALL_PAGES } from '../src/seo/pages.js'
+import { ALL_PAGES, LINK_GROUPS } from '../src/seo/pages.js'
 
 const SITE = 'https://bandhan.app'
 const DIST = new URL('../dist/', import.meta.url)
@@ -16,6 +16,12 @@ function sub(html, re, replacement, label) {
   return html.replace(re, () => replacement)
 }
 
+// Same grouped links as the app's footer, in the raw HTML so crawlers that skip JavaScript follow them
+function linksHtml(exclude) {
+  return `<details><summary>Browse all biodata formats</summary>${LINK_GROUPS.map((g) =>
+    `<h3>${esc(g.title)}</h3><ul>${g.pages.filter((p) => p.slug !== exclude).map((p) => `<li><a href="/${p.slug}/">${esc(p.h1)}</a></li>`).join('')}</ul>`).join('')}</details>`
+}
+
 function staticBody(p) {
   return `<main style="max-width:760px;margin:0 auto;padding:32px 16px;font-family:system-ui,sans-serif;line-height:1.6">
 <h1>${esc(p.h1)}</h1>
@@ -24,6 +30,7 @@ ${p.fields?.length ? `<h2>What to include</h2><ul>${p.fields.map((f) => `<li>${e
 ${p.tips?.length ? `<h2>Tips</h2><ul>${p.tips.map((f) => `<li>${esc(f)}</li>`).join('')}</ul>` : ''}
 ${p.faq?.length ? `<h2>FAQ</h2>${p.faq.map(([q, a]) => `<h3>${esc(q)}</h3><p>${esc(a)}</p>`).join('')}` : ''}
 <p><a href="/">Create your biodata free on Bandhan</a></p>
+${linksHtml(p.slug)}
 </main>`
 }
 
@@ -60,13 +67,20 @@ for (const p of ALL_PAGES) {
   html = sub(html, /<meta name="twitter:description" content="[^"]*"/, `<meta name="twitter:description" content="${esc(p.description)}"`, 'twitter:description')
   // The shell's hreflang cluster describes the homepage languages, so drop it from topic pages
   html = html.replace(/\s*<link rel="alternate" hreflang="[^"]*"\s+href="[^"]*"\s*\/>/g, '')
-  html = sub(html, /<\/head>/, `${jsonLd(p, url)}<script>window.__SEO_PAGE__=${jsonForScript({ slug: p.slug, lang: p.lang, template: p.template })}</script></head>`, '</head>')
+  html = sub(html, /<\/head>/, `${jsonLd(p, url)}<script>window.__SEO_PAGE__=${jsonForScript({ slug: p.slug, lang: p.lang, template: p.template, h1: p.h1, intro: p.intro })}</script></head>`, '</head>')
   html = sub(html, /<div id="root"><\/div>/, `<div id="root">${staticBody(p)}</div>`, 'root div')
 
   const dir = new URL(`${p.slug}/`, DIST)
   mkdirSync(dir, { recursive: true })
   writeFileSync(new URL('index.html', dir), html)
 }
+
+// Homepage: add the same links to its crawler section (the last </main> in the shell)
+const rootPath = new URL('index.html', DIST)
+const rootHtml = readFileSync(rootPath, 'utf8')
+const lastMain = rootHtml.lastIndexOf('</main>')
+if (lastMain === -1) throw new Error('generate-seo-pages: crawler </main> not found in index.html')
+writeFileSync(rootPath, rootHtml.slice(0, lastMain) + linksHtml() + '\n' + rootHtml.slice(lastMain))
 
 // Sitemap
 const sitemapPath = new URL('sitemap.xml', DIST)

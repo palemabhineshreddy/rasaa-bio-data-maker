@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Check, Download, RotateCcw, Search, Plus, Trash2, MessageCircle, LayoutTemplate, X, Eye } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, Download, RotateCcw, Crop, Pencil, Search, Plus, Trash2, MessageCircle, LayoutTemplate, X, Eye } from 'lucide-react'
 import { useForm } from '@formspree/react'
 import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
@@ -10,9 +10,12 @@ import SortableFieldRow from '../components/SortableFieldRow'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useTheme, useBuilderTheme } from '../contexts/ThemeContext'
-import { exportPDF } from '../utils/pdfExport'
+import { preparePhoto, cropToImage, PHOTO_MAX_BYTES } from '../utils/photo'
+import PhotoCropModal from '../components/PhotoCropModal'
+import { exportPDF, paginate } from '../utils/pdfExport'
+import { TEXT_SIZES } from '../utils/textStyle'
 import { track } from '../utils/analytics'
-import { DEFAULT_FIELD_ORDER, getFieldOrder } from '../utils/fieldGroups'
+import { DEFAULT_FIELD_ORDER, getSectionOrder, customFieldKey } from '../utils/fieldGroups'
 
 /* ── field helpers ── */
 const Field = ({ label, name, formData, updateForm, type = 'text', placeholder, options }) => (
@@ -25,7 +28,7 @@ const Field = ({ label, name, formData, updateForm, type = 'text', placeholder, 
         value={formData[name]}
         onChange={e => updateForm({ [name]: e.target.value })}
       >
-        {options.map(o => <option key={o} value={o}>{o === '' ? '— Select —' : o}</option>)}
+        {options.map(o => <option key={o} value={o}>{o === '' ? 'Select' : o}</option>)}
       </select>
     ) : (
       <input
@@ -115,6 +118,7 @@ function CustomFieldEditor({ field, index, formData, updateForm }) {
           <label className="form-label">{t('field_name')}</label>
           <input
             name={`customFields.${index}.label`}
+            maxLength={60}
             className="form-input"
             placeholder={t('ph_field_name')}
             value={field.label}
@@ -125,6 +129,7 @@ function CustomFieldEditor({ field, index, formData, updateForm }) {
           <label className="form-label">{t('field_value')}</label>
           <input
             name={`customFields.${index}.value`}
+            maxLength={300}
             className="form-input"
             placeholder={t('ph_field_value')}
             value={field.value}
@@ -139,7 +144,6 @@ function CustomFieldEditor({ field, index, formData, updateForm }) {
 function InlineCustomFields({ section, titleKey, formData, updateForm, showHeader = true }) {
   const { t } = useLanguage()
   const T = useBuilderTheme()
-  const sectionFields = getCustomFields(formData).filter(field => field.section === section)
 
   return (
     <div className="space-y-3">
@@ -158,20 +162,21 @@ function InlineCustomFields({ section, titleKey, formData, updateForm, showHeade
           </button>
         </div>
       )}
-      {sectionFields.length > 0 && (
-        <div className="space-y-3">
-          {sectionFields.map((field, index) => (
-            <CustomFieldEditor
-              key={field.id}
-              field={field}
-              index={index}
-              formData={formData}
-              updateForm={updateForm}
-            />
-          ))}
-        </div>
-      )}
     </div>
+  )
+}
+
+// About / Partner Expectations limit: ~150–180 words, which still fits on one A4 page at XL text
+// size; a single row taller than a page would be cut off in the PDF.
+const LONG_TEXT_MAX = 1000
+
+function CharCount({ value }) {
+  const T = useBuilderTheme()
+  const n = (value || '').length
+  return (
+    <p style={{ fontSize: 11, textAlign: 'right', marginTop: 4, color: n >= LONG_TEXT_MAX ? T.warnText : T.textFaint }}>
+      {n} / {LONG_TEXT_MAX}
+    </p>
   )
 }
 
@@ -237,26 +242,55 @@ function useSectionSort(formData, updateForm, section) {
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
-  const order = getFieldOrder(formData, section)
+  const order = getSectionOrder(formData, section)
+  const move = (from, to) => updateForm({
+    fieldOrder: {
+      ...(formData.fieldOrder || DEFAULT_FIELD_ORDER),
+      [section]: arrayMove(order, from, to),
+    },
+  })
   const onDragEnd = ({ active, over }) => {
     if (!over || active.id === over.id) return
-    const oldIdx = order.indexOf(active.id)
-    const newIdx = order.indexOf(over.id)
-    updateForm({
-      fieldOrder: {
-        ...(formData.fieldOrder || DEFAULT_FIELD_ORDER),
-        [section]: arrayMove(order, oldIdx, newIdx),
-      },
-    })
+    move(order.indexOf(active.id), order.indexOf(over.id))
   }
-  return { sensors, order, onDragEnd }
+  return { sensors, order, onDragEnd, move }
+}
+
+/* Built-in fields and the user's added fields of one section, reorderable by drag or ↑ ↓ */
+function SortableSection({ section, fields, formData, updateForm }) {
+  const { sensors, order, onDragEnd, move } = useSectionSort(formData, updateForm, section)
+  const added = getCustomFields(formData).filter(f => f.section === section)
+  return (
+    <>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={order} strategy={verticalListSortingStrategy}>
+          <div className="space-y-4">
+            {order.map((id, i) => {
+              const field = added.find(f => customFieldKey(f) === id)
+              return (
+                <SortableFieldRow key={id} id={id}
+                  onMoveUp={i > 0 ? () => move(i, i - 1) : null}
+                  onMoveDown={i < order.length - 1 ? () => move(i, i + 1) : null}>
+                  {field
+                    ? <CustomFieldEditor field={field} index={added.indexOf(field)} formData={formData} updateForm={updateForm} />
+                    : fields[id]}
+                </SortableFieldRow>
+              )
+            })}
+          </div>
+        </SortableContext>
+      </DndContext>
+      <DragHint />
+    </>
+  )
 }
 
 function DragHint() {
+  const { t } = useLanguage()
   const T = useBuilderTheme()
   return (
     <p style={{ fontSize: 11, color: T.textFaint, textAlign: 'center', marginTop: 6, letterSpacing: '0.02em' }}>
-      ⠿ Hold and drag to reorder fields
+      {t('drag_hint')}
     </p>
   )
 }
@@ -265,8 +299,6 @@ function DragHint() {
 function Step1({ formData, updateForm }) {
   const { t } = useLanguage()
   const T = useBuilderTheme()
-  const personal = useSectionSort(formData, updateForm, 'personal')
-  const horoscope = useSectionSort(formData, updateForm, 'horoscope')
 
   const personalFields = {
     fullName:            <Field label={t('f_fullName')}    name="fullName"    formData={formData} updateForm={updateForm} placeholder={t('ph_fullName')} />,
@@ -293,46 +325,27 @@ function Step1({ formData, updateForm }) {
     <div className="space-y-5">
       <StepHeading title={t('b_s1_title')} sub={t('b_s1_sub')} />
 
-      <DndContext sensors={personal.sensors} collisionDetection={closestCenter} onDragEnd={personal.onDragEnd}>
-        <SortableContext items={personal.order} strategy={verticalListSortingStrategy}>
-          <div className="space-y-4">
-            {personal.order.map(id => (
-              <SortableFieldRow key={id} id={id}>
-                {personalFields[id]}
-              </SortableFieldRow>
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-      <DragHint />
+      <SortableSection section="personal" fields={personalFields} formData={formData} updateForm={updateForm} />
+      <InlineCustomFields section="personal" titleKey="extra_personal_t" formData={formData} updateForm={updateForm} />
 
       {/* Optional sections — togglable */}
       <SectionToggle sectionKey="about" label="About Yourself" formData={formData} updateForm={updateForm}>
-        <textarea name="about" className="form-input resize-none" rows={3}
+        <textarea name="about" className="form-input resize-none" rows={3} maxLength={LONG_TEXT_MAX}
           placeholder="Share a little about your personality, values, and interests…"
           value={formData.about} onChange={e => updateForm({ about: e.target.value })} />
+        <CharCount value={formData.about} />
       </SectionToggle>
 
       <SectionToggle sectionKey="partnerExpectations" label="Partner Expectations" formData={formData} updateForm={updateForm}>
-        <textarea name="partnerExpectations" className="form-input resize-none" rows={3}
+        <textarea name="partnerExpectations" className="form-input resize-none" rows={3} maxLength={LONG_TEXT_MAX}
           placeholder="What are you looking for in a life partner?"
           value={formData.partnerExpectations || ''} onChange={e => updateForm({ partnerExpectations: e.target.value })} />
+        <CharCount value={formData.partnerExpectations} />
       </SectionToggle>
 
 
       <SectionToggle sectionKey="horoscope" label="Horoscope Details" formData={formData} updateForm={updateForm}>
-        <DndContext sensors={horoscope.sensors} collisionDetection={closestCenter} onDragEnd={horoscope.onDragEnd}>
-          <SortableContext items={horoscope.order} strategy={verticalListSortingStrategy}>
-            <div className="space-y-4">
-              {horoscope.order.map(id => (
-                <SortableFieldRow key={id} id={id}>
-                  {horoscopeFields[id]}
-                </SortableFieldRow>
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
-        <DragHint />
+        <SortableSection section="horoscope" fields={horoscopeFields} formData={formData} updateForm={updateForm} />
         <div style={{ marginTop: 16 }}>
           <InlineCustomFields section="horoscope" titleKey="extra_horoscope_t" formData={formData} updateForm={updateForm} />
         </div>
@@ -344,7 +357,6 @@ function Step1({ formData, updateForm }) {
 /* ── Step 2: Education & Career ── */
 function Step2({ formData, updateForm }) {
   const { t } = useLanguage()
-  const career = useSectionSort(formData, updateForm, 'career')
 
   const careerContent = {
     education:   <Field label={t('f_education')}    name="education"   formData={formData} updateForm={updateForm} placeholder={t('ph_education')} />,
@@ -358,18 +370,7 @@ function Step2({ formData, updateForm }) {
   return (
     <div className="space-y-5">
       <StepHeading title={t('b_s2_title')} sub={t('b_s2_sub')} />
-      <DndContext sensors={career.sensors} collisionDetection={closestCenter} onDragEnd={career.onDragEnd}>
-        <SortableContext items={career.order} strategy={verticalListSortingStrategy}>
-          <div className="space-y-4">
-            {career.order.map(id => (
-              <SortableFieldRow key={id} id={id}>
-                {careerContent[id]}
-              </SortableFieldRow>
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-      <DragHint />
+      <SortableSection section="career" fields={careerContent} formData={formData} updateForm={updateForm} />
       <InlineCustomFields section="career" titleKey="extra_career_t" formData={formData} updateForm={updateForm} />
     </div>
   )
@@ -378,7 +379,6 @@ function Step2({ formData, updateForm }) {
 /* ── Step 3: Family ── */
 function Step3({ formData, updateForm }) {
   const { t } = useLanguage()
-  const family = useSectionSort(formData, updateForm, 'family')
 
   const familyContent = {
     fatherName:      <Field label={t('f_fatherName')}   name="fatherName"      formData={formData} updateForm={updateForm} placeholder={t('ph_fatherName')} />,
@@ -395,18 +395,7 @@ function Step3({ formData, updateForm }) {
   return (
     <div className="space-y-5">
       <StepHeading title={t('b_s3_title')} sub={t('b_s3_sub')} />
-      <DndContext sensors={family.sensors} collisionDetection={closestCenter} onDragEnd={family.onDragEnd}>
-        <SortableContext items={family.order} strategy={verticalListSortingStrategy}>
-          <div className="space-y-4">
-            {family.order.map(id => (
-              <SortableFieldRow key={id} id={id}>
-                {familyContent[id]}
-              </SortableFieldRow>
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-      <DragHint />
+      <SortableSection section="family" fields={familyContent} formData={formData} updateForm={updateForm} />
       <InlineCustomFields section="family" titleKey="extra_family_t" formData={formData} updateForm={updateForm} />
     </div>
   )
@@ -415,7 +404,6 @@ function Step3({ formData, updateForm }) {
 /* ── Step 4: Contact ── */
 function Step4({ formData, updateForm }) {
   const { t } = useLanguage()
-  const contact = useSectionSort(formData, updateForm, 'contact')
 
   const contactContent = {
     phone:   <Field label={t('f_phone')}   name="phone"   formData={formData} updateForm={updateForm} placeholder={t('ph_phone')} />,
@@ -428,18 +416,7 @@ function Step4({ formData, updateForm }) {
   return (
     <div className="space-y-5">
       <StepHeading title="Contact Information" sub="How families can reach you" />
-      <DndContext sensors={contact.sensors} collisionDetection={closestCenter} onDragEnd={contact.onDragEnd}>
-        <SortableContext items={contact.order} strategy={verticalListSortingStrategy}>
-          <div className="space-y-4">
-            {contact.order.map(id => (
-              <SortableFieldRow key={id} id={id}>
-                {contactContent[id]}
-              </SortableFieldRow>
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-      <DragHint />
+      <SortableSection section="contact" fields={contactContent} formData={formData} updateForm={updateForm} />
       <InlineCustomFields section="contact" titleKey="extra_contact_t" formData={formData} updateForm={updateForm} />
     </div>
   )
@@ -461,8 +438,8 @@ const SLOGAN_MAP = {
 const DEFAULT_SLOGAN_TEXT = '॥ श्री गणेशाय नमः ॥'
 
 const SLOGAN_OPTIONS = [
-  { value: 'auto', label: 'Auto — matches mother tongue' },
-  { value: 'hide', label: 'None — hide slogan' },
+  { value: 'auto', label: 'Auto (matches mother tongue)' },
+  { value: 'hide', label: 'None (hide slogan)' },
   { value: 'hindi',     label: 'Sanskrit / Hindi  ·  ॥ श्री गणेशाय नमः ॥' },
   { value: 'telugu',    label: 'Telugu  ·  ॥ శ్రీ గణేశాయ నమః ॥' },
   { value: 'tamil',     label: 'Tamil  ·  ॥ ஸ்ரீ கணேசாய நமஃ ॥' },
@@ -545,8 +522,8 @@ function SloganPicker({ formData, updateForm }) {
             value={isHidden ? 'hide' : 'auto'}
             onChange={e => updateForm({ sloganLanguage: e.target.value })}
           >
-            <option value="auto">Show — {RELIGION_DISPLAY_NAMES[relKey]} invocation</option>
-            <option value="hide">None — hide slogan</option>
+            <option value="auto">Show {RELIGION_DISPLAY_NAMES[relKey]} invocation</option>
+            <option value="hide">None (hide slogan)</option>
           </select>
         )}
         {slogan && (
@@ -661,7 +638,7 @@ const DESIGN_SAMPLE = {
   motherName: 'Sunita Sharma', motherOccupation: 'Homemaker',
   brothers: '1 Elder Brother (Married)', sisters: 'None',
   familyType: 'Nuclear', familyStatus: 'Middle Class', nativePlace: 'Tirupati, Andhra Pradesh',
-  about: 'Family-oriented and calm — loves classical dance, reading, and exploring new places.',
+  about: 'Family-oriented and calm: loves classical dance, reading, and exploring new places.',
   partnerExpectations: 'Looking for a well-educated, caring partner between 27–32.',
   rashi: 'Vrishabha', nakshatra: 'Rohini', gotra: 'Kashyapa', manglik: 'No',
   address: '12, MG Road, Koramangala', city: 'Bengaluru', state: 'Karnataka',
@@ -669,63 +646,22 @@ const DESIGN_SAMPLE = {
   photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'telugu', customFields: [],
 }
 
-/* ── Photo drag-to-reposition adjuster ── */
-function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace }) {
+/* ── Uploaded photo: thumbnail + Adjust / Change / Remove ── */
+function PhotoPanel({ photo, onAdjust, onReplace, onRemove }) {
   const { t } = useLanguage()
   const T = useBuilderTheme()
-  const containerRef = useRef()
-  const dragging = useRef(false)
-
-  const getPos = (clientX, clientY) => {
-    const rect = containerRef.current.getBoundingClientRect()
-    return {
-      x: Math.round(Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100))),
-      y: Math.round(Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100))),
-    }
-  }
-
-  const onMouseDown = (e) => { dragging.current = true; e.preventDefault() }
-  const onMouseMove = (e) => { if (dragging.current) onPositionChange(getPos(e.clientX, e.clientY)) }
-  const onMouseUp = () => { dragging.current = false }
-  const onTouchStart = () => { dragging.current = true }
-  const onTouchMove = (e) => {
-    if (!dragging.current) return
-    const t = e.touches[0]
-    onPositionChange(getPos(t.clientX, t.clientY))
-  }
-  const onTouchEnd = () => { dragging.current = false }
-
+  const link = { display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }
   return (
-    <div className="flex flex-wrap items-start gap-4 sm:gap-6">
-      <div className="space-y-2">
-        <div
-          ref={containerRef}
-          className="relative overflow-hidden select-none"
-          style={{ width: 130, height: 158, cursor: 'grab', border: '2px solid rgba(200,150,12,0.5)', borderRadius: 12 }}
-          onMouseDown={onMouseDown} onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp} onMouseLeave={onMouseUp}
-          onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
-        >
-          <img
-            src={photo} alt="preview" draggable={false}
-            className="w-full h-full pointer-events-none"
-            style={{ objectFit: 'cover', objectPosition: `${position.x}% ${position.y}%` }}
-          />
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, textAlign: 'center', fontSize: 10, color: '#fff', padding: '4px 0', background: 'rgba(0,0,0,0.45)' }}>
-            {t('photo_drag')}
-          </div>
-        </div>
-        <p style={{ fontSize: 12, color: T.textFaint, textAlign: 'center' }}>{t('photo_drag_hint')}</p>
-      </div>
-      <div style={{ fontSize: 14, color: T.textMuted, display: 'flex', flexDirection: 'column', gap: 6, paddingTop: 4 }}>
-        <p>{t('photo_uploaded')}</p>
-        <p style={{ fontSize: 12, color: T.textFaint }}>{t('photo_drag_sub')}</p>
-        <button onClick={onReplace} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: T.accentGold, background: 'none', border: 'none', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.color = T.accentGold} onMouseLeave={e => e.currentTarget.style.color = T.accentGold}>
-          <RotateCcw className="w-3 h-3" /> {t('photo_change')}
-        </button>
-        <button onClick={onRemove} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#f87171', background: 'none', border: 'none', cursor: 'pointer' }}>
-          {t('photo_remove')}
-        </button>
+    <div className="flex items-start gap-5">
+      <button onClick={onAdjust} aria-label={t('photo_adjust')}
+        style={{ width: 120, height: 150, borderRadius: 12, overflow: 'hidden', border: `1px solid ${T.borderStrong}`, padding: 0, cursor: 'pointer', flexShrink: 0 }}>
+        <img src={photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+      </button>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 4 }}>
+        <p style={{ fontSize: 14, color: T.textMuted }}>{t('photo_uploaded')}</p>
+        <button onClick={onAdjust} style={{ ...link, color: T.accentGold }}><Crop className="w-4 h-4" /> {t('photo_adjust')}</button>
+        <button onClick={onReplace} style={{ ...link, color: T.textMuted }}><RotateCcw className="w-4 h-4" /> {t('photo_change')}</button>
+        <button onClick={onRemove} style={{ ...link, color: '#f87171' }}><Trash2 className="w-4 h-4" /> {t('photo_remove')}</button>
       </div>
     </div>
   )
@@ -738,21 +674,34 @@ function Step5({ formData, updateForm, onOpenTemplatePicker }) {
   const fileRef = useRef()
   const selectedStyle = TEMPLATE_STYLES.find(s => s.id === (formData.template || 'lotus'))
 
+  // { image, initialArea, isNew } while the crop dialog is open
+  const [cropping, setCropping] = useState(null)
+
   const handlePhoto = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Photo must be under 5 MB. Please choose a smaller image.')
-      e.target.value = ''
+    e.target.value = ''
+    if (file.size > PHOTO_MAX_BYTES) {
+      alert('Photo must be under 20 MB. Please choose a smaller image.')
       return
     }
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      updateForm({ photo: ev.target.result, photoPosition: { x: 50, y: 20 } })
-      track.photoUploaded()
-    }
-    reader.readAsDataURL(file)
+    preparePhoto(file)
+      .then(image => setCropping({ image, initialArea: null, isNew: true }))
+      .catch(() => alert('This photo could not be opened. Please try a JPG or PNG.'))
   }
+
+  const applyCrop = async ({ pixels, percent }) => {
+    const photo = await cropToImage(cropping.image, pixels)
+    updateForm({ photo, photoOriginal: cropping.image, photoCrop: percent, photoPosition: { x: 50, y: 20 } })
+    if (cropping.isNew) track.photoUploaded()
+    setCropping(null)
+  }
+
+  const adjustPhoto = () => setCropping({
+    image: formData.photoOriginal ?? formData.photo,
+    initialArea: formData.photoOriginal ? formData.photoCrop : null,
+    isNew: false,
+  })
 
   return (
     <div className="space-y-10">
@@ -762,12 +711,11 @@ function Step5({ formData, updateForm, onOpenTemplatePicker }) {
       <div className="space-y-4">
         <SectionTitle>{t('sec_photo')} <span style={{ fontSize: 14, color: T.textFaint, fontWeight: 400 }}>({t('sec_optional')})</span></SectionTitle>
         {formData.photo ? (
-          <PhotoAdjuster
+          <PhotoPanel
             photo={formData.photo}
-            position={formData.photoPosition ?? { x: 50, y: 20 }}
-            onPositionChange={(pos) => updateForm({ photoPosition: pos })}
-            onRemove={() => { track.photoRemoved(); updateForm({ photo: null, photoPosition: { x: 50, y: 20 } }) }}
+            onAdjust={adjustPhoto}
             onReplace={() => fileRef.current?.click()}
+            onRemove={() => { track.photoRemoved(); updateForm({ photo: null, photoOriginal: null, photoCrop: null, photoPosition: { x: 50, y: 20 } }) }}
           />
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
@@ -789,6 +737,12 @@ function Step5({ formData, updateForm, onOpenTemplatePicker }) {
           </div>
         )}
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
+        <AnimatePresence>
+          {cropping && (
+            <PhotoCropModal image={cropping.image} initialArea={cropping.initialArea}
+              onApply={applyCrop} onCancel={() => setCropping(null)} />
+          )}
+        </AnimatePresence>
       </div>
 
       <SloganPicker formData={formData} updateForm={updateForm} />
@@ -1120,7 +1074,7 @@ function FeedbackModal({ template, onClose }) {
               <input type="hidden" name="rating" value={rating ?? ''} />
               <input type="hidden" name="emoji" value={selectedRating?.emoji ?? ''} />
               <input type="hidden" name="template" value={template} />
-              <input type="hidden" name="_subject" value={`Bandhan Feedback — ${rating ?? '?'}/5 ${selectedRating?.emoji ?? ''}`} />
+              <input type="hidden" name="_subject" value={`Bandhan Feedback: ${rating ?? '?'}/5 ${selectedRating?.emoji ?? ''}`} />
               <input type="hidden" name="_replyto" value="hello@bandhan.app" />
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 20 }}>
@@ -1186,10 +1140,62 @@ function FeedbackModal({ template, onClose }) {
 
 /* ── Preview + Download ── */
 const WA_FALLBACK_TEXT = encodeURIComponent(
-  'I just created my marriage biodata on Bandhan — free, no sign-up, takes 5 minutes! Try it: https://bandhan.app'
+  'I just created my marriage biodata on Bandhan. It is free, needs no sign-up and takes 5 minutes! Try it: https://bandhan.app'
 )
 
-function PreviewStep({ formData, onBack, onEditStep, steps, exportRef, feedbackShown, onFeedbackShown }) {
+/* ── Preview: text size + letter case, with the resulting page count ── */
+function TextStylePanel({ formData, updateForm, exportRef }) {
+  const { t } = useLanguage()
+  const T = useBuilderTheme()
+  const [pages, setPages] = useState(1)
+  const size = formData.textSize || 'm'
+  const caps = formData.textCase === 'upper'
+
+  // Count A4 pages the same way the PDF export splits them, once the hidden copy has re-rendered
+  useEffect(() => {
+    const id = setTimeout(() => {
+      if (!exportRef.current) return
+      const split = paginate(exportRef.current)
+      setPages(split.length)
+      split.forEach(p => p.remove())
+    }, 150)
+    return () => clearTimeout(id)
+  }, [formData, exportRef])
+
+  const pill = active => ({
+    flex: 1, padding: '5px 4px', borderRadius: 8, fontSize: 12.5, fontWeight: active ? 700 : 500, cursor: 'pointer',
+    background: active ? T.accentGoldMuted : 'transparent',
+    color: active ? T.text : T.textMuted,
+    border: `1px solid ${active ? T.accentGold : T.border}`,
+  })
+  const label = { fontSize: 12, fontWeight: 600, color: T.textMuted, width: 64, flexShrink: 0 }
+  const row = { display: 'flex', alignItems: 'center', gap: 5 }
+
+  return (
+    <div style={{ borderRadius: 16, border: `1px solid ${T.borderStrong}`, background: T.cardBg, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 7 }}>
+      <div style={row}>
+        <span style={label}>{t('ts_size')}</span>
+        {TEXT_SIZES.map(s => (
+          <button key={s} type="button" onClick={() => updateForm({ textSize: s })} style={pill(size === s)} aria-pressed={size === s}>
+            {s.toUpperCase()}
+          </button>
+        ))}
+      </div>
+      <div style={row}>
+        <span style={label}>{t('ts_letters')}</span>
+        <button type="button" onClick={() => updateForm({ textCase: 'normal' })} style={pill(!caps)} aria-pressed={!caps}>{t('ts_normal')}</button>
+        <button type="button" onClick={() => updateForm({ textCase: 'upper' })} style={pill(caps)} aria-pressed={caps}>{t('ts_caps')}</button>
+      </div>
+      <p style={{ fontSize: 12, fontWeight: 600, margin: 0, color: pages > 1 ? T.warnText : T.savedFlashColor }}>
+        {pages > 1
+          ? <>{t('ts_pages').replace('{n}', pages)} <span style={{ fontWeight: 400 }}>· {t('ts_note')}</span></>
+          : <>✓ {t('ts_one_page')}</>}
+      </p>
+    </div>
+  )
+}
+
+function PreviewStep({ formData, updateForm, onBack, onEditStep, steps, exportRef, feedbackShown, onFeedbackShown }) {
   const { t } = useLanguage()
   const T = useBuilderTheme()
   const [loading, setLoading] = useState(false)
@@ -1249,12 +1255,12 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef, feedbackS
           await navigator.share({
             files: [file],
             title: `${formData.fullName || 'My'} Biodata`,
-            text: 'Here is my marriage biodata — created on Bandhan (bandhan.app)',
+            text: 'Here is my marriage biodata, created on Bandhan (bandhan.app)',
           })
           track.whatsappShared('native')
           setSharing(false)
           return
-        } catch { /* user cancelled or share failed — fall through */ }
+        } catch { /* user cancelled or share failed, fall through */ }
       }
     }
 
@@ -1264,14 +1270,17 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef, feedbackS
     setSharing(false)
   }
 
+  // Phones: the biodata comes first; actions live in a bar pinned to the bottom of the screen
+  const actionBtn = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', fontSize: 14, fontWeight: 600, borderRadius: 12, cursor: 'pointer' }
+
   return (
-    <div className="space-y-8">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+    <div className="space-y-5">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(20px, 3vw, 26px)', fontWeight: 700, color: T.text, margin: 0 }}>{t('prev_title')}</h2>
-          <p style={{ color: T.textMuted, fontSize: 14, marginTop: 4 }}>{t('prev_sub')}</p>
+          <p className="hidden sm:block" style={{ color: T.textMuted, fontSize: 14, marginTop: 4 }}>{t('prev_sub')}</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <div className="hidden sm:flex" style={{ alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {downloaded && (
             <button
               onClick={handleShare}
@@ -1300,45 +1309,46 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef, feedbackS
 
       {downloadError && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, borderRadius: 12, border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.08)', color: '#ef4444', padding: '12px 16px', fontSize: 14 }}>
-          Something went wrong generating your PDF. Please try again — if it keeps failing, try a different browser or device.
+          Something went wrong generating your PDF. Please try again. If it keeps failing, try a different browser or device.
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }} className="md:grid-cols-6">
-        {steps.map((label, index) => (
-          <button
-            key={index}
-            onClick={() => onEditStep(index)}
-            style={{ borderRadius: 12, border: `1px solid ${T.borderStrong}`, background: T.previewEditBg, padding: '10px 12px', textAlign: 'left', fontSize: 14, color: T.previewEditText, cursor: 'pointer', transition: 'border-color 0.2s' }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = T.stepActiveBorder}
-            onMouseLeave={e => e.currentTarget.style.borderColor = T.borderStrong}
-          >
-            <span style={{ display: 'block', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: T.previewEditLabel, marginBottom: 4 }}>{t('prev_edit_label')}</span>
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {/* Biodata preview — same card view as the live preview panel */}
       <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <div style={{ width: '100%', maxWidth: 420 }}>
+        <div style={{ width: '100%', maxWidth: 420 }} className="space-y-3">
+          <TextStylePanel formData={formData} updateForm={updateForm} exportRef={exportRef} />
           <SidePanelPreview formData={applyEnabledSections(formData)} />
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+      {/* Edit shortcuts */}
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: 420, borderRadius: 16, border: `1px solid ${T.border}`, background: T.cardBg, padding: '12px 14px' }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: T.text, margin: 0 }}>{t('prev_change_q')}</p>
+          <p style={{ fontSize: 12, color: T.textMuted, margin: '2px 0 10px' }}>{t('prev_change_sub')}</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {steps.map((label, index) => (
+              <button key={index} onClick={() => onEditStep(index)}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 999, fontSize: 13, cursor: 'pointer', background: T.previewEditBg, border: `1px solid ${T.borderStrong}`, color: T.previewEditText }}>
+                <Pencil size={12} /> {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="sticky bottom-0 sm:static" style={{ display: 'flex', gap: 10, padding: '12px 0', background: T.stickyBg, zIndex: 20 }}>
         <button onClick={onBack}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', fontSize: 14, fontWeight: 600, borderRadius: 12, cursor: 'pointer', background: T.cardBg, border: `1.5px solid ${T.borderStrong}`, color: T.text }}>
+          style={{ ...actionBtn, background: T.cardBg, border: `1.5px solid ${T.borderStrong}`, color: T.text }}>
           <ChevronLeft size={16} /> {t('prev_edit_details')}
         </button>
         <button onClick={handleDownload} disabled={loading}
-          style={{ display: 'inline-flex', flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 0', fontSize: 14, fontWeight: 600, borderRadius: 12, cursor: 'pointer', background: T.stepActiveBg, border: `1.5px solid ${T.stepActiveBorder}`, color: T.stepActiveText }}>
+          style={{ ...actionBtn, flex: 1, background: T.stepActiveBg, border: `1.5px solid ${T.stepActiveBorder}`, color: T.stepActiveText }}>
           {loading ? t('prev_generating') : <><Download size={18} /> {downloaded ? t('prev_again') : t('prev_download')}</>}
         </button>
         {downloaded && (
-          <button onClick={handleShare} disabled={sharing}
-            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 24px', fontSize: 14, fontWeight: 600, borderRadius: 12, cursor: 'pointer', background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.3)', color: '#16a34a' }}>
-            <MessageCircle size={16} /> {sharing ? t('prev_preparing') : t('prev_whatsapp')}
+          <button onClick={handleShare} disabled={sharing} aria-label={t('prev_whatsapp')}
+            style={{ ...actionBtn, background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.3)', color: '#16a34a' }}>
+            <MessageCircle size={16} /> <span className="hidden sm:inline">{sharing ? t('prev_preparing') : t('prev_whatsapp')}</span>
           </button>
         )}
       </div>
@@ -1530,7 +1540,8 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
       }}>
         <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 clamp(12px, 3vw, 20px)',
           display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)', height: 'clamp(52px, 7vh, 64px)' }}>
-          <button onClick={onBack}
+          {/* Arrow = one step back (Preview → last form step); only step 1 leaves the builder. The logo goes home. */}
+          <button onClick={prev} aria-label={t('b_back')}
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px 8px', borderRadius: 8,
               color: T.backBtnColor, display: 'flex', alignItems: 'center', transition: 'all 0.2s' }}
             onMouseEnter={e => { e.currentTarget.style.color = T.backBtnHoverColor; e.currentTarget.style.background = T.backBtnHoverBg; }}
@@ -1649,7 +1660,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
               exit={{ opacity: 0, x: -24 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             >
-              <PreviewStep formData={formData} onBack={() => setStep(totalSteps - 1)} onEditStep={setStep} steps={STEPS.map(s => s.label)} exportRef={downloadRef} feedbackShown={feedbackShown} onFeedbackShown={() => setFeedbackShown(true)} />
+              <PreviewStep formData={formData} updateForm={updateForm} onBack={() => setStep(totalSteps - 1)} onEditStep={setStep} steps={STEPS.map(s => s.label)} exportRef={downloadRef} feedbackShown={feedbackShown} onFeedbackShown={() => setFeedbackShown(true)} />
             </motion.div>
           </AnimatePresence>
         ) : (
@@ -1702,14 +1713,14 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                   exit={{ opacity: 0, y: 8, scale: 0.95 }}
                   transition={{ duration: 0.25 }}
                   onClick={dismissPreviewHint}
-                  className="lg:hidden"
+                  className="flex lg:hidden"
                   style={{
                     position: 'fixed', bottom: 82, right: 20, zIndex: 91, maxWidth: 220,
                     background: T.stepActiveBg, color: T.stepActiveText,
                     border: `1.5px solid ${T.stepActiveBorder}`,
                     borderRadius: 14, padding: '10px 14px', fontSize: 13, fontWeight: 600,
                     boxShadow: '0 8px 24px rgba(0,0,0,0.3)', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', gap: 8,
+                    alignItems: 'center', gap: 8,
                   }}
                 >
                   👀 Tap to see your biodata live
@@ -1721,13 +1732,13 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
             </AnimatePresence>
             <button
               onClick={() => { track.mobilePreviewOpened(step); setShowMobilePreview(true); dismissPreviewHint() }}
-              className="lg:hidden"
+              className="flex lg:hidden"
               aria-label="Preview your biodata"
               style={{
                 position: 'fixed', bottom: 20, right: 20, zIndex: 90,
                 width: 54, height: 54, borderRadius: '50%',
                 background: T.stepActiveBg, border: `1.5px solid ${T.stepActiveBorder}`,
-                color: T.stepActiveText, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: T.stepActiveText, alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 8px 24px rgba(0,0,0,0.3)', cursor: 'pointer',
               }}
             >
@@ -1772,7 +1783,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
               </div>
               {quickDownloadError && (
                 <p style={{ width: '100%', fontSize: 12, color: '#ef4444', marginBottom: 10 }}>
-                  PDF generation failed — please try again.
+                  PDF generation failed. Please try again.
                 </p>
               )}
               <motion.div
@@ -1821,6 +1832,9 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                   aria-label="Close preview">
                   <X size={18} />
                 </button>
+              </div>
+              <div style={{ marginBottom: 14 }}>
+                <TextStylePanel formData={formData} updateForm={updateForm} exportRef={downloadRef} />
               </div>
               <SidePanelPreview formData={previewFormData} />
             </motion.div>

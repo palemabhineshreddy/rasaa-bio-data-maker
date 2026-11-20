@@ -24,15 +24,15 @@ const SLUG_TO_LANG = Object.fromEntries(
 
 /* Page titles per language */
 const PAGE_TITLES = {
-  en: 'Bandhan — Free Indian Marriage Biodata Maker',
-  hi: 'Bandhan — मुफ़्त हिंदी विवाह बायोडेटा मेकर',
-  te: 'Bandhan — ఉచిత తెలుగు వివాహ బయోడేటా మేకర్',
-  ta: 'Bandhan — இலவச தமிழ் திருமண பயோடேட்டா மேக்கர்',
-  kn: 'Bandhan — ಉಚಿತ ಕನ್ನಡ ವಿವಾಹ ಬಯೋಡೇಟಾ ಮೇಕರ್',
-  ml: 'Bandhan — സൗജന്യ മലയാളം വിവാഹ ബയോഡേറ്റ മേക്കർ',
-  bn: 'Bandhan — বিনামূল্যে বাংলা বিয়ের বায়োডেটা মেকার',
-  mr: 'Bandhan — मोफत मराठी विवाह बायोडेटा मेकर',
-  gu: 'Bandhan — મફત ગુજરાતી લગ્ન બાયોડેટા મેકર',
+  en: 'Bandhan | Free Indian Marriage Biodata Maker',
+  hi: 'Bandhan | मुफ़्त हिंदी विवाह बायोडेटा मेकर',
+  te: 'Bandhan | ఉచిత తెలుగు వివాహ బయోడేటా మేకర్',
+  ta: 'Bandhan | இலவச தமிழ் திருமண பயோடேட்டா மேக்கர்',
+  kn: 'Bandhan | ಉಚಿತ ಕನ್ನಡ ವಿವಾಹ ಬಯೋಡೇಟಾ ಮೇಕರ್',
+  ml: 'Bandhan | സൗജന്യ മലയാളം വിവാഹ ബയോഡേറ്റ മേക്കർ',
+  bn: 'Bandhan | বিনামূল্যে বাংলা বিয়ের বায়োডেটা মেকার',
+  mr: 'Bandhan | मोफत मराठी विवाह बायोडेटा मेकर',
+  gu: 'Bandhan | મફત ગુજરાતી લગ્ન બાયોડેટા મેકર',
 }
 
 /* SEO landing pages (/<topic>/) ship their own language and URL via window.__SEO_PAGE__ */
