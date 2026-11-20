@@ -14,18 +14,30 @@ async function buildPDF(element, name) {
     import('jspdf'),
   ])
 
+  // Page zoom other than 100% (Android font-size setting, Ctrl −/+) makes html2canvas mis-measure
+  // the layout: hairlines collapse, ornaments drop out, text overlaps. Counter-zoom the element
+  // back to 100% while capturing; if that has no effect, at least scale up to keep resolution.
+  const measureZoom = () => element.getBoundingClientRect().width / element.offsetWidth || 1
+  const prevZoom = element.style.zoom
+  const pageZoom = measureZoom()
+  if (Math.abs(pageZoom - 1) > 0.01) element.style.zoom = String(1 / pageZoom)
+  const zoom = Math.min(4, Math.max(0.25, measureZoom()))
+
   // Low-memory Android browsers can fail to allocate a 2x canvas; retry at lower scales
-  let canvas, scale, lastErr
-  for (scale of [2, 1.5, 1]) {
-    try { canvas = await renderCanvas(html2canvas, element, scale); break } catch (e) { lastErr = e }
+  let canvas, lastErr
+  try {
+    for (const scale of [2, 1.5, 1]) {
+      try { canvas = await renderCanvas(html2canvas, element, scale / zoom); break } catch (e) { lastErr = e }
+    }
+  } finally {
+    element.style.zoom = prevZoom
   }
   if (!canvas) throw lastErr
 
+  // Size the page from the unzoomed layout width so the PDF is the same at any zoom
   const MM_PER_CSS_PX = 25.4 / 96
-  const cssW = canvas.width / scale
-  const cssH = canvas.height / scale
-  const pdfW = cssW * MM_PER_CSS_PX
-  const pdfH = cssH * MM_PER_CSS_PX
+  const pdfW = element.offsetWidth * MM_PER_CSS_PX
+  const pdfH = pdfW * canvas.height / canvas.width
 
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -39,8 +51,24 @@ async function buildPDF(element, name) {
   return { pdf, fileName: `${safeFileName(name)}-biodata.pdf` }
 }
 
+// html2canvas 1.4.1 truncates fractional background sizes when it builds pattern canvases
+// (e.g. a 1px gradient line measures 0.9px when Android/desktop page zoom is below 100%),
+// then createPattern throws on the 0-size canvas. Swap in a blank 1×1 canvas instead.
+async function withSafeCreatePattern(fn) {
+  const proto = CanvasRenderingContext2D.prototype
+  const original = proto.createPattern
+  proto.createPattern = function (image, repetition) {
+    if (image instanceof HTMLCanvasElement && (image.width === 0 || image.height === 0)) {
+      image = document.createElement('canvas')
+      image.width = image.height = 1
+    }
+    return original.call(this, image, repetition)
+  }
+  try { return await fn() } finally { proto.createPattern = original }
+}
+
 function renderCanvas(html2canvas, element, scale) {
-  return html2canvas(element, {
+  return withSafeCreatePattern(() => html2canvas(element, {
     backgroundColor: '#FDFDF9',
     scale,
     useCORS: true,
@@ -59,7 +87,7 @@ function renderCanvas(html2canvas, element, scale) {
         node = node.parentElement
       }
     },
-  })
+  }))
 }
 
 // Download the PDF and return the blob so the caller can reuse it for sharing

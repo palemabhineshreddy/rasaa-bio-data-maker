@@ -1,5 +1,6 @@
 import { formatDate } from '../utils/formatters'
 import { useLanguage } from '../contexts/LanguageContext'
+import GradientStrip from './GradientStrip'
 
 // ─── Shared row extractor ────────────────────────────────────────────────────
 
@@ -112,7 +113,7 @@ export function NoirTemplate({ data }) {
   return (
     <div className="pdf-area" style={{ background: BG, fontFamily: 'Inter, sans-serif', position: 'relative', minHeight: 1075 }}>
       {/* Amber top accent */}
-      <div style={{ height: 3, backgroundImage: `linear-gradient(90deg, ${AMBER} 0%, rgba(232,168,32,0) 100%)`, backgroundRepeat: 'no-repeat' }} />
+      <GradientStrip stops={[[0, AMBER], [1, AMBER, 0]]} style={{ height: 3 }} />
 
       <div style={{ padding: '42px 52px 32px 52px' }}>
         {/* Name block */}
@@ -419,12 +420,7 @@ export function BloomTemplate({ data }) {
   return (
     <div className="pdf-area" style={{ background: '#fdf6ef', fontFamily: 'Inter, sans-serif', display: 'flex', minHeight: 1075 }}>
       {/* Left vertical accent bar */}
-      <div style={{
-        width: 5, flexShrink: 0,
-        backgroundImage: 'linear-gradient(180deg, #f9a8d4 0%, #c084fc 50%, #818cf8 100%)',
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: '100% 100%',
-      }} />
+      <GradientStrip vertical stops={[[0, '#f9a8d4'], [0.5, '#c084fc'], [1, '#818cf8']]} style={{ width: 5, flexShrink: 0 }} />
 
       {/* Main content */}
       <div style={{ flex: 1, padding: '42px 48px 32px 36px' }}>
