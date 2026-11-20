@@ -7,12 +7,13 @@ function _gtag(...args) {
   } catch {}
 }
 
-// UI language, kept in sync by LanguageContext so every event can be split by language
+// UI language, kept in sync by LanguageContext so every event can be split by language.
+// Sent as `ui_language`: GA4 reserves `language` (browser language) and drops a custom param of that name.
 let _lang = 'en'
 export function setAnalyticsLang(code) { _lang = code }
 
 export function trackEvent(name, params = {}) {
-  _gtag('event', name, { app: 'bandhan', language: _lang, ...params })
+  _gtag('event', name, { app: 'bandhan', ui_language: _lang, ...params })
 }
 
 // ─── Named events (full user journey) ─────────────────────────────────────

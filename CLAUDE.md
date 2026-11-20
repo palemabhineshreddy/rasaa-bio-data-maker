@@ -510,7 +510,7 @@ Note: `_headers` is Netlify-specific syntax — on AWS CloudFront, response head
 - Local preview: `npm run build && npx vite preview --port 4173` (the dev server does not serve generated pages).
 
 ## GA4 report (`analytics/`)
-`cd analytics && GA4_PROPERTY_ID=536859155 npm run report` → `analytics/out/report.html` (funnel, step drop-off, audience). Auth: gcloud ADC impersonating `ga4-reader@bandhan-analytics.iam.gserviceaccount.com` (org policy blocks service-account keys; set up with `gcloud auth application-default login --impersonate-service-account=...`). Custom dimensions to register in GA4: `language`, `step_number`, `step_name`, `template`, `field`, `last_step`, `to_language`, `error_message`.
+`cd analytics && GA4_PROPERTY_ID=536859155 npm run report` → `analytics/out/report.html` (funnel, step drop-off, audience). Auth: gcloud ADC impersonating `ga4-reader@bandhan-analytics.iam.gserviceaccount.com` (org policy blocks service-account keys; set up with `gcloud auth application-default login --impersonate-service-account=...`). Custom dimensions to register in GA4: `ui_language` (not `language` — GA4 reserves it for browser language and drops the custom param), `step_number`, `step_name`, `template`, `field`, `last_step`, `to_language`, `error_message`.
 
 ## Analytics Events (`src/utils/analytics.js`)
 | Event | When fired |
