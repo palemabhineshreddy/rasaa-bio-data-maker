@@ -541,6 +541,8 @@ Note: `_headers` is Netlify-specific syntax — on AWS CloudFront, response head
 
 **Exit question (`ExitSurvey.jsx`)**: shown once per session after leaving the builder before Preview (‹ on step 1, logo, browser back — reported by `BuilderPage` `onLeaveEarly`, shown on the landing page) and on desktop exit intent (pointer leaves the top of the window after 15s in the builder). Fixed tap answers only, no free text.
 
+**Clarity masking:** the whole builder root has `data-clarity-mask="true"`, so recordings never show personal details (keeps the "nothing leaves your device" promise). Keep it when restructuring the builder.
+
 **Microsoft Clarity tags** (filter recordings in Clarity): events `builder_started`, `builder_exit_step_N`, `exit_reason_<reason>`; custom tags `exit_step`, `exit_reason`.
 
 **Analytics load only on bandhan.app** (`window.__measure` in `index.html`). On localhost/previews `gtag()` still pushes to `window.dataLayer` (tests read events there) but GA and Clarity are never loaded, so test runs don't pollute data.

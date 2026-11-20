@@ -755,12 +755,12 @@ function Step5({ formData, updateForm, onOpenTemplatePicker }) {
     if (!file) return
     e.target.value = ''
     if (file.size > PHOTO_MAX_BYTES) {
-      alert('Photo must be under 20 MB. Please choose a smaller image.')
+      alert(t('photo_too_big'))
       return
     }
     preparePhoto(file)
       .then(image => setCropping({ image, initialArea: null, isNew: true }))
-      .catch(() => alert('This photo could not be opened. Please try a JPG or PNG.'))
+      .catch(() => alert(t('photo_bad')))
   }
 
   const applyCrop = async ({ pixels, percent }) => {
@@ -1216,6 +1216,38 @@ const WA_FALLBACK_TEXT = encodeURIComponent(
   'I just created my marriage biodata on Bandhan. It is free, needs no sign-up and takes 5 minutes! Try it: https://bandhan.app'
 )
 
+/* ── Preview: the user's own biodata in a few other designs; tap to switch ── */
+// Most downloads use the default design, whose users rated lowest, so offer alternatives right here
+function TryAnotherDesign({ formData, updateForm, onPicked, onOpenAll }) {
+  const { t } = useLanguage()
+  const T = useBuilderTheme()
+  const current = formData.template || 'lotus'
+  const options = TEMPLATE_STYLES.filter(s => s.live && s.id !== current).slice(0, 8)
+  return (
+    <div style={{ width: '100%', maxWidth: 420 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
+        <p style={{ fontSize: 14, fontWeight: 600, color: T.text, margin: 0 }}>{t('try_design')}</p>
+        <button type="button" onClick={onOpenAll} style={{ fontSize: 13, fontWeight: 600, color: T.accentGold, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+          {t('all_designs')} →
+        </button>
+      </div>
+      <p style={{ fontSize: 12, color: T.textMuted, margin: '2px 0 10px' }}>{t('try_design_sub')}</p>
+      <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 6 }}>
+        {options.map(style => (
+          <button key={style.id} type="button"
+            onClick={() => { track.templateSelected(style.id, style.name); updateForm({ template: style.id }); onPicked() }}
+            style={{ flexShrink: 0, padding: 0, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'center' }}>
+            <div style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${T.borderStrong}` }}>
+              <TemplateMiniPreview formData={{ ...applyEnabledSections(formData), template: style.id }} containerW={96} visibleH={124} />
+            </div>
+            <span style={{ display: 'block', fontSize: 11.5, color: T.textMuted, marginTop: 5 }}>{style.name}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 /* ── Preview: text size + letter case, with the resulting page count ── */
 function TextStylePanel({ formData, updateForm, exportRef }) {
   const { t } = useLanguage()
@@ -1268,7 +1300,7 @@ function TextStylePanel({ formData, updateForm, exportRef }) {
   )
 }
 
-function PreviewStep({ formData, updateForm, onBack, onEditStep, steps, exportRef, feedbackShown, onFeedbackShown }) {
+function PreviewStep({ formData, updateForm, onOpenTemplates, onBack, onEditStep, steps, exportRef, feedbackShown, onFeedbackShown }) {
   const { t } = useLanguage()
   const T = useBuilderTheme()
   const [loading, setLoading] = useState(false)
@@ -1277,6 +1309,7 @@ function PreviewStep({ formData, updateForm, onBack, onEditStep, steps, exportRe
   const [showModal, setShowModal] = useState(false)
   const [downloadError, setDownloadError] = useState(false)
   const pdfBlobRef = useRef(null)
+  const previewTopRef = useRef(null)
 
   const handleDownload = async () => {
     setLoading(true)
@@ -1386,11 +1419,30 @@ function PreviewStep({ formData, updateForm, onBack, onEditStep, steps, exportRe
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
+      {/* #16 after a download: sharing with family is how Bandhan spreads */}
+      {downloaded && (
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ width: '100%', maxWidth: 420, borderRadius: 16, padding: '14px 16px', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.3)' }}>
+            <p style={{ fontSize: 15, fontWeight: 700, color: T.text, margin: 0 }}>✓ {t('share_title')}</p>
+            <p style={{ fontSize: 12.5, color: T.textMuted, margin: '2px 0 12px' }}>{t('share_sub')}</p>
+            <button onClick={handleShare} disabled={sharing}
+              style={{ width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 0', fontSize: 15, fontWeight: 700, borderRadius: 12, cursor: 'pointer', background: '#16a34a', border: 'none', color: '#ffffff' }}>
+              <MessageCircle size={18} /> {sharing ? t('prev_preparing') : t('prev_share')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div ref={previewTopRef} style={{ display: 'flex', justifyContent: 'center', scrollMarginTop: 80 }}>
         <div style={{ width: '100%', maxWidth: 420 }} className="space-y-3">
           <TextStylePanel formData={formData} updateForm={updateForm} exportRef={exportRef} />
           <SidePanelPreview formData={applyEnabledSections(formData)} />
         </div>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <TryAnotherDesign formData={formData} updateForm={updateForm} onOpenAll={onOpenTemplates}
+          onPicked={() => previewTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })} />
       </div>
 
       {/* Edit shortcuts */}
@@ -1627,7 +1679,9 @@ export default function BuilderPage({ formData, updateForm, onBack, onLeaveEarly
   }
 
   return (
-    <div className="min-h-screen" data-theme={theme} style={{ background: T.pageBg }}>
+    // data-clarity-mask: Clarity session recordings blank everything in the builder (form, preview,
+    // sample), keeping the promise that personal details never leave the device. Clicks/scrolls still record.
+    <div className="min-h-screen" data-theme={theme} data-clarity-mask="true" style={{ background: T.pageBg }}>
       {/* Top bar */}
       <header style={{
         position: 'sticky', top: 0, zIndex: 100,
@@ -1756,7 +1810,7 @@ export default function BuilderPage({ formData, updateForm, onBack, onLeaveEarly
               exit={{ opacity: 0, x: -24 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             >
-              <PreviewStep formData={formData} updateForm={updateForm} onBack={() => setStep(totalSteps - 1)} onEditStep={setStep} steps={STEPS.map(s => s.label)} exportRef={downloadRef} feedbackShown={feedbackShown} onFeedbackShown={() => setFeedbackShown(true)} />
+              <PreviewStep formData={formData} updateForm={updateForm} onOpenTemplates={() => setShowDesignModal(true)} onBack={() => setStep(totalSteps - 1)} onEditStep={setStep} steps={STEPS.map(s => s.label)} exportRef={downloadRef} feedbackShown={feedbackShown} onFeedbackShown={() => setFeedbackShown(true)} />
             </motion.div>
           </AnimatePresence>
         ) : (
