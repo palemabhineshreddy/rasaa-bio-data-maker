@@ -3,6 +3,7 @@ import LandingPageLight from './pages/LandingPageLight'
 import { ThemeProvider, useTheme } from './contexts/ThemeContext'
 import { track } from './utils/analytics'
 import SeoContent from './components/SeoContent'
+import ExitSurvey, { exitSurveyAvailable } from './components/ExitSurvey'
 import { DEFAULT_FIELD_ORDER } from './utils/fieldGroups'
 
 // Only one landing page and (until Create is clicked) no builder is needed for first paint
@@ -59,6 +60,8 @@ function loadSaved() {
 
 function AppInner() {
   const [view, setView] = useState('landing')
+  // Step the user was on when they left the builder early → asks "What stopped you?" on the landing page
+  const [exitStep, setExitStep] = useState(null)
   const { theme } = useTheme()
   const [formData, setFormData] = useState(() => loadSaved() ?? EMPTY_FORM)
 
@@ -133,6 +136,7 @@ function AppInner() {
         />
       )}
       {view === 'landing' && <SeoContent />}
+      {view === 'landing' && exitStep !== null && <ExitSurvey lastStep={exitStep} onClose={() => setExitStep(null)} />}
       {view === 'builder' && (
         <BuilderPage
           formData={formData}
@@ -141,6 +145,7 @@ function AppInner() {
             setView('landing')
             window.scrollTo(0, 0)
           }}
+          onLeaveEarly={lastStep => setExitStep(lastStep !== null && exitSurveyAvailable() ? lastStep : null)}
         />
       )}
       </Suspense>

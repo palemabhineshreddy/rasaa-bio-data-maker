@@ -60,6 +60,23 @@ const [countries, cities, devices, sources, langs, templates, newVsRet, daily, f
   }).catch(() => null),
 ])
 
+// Why people leave: answers to "What stopped you?", where they left, and conversion by group
+const evFilter = names => ({ dimensionFilter: { filter: { fieldName: 'eventName', inListFilter: { values: names } } } })
+const [reasons, exits, byUiLang, byDevice] = await Promise.all([
+  run(['customEvent:reason', 'customEvent:last_step'], ['totalUsers'], cur, evFilter(['exit_reason'])).catch(() => null),
+  run(['customEvent:last_step'], ['totalUsers'], cur, { ...evFilter(['builder_exited']), orderBys: [{ dimension: { dimensionName: 'customEvent:last_step' } }] }).catch(() => null),
+  run(['customEvent:ui_language', 'eventName'], ['totalUsers'], cur, evFilter(['builder_started', 'pdf_downloaded'])).catch(() => null),
+  run(['deviceCategory', 'eventName'], ['totalUsers'], cur, evFilter(['builder_started', 'pdf_downloaded'])),
+])
+const REASON_LABELS = { looking: 'Just looking around', details: "Don't have the details right now", long: 'Too many fields', designs: "Didn't find a design", format: 'Need Word / image format', privacy: 'Not comfortable sharing details', language: 'Want another language' }
+const reasonRows = reasons && Object.entries(reasons.reduce((a, [r, step, u]) => { (a[r] ??= { total: 0, steps: {} }).total += u; a[r].steps[step] = (a[r].steps[step] || 0) + u; return a }, {}))
+  .sort((a, b) => b[1].total - a[1].total)
+  .map(([r, o]) => [REASON_LABELS[r] || r, o.total, Object.entries(o.steps).sort().map(([s2, n]) => `step ${s2}: ${n}`).join(' · ')])
+const convRows = rows => rows && Object.entries(rows.reduce((a, [g, e, u]) => { (a[g] ??= {})[e] = u; return a }, {}))
+  .filter(([, o]) => (o.builder_started || 0) >= 5)
+  .sort((a, b) => (b[1].builder_started || 0) - (a[1].builder_started || 0))
+  .map(([g, o]) => [g, o.builder_started || 0, o.pdf_downloaded || 0, pct(o.pdf_downloaded || 0, o.builder_started || 0)])
+
 // ── render ──
 const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]))
 const pct = (a, b) => (b ? (100 * a / b).toFixed(1) + '%' : '–')
@@ -96,6 +113,11 @@ th,td{text-align:left;padding:6px 10px;border-bottom:1px solid #e5e5e5}th{font-s
 <h2>Conversion funnel (unique users)</h2>
 <table><tr><th>Stage</th><th>Users</th><th>% of visitors</th><th>% of prev stage</th><th>vs prev period</th><th></th></tr>${funnelRows}</table>
 <h2>Builder step drop-off</h2>${stepHtml}
+<h2>Why people leave ("What stopped you?")</h2>${table(['Answer', 'Users', 'Left from'], reasonRows)}
+<h2>Where people leave the builder</h2>${table(['Last step', 'Users'], exits)}
+<div class="grid"><div><h2>Create → download by UI language</h2>${table(['Language', 'Started', 'Downloaded', 'Rate'], convRows(byUiLang))}</div>
+<div><h2>Create → download by device</h2>${table(['Device', 'Started', 'Downloaded', 'Rate'], convRows(byDevice))}</div></div>
+<p>Sample biodata opened on step 1: <b>${ev.sample_viewed?.users || 0}</b> users · Exit question answered: <b>${ev.exit_reason?.users || 0}</b> users</p>
 <h2>PDF downloads by template</h2>${table(['Template', 'Downloads'], templates)}
 <h2>PDF failures</h2>${table(['Error', 'Count'], failures)}
 <div class="grid"><div><h2>Countries</h2>${table(['Country', 'Users', 'Sessions'], countries)}</div>

@@ -12,12 +12,33 @@ import { useLanguage } from '../contexts/LanguageContext'
 import { useTheme, useBuilderTheme } from '../contexts/ThemeContext'
 import { preparePhoto, cropToImage, PHOTO_MAX_BYTES } from '../utils/photo'
 import PhotoCropModal from '../components/PhotoCropModal'
+import ExitSurvey, { exitSurveyAvailable } from '../components/ExitSurvey'
 import { exportPDF, paginate } from '../utils/pdfExport'
 import { TEXT_SIZES } from '../utils/textStyle'
 import { track } from '../utils/analytics'
 import { DEFAULT_FIELD_ORDER, getSectionOrder, customFieldKey } from '../utils/fieldGroups'
 
 /* ── field helpers ── */
+// Phone keyboards: the right keypad per field, and the keyboard's Next key moves to the following field
+const INPUT_HINTS = {
+  fullName: { autoComplete: 'name' },
+  age: { inputMode: 'numeric' },
+  phone: { inputMode: 'tel', autoComplete: 'tel' },
+  email: { autoComplete: 'email' },
+  city: { autoComplete: 'address-level2' },
+  state: { autoComplete: 'address-level1' },
+  address: { autoComplete: 'street-address' },
+}
+
+function focusNextField(e) {
+  if (e.key !== 'Enter') return
+  e.preventDefault()
+  const fields = [...document.querySelectorAll('input.form-input, select.form-select, textarea.form-input')].filter(el => el.offsetParent)
+  const next = fields[fields.indexOf(e.currentTarget) + 1]
+  if (next) next.focus()
+  else e.currentTarget.blur()
+}
+
 const Field = ({ label, name, formData, updateForm, type = 'text', placeholder, options }) => (
   <div>
     <label className="form-label">{label}</label>
@@ -38,6 +59,9 @@ const Field = ({ label, name, formData, updateForm, type = 'text', placeholder, 
         placeholder={placeholder || label}
         value={formData[name]}
         onChange={e => updateForm({ [name]: e.target.value })}
+        enterKeyHint="next"
+        onKeyDown={focusNextField}
+        {...INPUT_HINTS[name]}
       />
     )}
   </div>
@@ -257,20 +281,28 @@ function useSectionSort(formData, updateForm, section) {
 }
 
 /* Built-in fields and the user's added fields of one section, reorderable by drag or ↑ ↓ */
-function SortableSection({ section, fields, formData, updateForm }) {
+function SortableSection({ section, fields, formData, updateForm, collapseAfter }) {
+  const { t } = useLanguage()
+  const T = useBuilderTheme()
   const { sensors, order, onDragEnd, move } = useSectionSort(formData, updateForm, section)
   const added = getCustomFields(formData).filter(f => f.section === section)
+  // Optional collapse: show the first fields and tuck the rest behind "More details". Opens by itself
+  // when anything further down is already filled in or the user has added an extra field.
+  const [expandedByUser, setExpandedByUser] = useState(false)
+  const hidden = collapseAfter ? order.slice(collapseAfter) : []
+  const expanded = !collapseAfter || expandedByUser || hidden.some(id => id.startsWith('cf:') || formData[id]?.toString().trim())
+  const visible = expanded ? order : order.slice(0, collapseAfter)
   return (
     <>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={order} strategy={verticalListSortingStrategy}>
           <div className="space-y-4">
-            {order.map((id, i) => {
+            {visible.map((id, i) => {
               const field = added.find(f => customFieldKey(f) === id)
               return (
                 <SortableFieldRow key={id} id={id}
                   onMoveUp={i > 0 ? () => move(i, i - 1) : null}
-                  onMoveDown={i < order.length - 1 ? () => move(i, i + 1) : null}>
+                  onMoveDown={i < visible.length - 1 ? () => move(i, i + 1) : null}>
                   {field
                     ? <CustomFieldEditor field={field} index={added.indexOf(field)} formData={formData} updateForm={updateForm} />
                     : fields[id]}
@@ -280,7 +312,14 @@ function SortableSection({ section, fields, formData, updateForm }) {
           </div>
         </SortableContext>
       </DndContext>
-      <DragHint />
+      {!expanded && (
+        <button type="button" onClick={() => setExpandedByUser(true)}
+          style={{ width: '100%', marginTop: 14, padding: '12px 14px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer',
+            background: T.cardBg, color: T.text, border: `1.5px dashed ${T.borderStrong}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <Plus size={16} /> {t('more_details')}
+        </button>
+      )}
+      {expanded && <DragHint />}
     </>
   )
 }
@@ -295,10 +334,32 @@ function DragHint() {
   )
 }
 
+/* ── Sample biodata (step 1): lets "just looking" visitors see the finished result first ── */
+function SampleModal({ template, onClose }) {
+  const { t } = useLanguage()
+  const T = useBuilderTheme()
+  const w = Math.min(400, window.innerWidth - 48)
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}
+      style={{ position: 'fixed', top: 0, right: 0, bottom: 0, left: 0, zIndex: 300, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <motion.div initial={{ y: 24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 24, opacity: 0 }} onClick={e => e.stopPropagation()}
+        role="dialog" aria-modal="true" aria-label={t('sample_title')}
+        style={{ background: T.modalBg, borderRadius: 18, padding: 12, maxHeight: '90vh', overflowY: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <p style={{ fontSize: 14, fontWeight: 700, color: T.text, margin: 0 }}>{t('sample_title')}</p>
+          <button onClick={onClose} aria-label="Close" style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.textFaint, padding: 4 }}><X size={18} /></button>
+        </div>
+        <LivePreview containerW={w} template={template} shadow={false} />
+      </motion.div>
+    </motion.div>
+  )
+}
+
 /* ── Step 1: Personal ── */
 function Step1({ formData, updateForm }) {
   const { t } = useLanguage()
   const T = useBuilderTheme()
+  const [showSample, setShowSample] = useState(false)
 
   const personalFields = {
     fullName:            <Field label={t('f_fullName')}    name="fullName"    formData={formData} updateForm={updateForm} placeholder={t('ph_fullName')} />,
@@ -325,7 +386,19 @@ function Step1({ formData, updateForm }) {
     <div className="space-y-5">
       <StepHeading title={t('b_s1_title')} sub={t('b_s1_sub')} />
 
-      <SortableSection section="personal" fields={personalFields} formData={formData} updateForm={updateForm} />
+      <p style={{ fontSize: 13, color: T.textMuted, margin: '-4px 0 0', paddingLeft: 13 }}>{t('only_name')}</p>
+      <p style={{ fontSize: 12, color: T.textFaint, margin: '0 0 2px', paddingLeft: 13 }}>{t('privacy_note')}</p>
+      <div style={{ paddingLeft: 13 }}>
+        <button type="button" onClick={() => { track.sampleViewed(formData.template || 'lotus'); setShowSample(true) }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, padding: '7px 12px', borderRadius: 999, cursor: 'pointer',
+            background: T.cardBg, color: T.text, border: `1px solid ${T.borderStrong}` }}>
+          <Eye size={14} /> {t('sample_btn')}
+        </button>
+      </div>
+      <AnimatePresence>
+        {showSample && <SampleModal template={formData.template || 'lotus'} onClose={() => setShowSample(false)} />}
+      </AnimatePresence>
+      <SortableSection section="personal" fields={personalFields} formData={formData} updateForm={updateForm} collapseAfter={3} />
       <InlineCustomFields section="personal" titleKey="extra_personal_t" formData={formData} updateForm={updateForm} />
 
       {/* Optional sections — togglable */}
@@ -1410,7 +1483,7 @@ const FIELD_JUMPS = [
 ]
 
 /* ── Main BuilderPage ── */
-export default function BuilderPage({ formData, updateForm, onBack }) {
+export default function BuilderPage({ formData, updateForm, onBack, onLeaveEarly }) {
   const { t } = useLanguage()
   const { theme } = useTheme()
   const T = useBuilderTheme()
@@ -1437,11 +1510,16 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
   // Coach mark pointing at the floating preview button — phones/tablets only, since that's
   // the only place the eye icon replaces the always-visible side panel. Shows every time the
   // builder is opened (not just once ever) so infrequent visitors keep getting the reminder.
+  // Waits until there's a name to preview, so it doesn't cover step 1's first screen on arrival.
+  const hasName = !!formData.fullName?.trim()
+  const hintShown = useRef(false)
   useEffect(() => {
+    if (!hasName || hintShown.current) return
+    hintShown.current = true
     const showTimer = setTimeout(() => setShowPreviewHint(true), 600)
     const hideTimer = setTimeout(() => setShowPreviewHint(false), 7000)
     return () => { clearTimeout(showTimer); clearTimeout(hideTimer) }
-  }, [])
+  }, [hasName])
 
   const dismissPreviewHint = () => {
     setShowPreviewHint(false)
@@ -1496,10 +1574,28 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
 
   const stepRef = useRef(step)
   const nameRef = useRef(!!formData.fullName)
-  useEffect(() => { stepRef.current = step; nameRef.current = !!formData.fullName })
-  // Fires on unmount only when the user leaves before reaching the preview
+  const leaveRef = useRef(onLeaveEarly)
+  useEffect(() => { stepRef.current = step; nameRef.current = !!formData.fullName; leaveRef.current = onLeaveEarly })
+  // Fires on unmount only when the user leaves before reaching the preview (‹, logo or browser back);
+  // the landing page then asks "What stopped you?"
   useEffect(() => () => {
-    if (stepRef.current < totalSteps) track.builderExited(stepRef.current, nameRef.current)
+    const early = stepRef.current < totalSteps
+    if (early) track.builderExited(stepRef.current, nameRef.current)
+    // Always report (null = finished), so the last unmount wins — React StrictMode's extra dev-only
+    // unmount on open would otherwise leave a stale "left early" behind
+    leaveRef.current?.(early ? stepRef.current + 1 : null)
+  }, [])
+
+  // Desktop exit intent: pointer heads for the tab bar after 15s+ in the builder, before the preview
+  const [exitIntent, setExitIntent] = useState(false)
+  useEffect(() => {
+    if (!window.matchMedia?.('(pointer: fine)').matches) return
+    const start = Date.now()
+    const onOut = (e) => {
+      if (!e.relatedTarget && e.clientY <= 0 && Date.now() - start > 15000 && stepRef.current < totalSteps && exitSurveyAvailable()) setExitIntent(true)
+    }
+    document.addEventListener('mouseout', onOut)
+    return () => document.removeEventListener('mouseout', onOut)
   }, [])
 
   const next = () => {
@@ -1840,6 +1936,10 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
             </motion.div>
           </motion.div>
         )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {exitIntent && <ExitSurvey lastStep={step + 1} onClose={() => setExitIntent(false)} />}
       </AnimatePresence>
 
       {/* Feedback modal — shown after quick download from preview panel */}
