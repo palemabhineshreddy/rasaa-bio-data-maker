@@ -12,6 +12,13 @@ function _gtag(...args) {
 let _lang = 'en'
 export function setAnalyticsLang(code) { _lang = code }
 
+// Microsoft Clarity: tag recordings so sessions can be filtered (e.g. "left on step 1") and watched
+function _clarity(...args) {
+  try {
+    if (typeof window !== 'undefined' && typeof window.clarity === 'function') window.clarity(...args)
+  } catch {}
+}
+
 export function trackEvent(name, params = {}) {
   _gtag('event', name, { app: 'bandhan', ui_language: _lang, ...params })
 }
@@ -30,12 +37,27 @@ export const track = {
     trackEvent('required_field_empty', { step_number: stepIndex + 1, field }),
 
   // Builder left before reaching the preview — last_step shows where people give up
-  builderExited: (stepIndex, hasName) =>
-    trackEvent('builder_exited', { last_step: stepIndex + 1, has_name: hasName }),
+  builderExited: (stepIndex, hasName) => {
+    trackEvent('builder_exited', { last_step: stepIndex + 1, has_name: hasName })
+    _clarity('event', `builder_exit_step_${stepIndex + 1}`)
+    _clarity('set', 'exit_step', String(stepIndex + 1))
+  },
+
+  // "What stopped you?" answer after leaving the builder early (reason is a fixed key, never free text)
+  exitReason: (reason, lastStep) => {
+    trackEvent('exit_reason', { reason, last_step: lastStep })
+    _clarity('event', `exit_reason_${reason}`)
+    _clarity('set', 'exit_reason', reason)
+  },
+
+  // "See a sample biodata" opened on step 1
+  sampleViewed: (template) => trackEvent('sample_viewed', { template }),
 
   // Landing page → builder hand-off
-  builderStarted: (template = 'lotus') =>
-    trackEvent('builder_started', { template }),
+  builderStarted: (template = 'lotus') => {
+    trackEvent('builder_started', { template })
+    _clarity('event', 'builder_started')
+  },
 
   // Each step displayed
   stepViewed: (stepIndex, stepName) =>

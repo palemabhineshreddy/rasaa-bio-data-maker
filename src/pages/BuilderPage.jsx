@@ -12,6 +12,7 @@ import { useLanguage } from '../contexts/LanguageContext'
 import { useTheme, useBuilderTheme } from '../contexts/ThemeContext'
 import { preparePhoto, cropToImage, PHOTO_MAX_BYTES } from '../utils/photo'
 import PhotoCropModal from '../components/PhotoCropModal'
+import ExitSurvey, { exitSurveyAvailable } from '../components/ExitSurvey'
 import { exportPDF, paginate } from '../utils/pdfExport'
 import { TEXT_SIZES } from '../utils/textStyle'
 import { track } from '../utils/analytics'
@@ -333,10 +334,32 @@ function DragHint() {
   )
 }
 
+/* ── Sample biodata (step 1): lets "just looking" visitors see the finished result first ── */
+function SampleModal({ template, onClose }) {
+  const { t } = useLanguage()
+  const T = useBuilderTheme()
+  const w = Math.min(400, window.innerWidth - 48)
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}
+      style={{ position: 'fixed', top: 0, right: 0, bottom: 0, left: 0, zIndex: 300, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+      <motion.div initial={{ y: 24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 24, opacity: 0 }} onClick={e => e.stopPropagation()}
+        role="dialog" aria-modal="true" aria-label={t('sample_title')}
+        style={{ background: T.modalBg, borderRadius: 18, padding: 12, maxHeight: '90vh', overflowY: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <p style={{ fontSize: 14, fontWeight: 700, color: T.text, margin: 0 }}>{t('sample_title')}</p>
+          <button onClick={onClose} aria-label="Close" style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.textFaint, padding: 4 }}><X size={18} /></button>
+        </div>
+        <LivePreview containerW={w} template={template} shadow={false} />
+      </motion.div>
+    </motion.div>
+  )
+}
+
 /* ── Step 1: Personal ── */
 function Step1({ formData, updateForm }) {
   const { t } = useLanguage()
   const T = useBuilderTheme()
+  const [showSample, setShowSample] = useState(false)
 
   const personalFields = {
     fullName:            <Field label={t('f_fullName')}    name="fullName"    formData={formData} updateForm={updateForm} placeholder={t('ph_fullName')} />,
@@ -363,7 +386,18 @@ function Step1({ formData, updateForm }) {
     <div className="space-y-5">
       <StepHeading title={t('b_s1_title')} sub={t('b_s1_sub')} />
 
-      <p style={{ fontSize: 13, color: T.textMuted, margin: '-4px 0 4px', paddingLeft: 13 }}>{t('only_name')}</p>
+      <p style={{ fontSize: 13, color: T.textMuted, margin: '-4px 0 0', paddingLeft: 13 }}>{t('only_name')}</p>
+      <p style={{ fontSize: 12, color: T.textFaint, margin: '0 0 2px', paddingLeft: 13 }}>{t('privacy_note')}</p>
+      <div style={{ paddingLeft: 13 }}>
+        <button type="button" onClick={() => { track.sampleViewed(formData.template || 'lotus'); setShowSample(true) }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, padding: '7px 12px', borderRadius: 999, cursor: 'pointer',
+            background: T.cardBg, color: T.text, border: `1px solid ${T.borderStrong}` }}>
+          <Eye size={14} /> {t('sample_btn')}
+        </button>
+      </div>
+      <AnimatePresence>
+        {showSample && <SampleModal template={formData.template || 'lotus'} onClose={() => setShowSample(false)} />}
+      </AnimatePresence>
       <SortableSection section="personal" fields={personalFields} formData={formData} updateForm={updateForm} collapseAfter={3} />
       <InlineCustomFields section="personal" titleKey="extra_personal_t" formData={formData} updateForm={updateForm} />
 
@@ -1449,7 +1483,7 @@ const FIELD_JUMPS = [
 ]
 
 /* ── Main BuilderPage ── */
-export default function BuilderPage({ formData, updateForm, onBack }) {
+export default function BuilderPage({ formData, updateForm, onBack, onLeaveEarly }) {
   const { t } = useLanguage()
   const { theme } = useTheme()
   const T = useBuilderTheme()
@@ -1535,10 +1569,28 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
 
   const stepRef = useRef(step)
   const nameRef = useRef(!!formData.fullName)
-  useEffect(() => { stepRef.current = step; nameRef.current = !!formData.fullName })
-  // Fires on unmount only when the user leaves before reaching the preview
+  const leaveRef = useRef(onLeaveEarly)
+  useEffect(() => { stepRef.current = step; nameRef.current = !!formData.fullName; leaveRef.current = onLeaveEarly })
+  // Fires on unmount only when the user leaves before reaching the preview (‹, logo or browser back);
+  // the landing page then asks "What stopped you?"
   useEffect(() => () => {
-    if (stepRef.current < totalSteps) track.builderExited(stepRef.current, nameRef.current)
+    const early = stepRef.current < totalSteps
+    if (early) track.builderExited(stepRef.current, nameRef.current)
+    // Always report (null = finished), so the last unmount wins — React StrictMode's extra dev-only
+    // unmount on open would otherwise leave a stale "left early" behind
+    leaveRef.current?.(early ? stepRef.current + 1 : null)
+  }, [])
+
+  // Desktop exit intent: pointer heads for the tab bar after 15s+ in the builder, before the preview
+  const [exitIntent, setExitIntent] = useState(false)
+  useEffect(() => {
+    if (!window.matchMedia?.('(pointer: fine)').matches) return
+    const start = Date.now()
+    const onOut = (e) => {
+      if (!e.relatedTarget && e.clientY <= 0 && Date.now() - start > 15000 && stepRef.current < totalSteps && exitSurveyAvailable()) setExitIntent(true)
+    }
+    document.addEventListener('mouseout', onOut)
+    return () => document.removeEventListener('mouseout', onOut)
   }, [])
 
   const next = () => {
@@ -1879,6 +1931,10 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
             </motion.div>
           </motion.div>
         )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {exitIntent && <ExitSurvey lastStep={step + 1} onClose={() => setExitIntent(false)} />}
       </AnimatePresence>
 
       {/* Feedback modal — shown after quick download from preview panel */}

@@ -516,7 +516,7 @@ Note: `_headers` is Netlify-specific syntax — on AWS CloudFront, response head
 - Local preview: `npm run build && npx vite preview --port 4173` (the dev server does not serve generated pages).
 
 ## GA4 report (`analytics/`)
-`cd analytics && GA4_PROPERTY_ID=536859155 npm run report` → `analytics/out/report.html` (funnel, step drop-off, audience). Auth: gcloud ADC impersonating `ga4-reader@bandhan-analytics.iam.gserviceaccount.com` (org policy blocks service-account keys; set up with `gcloud auth application-default login --impersonate-service-account=...`). Custom dimensions to register in GA4: `ui_language` (not `language` — GA4 reserves it for browser language and drops the custom param), `step_number`, `step_name`, `template`, `field`, `last_step`, `to_language`, `error_message`.
+`cd analytics && GA4_PROPERTY_ID=536859155 npm run report` → `analytics/out/report.html` (funnel, step drop-off, audience). Auth: gcloud ADC impersonating `ga4-reader@bandhan-analytics.iam.gserviceaccount.com` (org policy blocks service-account keys; set up with `gcloud auth application-default login --impersonate-service-account=...`). Custom dimensions to register in GA4: `reason`, `ui_language` (not `language` — GA4 reserves it for browser language and drops the custom param), `step_number`, `step_name`, `template`, `field`, `last_step`, `to_language`, `error_message`.
 
 ## Analytics Events (`src/utils/analytics.js`)
 | Event | When fired |
@@ -536,6 +536,14 @@ Note: `_headers` is Netlify-specific syntax — on AWS CloudFront, response head
 | `previewViewed` | Preview step loads |
 | `customFieldAdded` | Extra field added |
 | `feedbackSubmitted` | Feedback form sent |
+| `exitReason` | "What stopped you?" answered (`reason`: looking/details/long/designs/format/privacy/language, `last_step`) |
+| `sampleViewed` | "See a sample biodata" opened on step 1 |
+
+**Exit question (`ExitSurvey.jsx`)**: shown once per session after leaving the builder before Preview (‹ on step 1, logo, browser back — reported by `BuilderPage` `onLeaveEarly`, shown on the landing page) and on desktop exit intent (pointer leaves the top of the window after 15s in the builder). Fixed tap answers only, no free text.
+
+**Microsoft Clarity tags** (filter recordings in Clarity): events `builder_started`, `builder_exit_step_N`, `exit_reason_<reason>`; custom tags `exit_step`, `exit_reason`.
+
+**Analytics load only on bandhan.app** (`window.__measure` in `index.html`). On localhost/previews `gtag()` still pushes to `window.dataLayer` (tests read events there) but GA and Clarity are never loaded, so test runs don't pollute data.
 
 ---
 
