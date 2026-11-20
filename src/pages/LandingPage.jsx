@@ -697,7 +697,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
               <motion.p custom={3.5} variants={fadeUp} initial="hidden" animate="show"
                 style={{ fontSize: 13, color: '#22c55e', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 24 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', flexShrink: 0 }} />
-                <span>{t('progress_saved')} <strong>{savedName}</strong> {t('pick_up')}</span>
+                <span>{t('progress_saved')} <strong>{savedName}</strong>{t('pick_up')}</span>
               </motion.p>
             )}
 
@@ -1035,7 +1035,7 @@ export default function LandingPage({ onStart, onContinue, savedName }) {
               { href: '/blog/how-to-write-marriage-biodata/', tag: 'Writing Guide', tagColor: '#7c3aed',
                 title: 'How to Write a Biodata That Gets Responses', time: '8 min read', date: 'Jun 2, 2026' },
               { href: '/blog/what-to-include-in-marriage-biodata/', tag: 'Content Guide', tagColor: '#0d9488',
-                title: 'What to Include — and What to Leave Out', time: '7 min read', date: 'May 20, 2026' },
+                title: 'What to Include, and What to Leave Out', time: '7 min read', date: 'May 20, 2026' },
               { href: '/blog/biodata-about-me-examples/', tag: 'Examples', tagColor: '#d97706',
                 title: 'About Me Section: What Actually Works', time: '9 min read', date: 'May 8, 2026' },
               { href: '/blog/marriage-biodata-format-by-religion/', tag: 'Format Guide', tagColor: '#be185d',

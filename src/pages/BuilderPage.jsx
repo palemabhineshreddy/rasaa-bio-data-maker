@@ -25,7 +25,7 @@ const Field = ({ label, name, formData, updateForm, type = 'text', placeholder, 
         value={formData[name]}
         onChange={e => updateForm({ [name]: e.target.value })}
       >
-        {options.map(o => <option key={o} value={o}>{o === '' ? '— Select —' : o}</option>)}
+        {options.map(o => <option key={o} value={o}>{o === '' ? 'Select' : o}</option>)}
       </select>
     ) : (
       <input
@@ -461,8 +461,8 @@ const SLOGAN_MAP = {
 const DEFAULT_SLOGAN_TEXT = '॥ श्री गणेशाय नमः ॥'
 
 const SLOGAN_OPTIONS = [
-  { value: 'auto', label: 'Auto — matches mother tongue' },
-  { value: 'hide', label: 'None — hide slogan' },
+  { value: 'auto', label: 'Auto (matches mother tongue)' },
+  { value: 'hide', label: 'None (hide slogan)' },
   { value: 'hindi',     label: 'Sanskrit / Hindi  ·  ॥ श्री गणेशाय नमः ॥' },
   { value: 'telugu',    label: 'Telugu  ·  ॥ శ్రీ గణేశాయ నమః ॥' },
   { value: 'tamil',     label: 'Tamil  ·  ॥ ஸ்ரீ கணேசாய நமஃ ॥' },
@@ -545,8 +545,8 @@ function SloganPicker({ formData, updateForm }) {
             value={isHidden ? 'hide' : 'auto'}
             onChange={e => updateForm({ sloganLanguage: e.target.value })}
           >
-            <option value="auto">Show — {RELIGION_DISPLAY_NAMES[relKey]} invocation</option>
-            <option value="hide">None — hide slogan</option>
+            <option value="auto">Show {RELIGION_DISPLAY_NAMES[relKey]} invocation</option>
+            <option value="hide">None (hide slogan)</option>
           </select>
         )}
         {slogan && (
@@ -661,7 +661,7 @@ const DESIGN_SAMPLE = {
   motherName: 'Sunita Sharma', motherOccupation: 'Homemaker',
   brothers: '1 Elder Brother (Married)', sisters: 'None',
   familyType: 'Nuclear', familyStatus: 'Middle Class', nativePlace: 'Tirupati, Andhra Pradesh',
-  about: 'Family-oriented and calm — loves classical dance, reading, and exploring new places.',
+  about: 'Family-oriented and calm: loves classical dance, reading, and exploring new places.',
   partnerExpectations: 'Looking for a well-educated, caring partner between 27–32.',
   rashi: 'Vrishabha', nakshatra: 'Rohini', gotra: 'Kashyapa', manglik: 'No',
   address: '12, MG Road, Koramangala', city: 'Bengaluru', state: 'Karnataka',
@@ -1120,7 +1120,7 @@ function FeedbackModal({ template, onClose }) {
               <input type="hidden" name="rating" value={rating ?? ''} />
               <input type="hidden" name="emoji" value={selectedRating?.emoji ?? ''} />
               <input type="hidden" name="template" value={template} />
-              <input type="hidden" name="_subject" value={`Bandhan Feedback — ${rating ?? '?'}/5 ${selectedRating?.emoji ?? ''}`} />
+              <input type="hidden" name="_subject" value={`Bandhan Feedback: ${rating ?? '?'}/5 ${selectedRating?.emoji ?? ''}`} />
               <input type="hidden" name="_replyto" value="hello@bandhan.app" />
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 20 }}>
@@ -1186,7 +1186,7 @@ function FeedbackModal({ template, onClose }) {
 
 /* ── Preview + Download ── */
 const WA_FALLBACK_TEXT = encodeURIComponent(
-  'I just created my marriage biodata on Bandhan — free, no sign-up, takes 5 minutes! Try it: https://bandhan.app'
+  'I just created my marriage biodata on Bandhan. It is free, needs no sign-up and takes 5 minutes! Try it: https://bandhan.app'
 )
 
 function PreviewStep({ formData, onBack, onEditStep, steps, exportRef, feedbackShown, onFeedbackShown }) {
@@ -1249,12 +1249,12 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef, feedbackS
           await navigator.share({
             files: [file],
             title: `${formData.fullName || 'My'} Biodata`,
-            text: 'Here is my marriage biodata — created on Bandhan (bandhan.app)',
+            text: 'Here is my marriage biodata, created on Bandhan (bandhan.app)',
           })
           track.whatsappShared('native')
           setSharing(false)
           return
-        } catch { /* user cancelled or share failed — fall through */ }
+        } catch { /* user cancelled or share failed, fall through */ }
       }
     }
 
@@ -1300,7 +1300,7 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef, feedbackS
 
       {downloadError && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, borderRadius: 12, border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.08)', color: '#ef4444', padding: '12px 16px', fontSize: 14 }}>
-          Something went wrong generating your PDF. Please try again — if it keeps failing, try a different browser or device.
+          Something went wrong generating your PDF. Please try again. If it keeps failing, try a different browser or device.
         </div>
       )}
 
@@ -1772,7 +1772,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
               </div>
               {quickDownloadError && (
                 <p style={{ width: '100%', fontSize: 12, color: '#ef4444', marginBottom: 10 }}>
-                  PDF generation failed — please try again.
+                  PDF generation failed. Please try again.
                 </p>
               )}
               <motion.div

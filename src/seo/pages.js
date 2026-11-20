@@ -14,7 +14,7 @@ export const PAGES = [
   // ── Generic / intent pages ────────────────────────────────────────────────
   en({
     slug: 'biodata-format-for-marriage',
-    title: 'Biodata Format for Marriage — Free PDF Maker',
+    title: 'Biodata Format for Marriage | Free PDF Maker',
     description: 'See the standard marriage biodata format used in India and create yours free in minutes. 19 designs, no sign-up, instant PDF download.',
     h1: 'Biodata Format for Marriage',
     intro: 'A marriage biodata is a one-page summary families share during an arranged-marriage search. The usual order is personal details, education and career, family background, and finally contact information. Bandhan gives you this layout ready-made, so you only fill in the details.',
@@ -26,7 +26,7 @@ export const PAGES = [
   en({
     slug: 'marriage-biodata-format-for-girl',
     template: 'bloom',
-    title: 'Marriage Biodata Format for Girl — Free PDF',
+    title: 'Marriage Biodata Format for Girl | Free PDF',
     description: 'Create a marriage biodata for a girl with photo, education, family and horoscope sections. Elegant designs, free PDF download, no sign-up.',
     h1: 'Marriage Biodata Format for Girl',
     intro: 'A biodata for a girl usually leads with a warm, clear photograph, followed by education, profession, family background and what the family is looking for. Pick a soft design such as Bloom or Rose, add your details, and download a clean PDF.',
@@ -38,7 +38,7 @@ export const PAGES = [
   en({
     slug: 'marriage-biodata-format-for-boy',
     template: 'royal',
-    title: 'Marriage Biodata Format for Boy — Free PDF',
+    title: 'Marriage Biodata Format for Boy | Free PDF',
     description: 'Make a marriage biodata for a boy: education, job, income, family and horoscope in a clean one-page PDF. Free, private, instant download.',
     h1: 'Marriage Biodata Format for Boy',
     intro: 'A biodata for a boy typically highlights education, current job, employer and city, then family background. A structured, readable layout builds trust quickly with the other family. Choose a clean design such as Royal, Modern or Minimal.',
@@ -50,7 +50,7 @@ export const PAGES = [
   en({
     slug: 'simple-biodata-format-for-marriage',
     template: 'minimal',
-    title: 'Simple Biodata Format for Marriage — Free PDF',
+    title: 'Simple Biodata Format for Marriage | Free PDF',
     description: 'A clean, simple marriage biodata format with only the essentials. Fill in your details, pick the Minimal design and download a PDF free.',
     h1: 'Simple Biodata Format for Marriage',
     intro: 'Not every family wants an ornate biodata. A simple format keeps to the essentials: who you are, what you do, and who your family is. Bandhan\'s Minimal and Modern designs use plenty of white space so the details are easy to read, on screen or printed.',
@@ -61,7 +61,7 @@ export const PAGES = [
   en({
     slug: 'marriage-biodata-with-photo',
     template: 'editorial',
-    title: 'Marriage Biodata with Photo — Free PDF Maker',
+    title: 'Marriage Biodata with Photo | Free PDF Maker',
     description: 'Add your photo to a marriage biodata, adjust the crop, and download a polished PDF. Free, private, no sign-up.',
     h1: 'Marriage Biodata with Photo',
     intro: 'The photograph is the first thing most families look at. Upload yours in Bandhan, drag to position the face in the frame, and the photo is placed correctly in every design. The photo stays on your device. It is never uploaded.',
@@ -72,9 +72,9 @@ export const PAGES = [
   }),
   en({
     slug: 'biodata-format-for-marriage-pdf',
-    title: 'Biodata Format for Marriage PDF — Download Free',
+    title: 'Biodata Format for Marriage PDF | Download Free',
     description: 'Create a marriage biodata and download it as a high-quality one-page PDF, ready to print or share on WhatsApp. Free, no sign-up.',
-    h1: 'Biodata Format for Marriage — PDF Download',
+    h1: 'Biodata Format for Marriage: PDF Download',
     intro: 'PDF is the most reliable format for sharing a biodata. It looks identical on every phone and prints cleanly. Fill in your details in Bandhan and download a high-resolution, single-page PDF in one tap.',
     tips: ['Share the PDF directly on WhatsApp. It opens the same on every phone.', 'Keep the file name with the person\'s name so it is easy to find.'],
     faq: [['Can I download the biodata as PDF?', 'Yes, one high-quality page, and you can download it again after editing.'], ['Will it print well?', 'Yes. The page is designed to print on A4.']],
@@ -83,7 +83,7 @@ export const PAGES = [
   en({
     slug: 'biodata-sample-for-marriage',
     template: 'modern',
-    title: 'Biodata Sample for Marriage — See Examples',
+    title: 'Biodata Sample for Marriage | See Examples',
     description: 'See what a finished marriage biodata looks like, then make your own in minutes. 19 designs, free PDF download, no sign-up.',
     h1: 'Biodata Sample for Marriage',
     intro: 'The easiest way to understand a good biodata is to see one. Bandhan\'s design gallery shows real sample biodatas across 19 designs, from traditional gold-and-maroon to modern minimal. Pick one, replace the sample with your details and download.',
@@ -93,7 +93,7 @@ export const PAGES = [
   }),
   en({
     slug: 'biodata-format-for-arranged-marriage',
-    title: 'Biodata Format for Arranged Marriage — Free',
+    title: 'Biodata Format for Arranged Marriage | Free',
     description: 'The biodata format used in arranged marriages across India: what to include and how to present it. Free PDF maker, no sign-up.',
     h1: 'Biodata Format for Arranged Marriage',
     intro: 'In arranged marriages the biodata is often the first introduction between two families, so clarity and completeness matter. Families look for background, values and practical details, such as education, profession, family set-up and location, more than anything else.',
@@ -105,7 +105,7 @@ export const PAGES = [
   en({
     slug: 'biodata-with-horoscope-format',
     template: 'celestial',
-    title: 'Biodata with Horoscope Details — Free Format',
+    title: 'Biodata with Horoscope Details | Free Format',
     description: 'Add rashi, nakshatra, gotra and manglik status to your marriage biodata. Reorder fields and download a free PDF.',
     h1: 'Marriage Biodata with Horoscope Details',
     intro: 'Many families match horoscopes before meeting. Bandhan has an optional Horoscope section for rashi, nakshatra, gotra and manglik status, switched on only when you need it. You can also add your own fields, such as time of birth and place of birth.',
@@ -119,7 +119,7 @@ export const PAGES = [
   en({
     slug: 'hindu-marriage-biodata-format',
     template: 'mandala',
-    title: 'Hindu Marriage Biodata Format — Free PDF Maker',
+    title: 'Hindu Marriage Biodata Format | Free PDF Maker',
     description: 'Hindu marriage biodata with gotra, rashi, nakshatra and manglik, and a traditional invocation header. Free PDF, no sign-up.',
     h1: 'Hindu Marriage Biodata Format',
     intro: 'A Hindu biodata commonly carries an invocation at the top, such as "Om Shri Ganeshaya Namah", followed by personal, education, family and horoscope details. Bandhan adds the invocation for you in the language of your choice and lets you switch it off.',
@@ -131,7 +131,7 @@ export const PAGES = [
   en({
     slug: 'muslim-marriage-biodata-format',
     template: 'artDeco',
-    title: 'Muslim Marriage Biodata Format — Free PDF Maker',
+    title: 'Muslim Marriage Biodata Format | Free PDF Maker',
     description: 'Muslim marriage biodata format with sect, education, family details and an Islamic invocation. Free PDF download, no sign-up.',
     h1: 'Muslim Marriage Biodata Format',
     intro: 'A Muslim biodata usually opens with "Bismillah ir-Rahman ir-Rahim" and covers personal details, sect, education, profession and family background. Bandhan adds the Islamic invocation automatically when you select Islam as the religion.',
@@ -143,7 +143,7 @@ export const PAGES = [
   en({
     slug: 'sikh-marriage-biodata-format',
     template: 'royal',
-    title: 'Sikh Marriage Biodata Format — Free PDF Maker',
+    title: 'Sikh Marriage Biodata Format | Free PDF Maker',
     description: 'Sikh marriage biodata with an Ik Onkar invocation, personal, education and family details. Free PDF download, no sign-up.',
     h1: 'Sikh Marriage Biodata Format',
     intro: 'A Sikh biodata often begins with the Ik Onkar invocation ("Ik Onkar Sat Naam Karta Purakh"), then lists personal and family details. Bandhan inserts the right invocation when you choose Sikhism, and lets you add fields that matter to your family, such as whether you keep kesh.',
@@ -155,7 +155,7 @@ export const PAGES = [
   en({
     slug: 'christian-marriage-biodata-format',
     template: 'minimal',
-    title: 'Christian Marriage Biodata Format — Free PDF',
+    title: 'Christian Marriage Biodata Format | Free PDF',
     description: 'Christian marriage biodata with denomination, church, education and family details. Free PDF maker, no sign-up, private.',
     h1: 'Christian Marriage Biodata Format',
     intro: 'A Christian biodata typically includes denomination (Catholic, Protestant, Orthodox, Marthoma and others), the home parish or church, along with the usual education, career and family details. Bandhan\'s Christian invocation is added automatically, and you can add a custom field for parish.',
@@ -167,7 +167,7 @@ export const PAGES = [
   en({
     slug: 'jain-marriage-biodata-format',
     template: 'lotus',
-    title: 'Jain Marriage Biodata Format — Free PDF Maker',
+    title: 'Jain Marriage Biodata Format | Free PDF Maker',
     description: 'Jain marriage biodata with sect, gotra, education and family details and a Jai Jinendra header. Free PDF, no sign-up.',
     h1: 'Jain Marriage Biodata Format',
     intro: 'A Jain biodata commonly mentions sect (Digambar, Shwetambar, Sthanakvasi or Terapanthi), gotra and dietary practice, alongside education, business or profession and family details. Bandhan adds a "Jai Jinendra" header automatically for Jain users.',
@@ -179,7 +179,7 @@ export const PAGES = [
   en({
     slug: 'buddhist-marriage-biodata-format',
     template: 'celestial',
-    title: 'Buddhist Marriage Biodata Format — Free PDF',
+    title: 'Buddhist Marriage Biodata Format | Free PDF',
     description: 'Buddhist marriage biodata with education, family and personal details. Free PDF maker with a Buddhist invocation, no sign-up.',
     h1: 'Buddhist Marriage Biodata Format',
     intro: 'A Buddhist biodata focuses on personal values, education, profession and family background. Bandhan includes a Buddhist invocation for users who choose Buddhism, and you can add custom fields such as the Buddhist tradition you follow.',
@@ -193,7 +193,7 @@ export const PAGES = [
   en({
     slug: 'telugu-marriage-biodata-format',
     template: 'peacock',
-    title: 'Telugu Marriage Biodata Format — Free PDF Maker',
+    title: 'Telugu Marriage Biodata Format | Free PDF Maker',
     description: 'Telugu marriage biodata with gotram, nakshatram and rashi, in Telugu or English. Free PDF download, no sign-up.',
     h1: 'Telugu Marriage Biodata Format',
     intro: 'Telugu families usually include gotram, nakshatram and rashi, along with education, job, native place and family details. Bandhan can generate the whole biodata in Telugu, including the section labels, so it reads naturally for both families.',
@@ -205,7 +205,7 @@ export const PAGES = [
   en({
     slug: 'tamil-marriage-biodata-format',
     template: 'bridal',
-    title: 'Tamil Marriage Biodata Format — Free PDF Maker',
+    title: 'Tamil Marriage Biodata Format | Free PDF Maker',
     description: 'Tamil marriage biodata with kulam, nakshatram, raasi and dosham details, in Tamil or English. Free PDF, no sign-up.',
     h1: 'Tamil Marriage Biodata Format',
     intro: 'Tamil biodatas often include kulam or caste, star (nakshatram), raasi and any dosham, together with education, job and family details. Bandhan lets you build the biodata in Tamil, with section labels translated, and add custom fields for anything specific to your family.',
@@ -217,7 +217,7 @@ export const PAGES = [
   en({
     slug: 'kannada-marriage-biodata-format',
     template: 'floralVine',
-    title: 'Kannada Marriage Biodata Format — Free PDF',
+    title: 'Kannada Marriage Biodata Format | Free PDF',
     description: 'Kannada marriage biodata with gotra, nakshatra and family details, in Kannada or English. Free PDF maker, no sign-up.',
     h1: 'Kannada Marriage Biodata Format',
     intro: 'Kannada biodatas commonly list gotra, nakshatra and rashi, along with education, career and family details. Bandhan supports Kannada end to end, so the finished PDF reads naturally to the other family.',
@@ -228,7 +228,7 @@ export const PAGES = [
   en({
     slug: 'malayalam-marriage-biodata-format',
     template: 'rose',
-    title: 'Malayalam Marriage Biodata Format — Free PDF',
+    title: 'Malayalam Marriage Biodata Format | Free PDF',
     description: 'Malayalam marriage biodata with star, caste or denomination, and family details. Free PDF download, no sign-up.',
     h1: 'Malayalam Marriage Biodata Format',
     intro: 'Kerala families, whether Hindu, Christian or Muslim, look for similar basics: education, job (often abroad), family background and, for many Hindu families, star and caste. Bandhan produces the biodata in Malayalam and supports invocations for all three communities.',
@@ -239,7 +239,7 @@ export const PAGES = [
   en({
     slug: 'bengali-marriage-biodata-format',
     template: 'bloom',
-    title: 'Bengali Marriage Biodata Format — Free PDF',
+    title: 'Bengali Marriage Biodata Format | Free PDF',
     description: 'Bengali marriage biodata (patro-patri style details) with gotra, rashi and family information. Free PDF, no sign-up.',
     h1: 'Bengali Marriage Biodata Format',
     intro: 'Bengali families usually share education, job, family background, gotra and rashi, along with a good photograph. Bandhan supports Bengali labels and adds a Bengali invocation to the header if you wish.',
@@ -250,7 +250,7 @@ export const PAGES = [
   en({
     slug: 'marathi-marriage-biodata-format',
     template: 'ember',
-    title: 'Marathi Marriage Biodata Format — Free PDF',
+    title: 'Marathi Marriage Biodata Format | Free PDF',
     description: 'Marathi marriage biodata with kul, gotra, nakshatra and nadi details. Free PDF in Marathi or English, no sign-up.',
     h1: 'Marathi Marriage Biodata Format',
     intro: 'Marathi biodatas commonly list kul, gotra, nakshatra and nadi along with education, job and family. Bandhan supports Marathi labels so your biodata reads naturally, and you can add any extra details as custom fields.',
@@ -261,7 +261,7 @@ export const PAGES = [
   en({
     slug: 'gujarati-marriage-biodata-format',
     template: 'amethyst',
-    title: 'Gujarati Marriage Biodata Format — Free PDF',
+    title: 'Gujarati Marriage Biodata Format | Free PDF',
     description: 'Gujarati marriage biodata with gotra, family business and education details. Free PDF in Gujarati or English, no sign-up.',
     h1: 'Gujarati Marriage Biodata Format',
     intro: 'Gujarati families often include gotra, native place, education and the family business alongside personal details. Bandhan supports Gujarati labels and lets you add custom fields such as family business or dietary practice.',
@@ -272,7 +272,7 @@ export const PAGES = [
   en({
     slug: 'punjabi-marriage-biodata-format',
     template: 'royal',
-    title: 'Punjabi Marriage Biodata Format — Free PDF',
+    title: 'Punjabi Marriage Biodata Format | Free PDF',
     description: 'Punjabi marriage biodata for Sikh and Hindu families: education, family, gotra and caste details. Free PDF, no sign-up.',
     h1: 'Punjabi Marriage Biodata Format',
     intro: 'Punjabi biodatas cover both Sikh and Hindu families, and usually list education, job or business, family background, caste or gotra, and often details such as land or family business. Bandhan adapts the invocation to the religion you choose.',
@@ -285,7 +285,7 @@ export const PAGES = [
   en({
     slug: 'royal-wedding-biodata-template',
     template: 'royal',
-    title: 'Royal Marriage Biodata Template — Free Design',
+    title: 'Royal Marriage Biodata Template | Free Design',
     description: 'A rich, royal-style marriage biodata design in maroon and gold. Fill in your details and download a free PDF. No sign-up.',
     h1: 'Royal Marriage Biodata Template',
     intro: 'The Royal design uses deep colours and fine borders for a formal, traditional look that suits families who prefer something classic. Fill in your details and the layout adapts automatically.',
@@ -296,7 +296,7 @@ export const PAGES = [
   en({
     slug: 'floral-biodata-template',
     template: 'floralVine',
-    title: 'Floral Marriage Biodata Template — Free Design',
+    title: 'Floral Marriage Biodata Template | Free Design',
     description: 'A soft floral-vine marriage biodata design with elegant borders. Free PDF download, no sign-up, your data stays private.',
     h1: 'Floral Marriage Biodata Template',
     intro: 'Floral Vine and Rose bring a light, graceful feel with delicate borders. They suit biodatas that want warmth rather than formality, and they read well in print and on a phone screen.',
@@ -307,7 +307,7 @@ export const PAGES = [
   en({
     slug: 'minimal-marriage-biodata-template',
     template: 'minimal',
-    title: 'Minimal Marriage Biodata Template — Free PDF',
+    title: 'Minimal Marriage Biodata Template | Free PDF',
     description: 'A clean, minimal marriage biodata template with lots of white space. Free PDF download, no sign-up, completely private.',
     h1: 'Minimal Marriage Biodata Template',
     intro: 'The Minimal design strips away ornament so the information comes first. It suits younger families, professionals and anyone who prefers a modern, understated look.',
@@ -318,7 +318,7 @@ export const PAGES = [
   en({
     slug: 'biodata-for-nri-marriage',
     template: 'editorial',
-    title: 'Biodata for NRI Marriage — Free PDF Maker',
+    title: 'Biodata for NRI Marriage | Free PDF Maker',
     description: 'Create a marriage biodata for NRI profiles: visa status, country of residence, employer and family back home. Free PDF, no sign-up.',
     h1: 'Biodata for NRI Marriage',
     intro: 'An NRI biodata needs a few extra details: country and city of residence, visa or citizenship status, employer, and family details back in India. Bandhan lets you add these as custom fields so the biodata answers a family\'s first questions straight away.',
@@ -337,7 +337,7 @@ const regional = (p) => ({ template: 'lotus', fields: [], tips: [], related: ['b
 export const REGIONAL_PAGES = [
   regional({
     slug: 'hindi-biodata-format', lang: 'hi', template: 'mandala',
-    title: 'विवाह बायोडेटा फॉर्मेट — मुफ़्त पीडीएफ बनाएँ',
+    title: 'विवाह बायोडेटा फॉर्मेट | मुफ़्त पीडीएफ बनाएँ',
     description: 'हिंदी में शादी का बायोडेटा मुफ़्त बनाएँ। फोटो, पढ़ाई, परिवार और कुंडली की जानकारी जोड़ें और पीडीएफ डाउनलोड करें।',
     h1: 'विवाह बायोडेटा फॉर्मेट',
     intro: 'शादी का बायोडेटा एक पन्ने में आपकी और आपके परिवार की पहचान होता है। इसमें आमतौर पर निजी जानकारी, पढ़ाई और नौकरी, परिवार का विवरण और संपर्क नंबर होते हैं। Bandhan में आप ये सब हिंदी में भर सकते हैं और कुछ ही मिनट में पीडीएफ पा सकते हैं।',
@@ -346,7 +346,7 @@ export const REGIONAL_PAGES = [
   }),
   regional({
     slug: 'telugu-biodata-format', lang: 'te', template: 'peacock',
-    title: 'తెలుగు పెళ్లి బయోడేటా ఫార్మాట్ — ఉచిత PDF',
+    title: 'తెలుగు పెళ్లి బయోడేటా ఫార్మాట్ | ఉచిత PDF',
     description: 'తెలుగులో పెళ్లి బయోడేటా ఉచితంగా తయారు చేసుకోండి. ఫోటో, చదువు, కుటుంబం, గోత్రం, నక్షత్రం వివరాలతో PDF డౌన్‌లోడ్ చేయండి.',
     h1: 'తెలుగు పెళ్లి బయోడేటా ఫార్మాట్',
     intro: 'పెళ్లి బయోడేటా అంటే ఒక పేజీలో మీ గురించి, మీ కుటుంబం గురించి చెప్పే పరిచయం. వ్యక్తిగత వివరాలు, చదువు, ఉద్యోగం, కుటుంబ వివరాలు, సంప్రదింపు నంబర్ ఇందులో ఉంటాయి. Bandhan లో ఇవన్నీ తెలుగులోనే నింపి, కొద్ది నిమిషాల్లో PDF పొందవచ్చు.',
@@ -355,7 +355,7 @@ export const REGIONAL_PAGES = [
   }),
   regional({
     slug: 'tamil-biodata-format', lang: 'ta', template: 'bridal',
-    title: 'தமிழ் திருமண பயோடேட்டா ஃபார்மேட் — இலவச PDF',
+    title: 'தமிழ் திருமண பயோடேட்டா ஃபார்மேட் | இலவச PDF',
     description: 'தமிழில் திருமண பயோடேட்டாவை இலவசமாக உருவாக்குங்கள். புகைப்படம், படிப்பு, குடும்பம், நட்சத்திரம், ராசி விவரங்களுடன் PDF பதிவிறக்குங்கள்.',
     h1: 'தமிழ் திருமண பயோடேட்டா ஃபார்மேட்',
     intro: 'திருமண பயோடேட்டா என்பது ஒரே பக்கத்தில் உங்களையும் உங்கள் குடும்பத்தையும் அறிமுகப்படுத்துவது. தனிப்பட்ட விவரங்கள், படிப்பு, வேலை, குடும்ப விவரங்கள், தொடர்பு எண் ஆகியவை இதில் இருக்கும். Bandhan-இல் இவை அனைத்தையும் தமிழிலேயே நிரப்பி, சில நிமிடங்களில் PDF பெறலாம்.',
@@ -364,7 +364,7 @@ export const REGIONAL_PAGES = [
   }),
   regional({
     slug: 'kannada-biodata-format', lang: 'kn', template: 'floralVine',
-    title: 'ಕನ್ನಡ ಮದುವೆ ಬಯೋಡೇಟಾ ಫಾರ್ಮ್ಯಾಟ್ — ಉಚಿತ PDF',
+    title: 'ಕನ್ನಡ ಮದುವೆ ಬಯೋಡೇಟಾ ಫಾರ್ಮ್ಯಾಟ್ | ಉಚಿತ PDF',
     description: 'ಕನ್ನಡದಲ್ಲಿ ಮದುವೆ ಬಯೋಡೇಟಾವನ್ನು ಉಚಿತವಾಗಿ ತಯಾರಿಸಿ. ಫೋಟೋ, ಓದು, ಕುಟುಂಬ, ಗೋತ್ರ, ನಕ್ಷತ್ರ ವಿವರಗಳೊಂದಿಗೆ PDF ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ.',
     h1: 'ಕನ್ನಡ ಮದುವೆ ಬಯೋಡೇಟಾ ಫಾರ್ಮ್ಯಾಟ್',
     intro: 'ಮದುವೆ ಬಯೋಡೇಟಾ ಎಂದರೆ ಒಂದೇ ಪುಟದಲ್ಲಿ ನಿಮ್ಮ ಮತ್ತು ನಿಮ್ಮ ಕುಟುಂಬದ ಪರಿಚಯ. ವೈಯಕ್ತಿಕ ವಿವರ, ಓದು, ಕೆಲಸ, ಕುಟುಂಬದ ವಿವರ ಮತ್ತು ಸಂಪರ್ಕ ಸಂಖ್ಯೆ ಇದರಲ್ಲಿರುತ್ತವೆ. Bandhan ನಲ್ಲಿ ಇವೆಲ್ಲವನ್ನೂ ಕನ್ನಡದಲ್ಲೇ ತುಂಬಿ ಕೆಲವೇ ನಿಮಿಷಗಳಲ್ಲಿ PDF ಪಡೆಯಬಹುದು.',
@@ -373,7 +373,7 @@ export const REGIONAL_PAGES = [
   }),
   regional({
     slug: 'malayalam-biodata-format', lang: 'ml', template: 'rose',
-    title: 'മലയാളം വിവാഹ ബയോഡേറ്റ ഫോർമാറ്റ് — സൗജന്യ PDF',
+    title: 'മലയാളം വിവാഹ ബയോഡേറ്റ ഫോർമാറ്റ് | സൗജന്യ PDF',
     description: 'മലയാളത്തിൽ വിവാഹ ബയോഡേറ്റ സൗജന്യമായി ഉണ്ടാക്കാം. ഫോട്ടോ, വിദ്യാഭ്യാസം, കുടുംബം, നക്ഷത്രം വിവരങ്ങളോടെ PDF ഡൗൺലോഡ് ചെയ്യൂ.',
     h1: 'മലയാളം വിവാഹ ബയോഡേറ്റ ഫോർമാറ്റ്',
     intro: 'വിവാഹ ബയോഡേറ്റ എന്നത് ഒറ്റ പേജിൽ നിങ്ങളെയും നിങ്ങളുടെ കുടുംബത്തെയും പരിചയപ്പെടുത്തുന്നതാണ്. വ്യക്തിഗത വിവരങ്ങൾ, വിദ്യാഭ്യാസം, ജോലി, കുടുംബ വിവരങ്ങൾ, ഫോൺ നമ്പർ എന്നിവ ഇതിലുണ്ടാകും. Bandhan-ൽ ഇതെല്ലാം മലയാളത്തിൽ തന്നെ പൂരിപ്പിച്ച് ഏതാനും മിനിറ്റിനുള്ളിൽ PDF നേടാം.',
@@ -382,7 +382,7 @@ export const REGIONAL_PAGES = [
   }),
   regional({
     slug: 'bengali-biodata-format', lang: 'bn', template: 'bloom',
-    title: 'বাংলা বিয়ের বায়োডেটা ফরম্যাট — বিনামূল্যে PDF',
+    title: 'বাংলা বিয়ের বায়োডেটা ফরম্যাট | বিনামূল্যে PDF',
     description: 'বাংলায় বিয়ের বায়োডেটা বিনামূল্যে বানান। ছবি, পড়াশোনা, পরিবার, গোত্র, রাশি তথ্য সহ PDF ডাউনলোড করুন।',
     h1: 'বাংলা বিয়ের বায়োডেটা ফরম্যাট',
     intro: 'বিয়ের বায়োডেটা হল এক পাতায় আপনার ও আপনার পরিবারের পরিচয়। এতে ব্যক্তিগত তথ্য, পড়াশোনা, চাকরি, পরিবারের বিবরণ ও যোগাযোগের নম্বর থাকে। Bandhan-এ এসবই বাংলায় ভরে কয়েক মিনিটে PDF পেতে পারেন।',
@@ -391,7 +391,7 @@ export const REGIONAL_PAGES = [
   }),
   regional({
     slug: 'marathi-biodata-format', lang: 'mr', template: 'ember',
-    title: 'मराठी लग्न बायोडेटा फॉर्मेट — मोफत PDF',
+    title: 'मराठी लग्न बायोडेटा फॉर्मेट | मोफत PDF',
     description: 'मराठीत लग्नाचा बायोडेटा मोफत बनवा. फोटो, शिक्षण, कुटुंब, गोत्र, नक्षत्र माहितीसह PDF डाउनलोड करा.',
     h1: 'मराठी लग्न बायोडेटा फॉर्मेट',
     intro: 'लग्नाचा बायोडेटा म्हणजे एका पानात तुमची आणि तुमच्या कुटुंबाची ओळख. त्यात वैयक्तिक माहिती, शिक्षण, नोकरी, कुटुंबाचा तपशील आणि संपर्क क्रमांक असतो. Bandhan मध्ये हे सगळं मराठीतच भरून काही मिनिटांत PDF मिळवता येतो.',
@@ -400,7 +400,7 @@ export const REGIONAL_PAGES = [
   }),
   regional({
     slug: 'gujarati-biodata-format', lang: 'gu', template: 'amethyst',
-    title: 'ગુજરાતી લગ્ન બાયોડેટા ફોર્મેટ — મફત PDF',
+    title: 'ગુજરાતી લગ્ન બાયોડેટા ફોર્મેટ | મફત PDF',
     description: 'ગુજરાતીમાં લગ્નનો બાયોડેટા મફત બનાવો. ફોટો, અભ્યાસ, પરિવાર, ગોત્ર વિગતો સાથે PDF ડાઉનલોડ કરો.',
     h1: 'ગુજરાતી લગ્ન બાયોડેટા ફોર્મેટ',
     intro: 'લગ્નનો બાયોડેટા એટલે એક પાનામાં તમારી અને તમારા પરિવારની ઓળખ. તેમાં અંગત માહિતી, અભ્યાસ, નોકરી કે વ્યવસાય, પરિવારની વિગતો અને સંપર્ક નંબર હોય છે. Bandhan માં આ બધું ગુજરાતીમાં જ ભરીને થોડી મિનિટોમાં PDF મેળવી શકાય છે.',
