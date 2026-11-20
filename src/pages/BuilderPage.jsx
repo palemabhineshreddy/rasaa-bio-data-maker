@@ -1510,11 +1510,16 @@ export default function BuilderPage({ formData, updateForm, onBack, onLeaveEarly
   // Coach mark pointing at the floating preview button — phones/tablets only, since that's
   // the only place the eye icon replaces the always-visible side panel. Shows every time the
   // builder is opened (not just once ever) so infrequent visitors keep getting the reminder.
+  // Waits until there's a name to preview, so it doesn't cover step 1's first screen on arrival.
+  const hasName = !!formData.fullName?.trim()
+  const hintShown = useRef(false)
   useEffect(() => {
+    if (!hasName || hintShown.current) return
+    hintShown.current = true
     const showTimer = setTimeout(() => setShowPreviewHint(true), 600)
     const hideTimer = setTimeout(() => setShowPreviewHint(false), 7000)
     return () => { clearTimeout(showTimer); clearTimeout(hideTimer) }
-  }, [])
+  }, [hasName])
 
   const dismissPreviewHint = () => {
     setShowPreviewHint(false)
