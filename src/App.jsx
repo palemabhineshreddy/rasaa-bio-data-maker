@@ -32,6 +32,8 @@ const EMPTY_FORM = {
   address: '', city: '', state: '', phone: '', email: '',
   // Photo & Template
   photo: null,
+  photoOriginal: null,
+  photoCrop: null,
   photoPosition: { x: 50, y: 20 },
   template: 'lotus',
   sloganLanguage: 'auto',
@@ -71,7 +73,7 @@ function AppInner() {
   const updateForm = (fields) => setFormData(prev => {
     const next = { ...prev, ...fields }
     try {
-      const { photo, ...rest } = next
+      const { photo, photoOriginal, ...rest } = next
       localStorage.setItem(LS_KEY, JSON.stringify(rest))
     } catch {}
     return next

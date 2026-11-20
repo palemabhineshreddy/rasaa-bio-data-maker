@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Check, Download, RotateCcw, Search, Plus, Trash2, MessageCircle, LayoutTemplate, X, Eye } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, Download, RotateCcw, Crop, Search, Plus, Trash2, MessageCircle, LayoutTemplate, X, Eye } from 'lucide-react'
 import { useForm } from '@formspree/react'
 import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
@@ -10,6 +10,8 @@ import SortableFieldRow from '../components/SortableFieldRow'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useTheme, useBuilderTheme } from '../contexts/ThemeContext'
+import { preparePhoto, cropToImage, PHOTO_MAX_BYTES } from '../utils/photo'
+import PhotoCropModal from '../components/PhotoCropModal'
 import { exportPDF } from '../utils/pdfExport'
 import { track } from '../utils/analytics'
 import { DEFAULT_FIELD_ORDER, getFieldOrder } from '../utils/fieldGroups'
@@ -669,63 +671,22 @@ const DESIGN_SAMPLE = {
   photo: null, photoPosition: { x: 50, y: 20 }, sloganLanguage: 'telugu', customFields: [],
 }
 
-/* ── Photo drag-to-reposition adjuster ── */
-function PhotoAdjuster({ photo, position, onPositionChange, onRemove, onReplace }) {
+/* ── Uploaded photo: thumbnail + Adjust / Change / Remove ── */
+function PhotoPanel({ photo, onAdjust, onReplace, onRemove }) {
   const { t } = useLanguage()
   const T = useBuilderTheme()
-  const containerRef = useRef()
-  const dragging = useRef(false)
-
-  const getPos = (clientX, clientY) => {
-    const rect = containerRef.current.getBoundingClientRect()
-    return {
-      x: Math.round(Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100))),
-      y: Math.round(Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100))),
-    }
-  }
-
-  const onMouseDown = (e) => { dragging.current = true; e.preventDefault() }
-  const onMouseMove = (e) => { if (dragging.current) onPositionChange(getPos(e.clientX, e.clientY)) }
-  const onMouseUp = () => { dragging.current = false }
-  const onTouchStart = () => { dragging.current = true }
-  const onTouchMove = (e) => {
-    if (!dragging.current) return
-    const t = e.touches[0]
-    onPositionChange(getPos(t.clientX, t.clientY))
-  }
-  const onTouchEnd = () => { dragging.current = false }
-
+  const link = { display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }
   return (
-    <div className="flex flex-wrap items-start gap-4 sm:gap-6">
-      <div className="space-y-2">
-        <div
-          ref={containerRef}
-          className="relative overflow-hidden select-none"
-          style={{ width: 130, height: 158, cursor: 'grab', border: '2px solid rgba(200,150,12,0.5)', borderRadius: 12 }}
-          onMouseDown={onMouseDown} onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp} onMouseLeave={onMouseUp}
-          onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
-        >
-          <img
-            src={photo} alt="preview" draggable={false}
-            className="w-full h-full pointer-events-none"
-            style={{ objectFit: 'cover', objectPosition: `${position.x}% ${position.y}%` }}
-          />
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, textAlign: 'center', fontSize: 10, color: '#fff', padding: '4px 0', background: 'rgba(0,0,0,0.45)' }}>
-            {t('photo_drag')}
-          </div>
-        </div>
-        <p style={{ fontSize: 12, color: T.textFaint, textAlign: 'center' }}>{t('photo_drag_hint')}</p>
-      </div>
-      <div style={{ fontSize: 14, color: T.textMuted, display: 'flex', flexDirection: 'column', gap: 6, paddingTop: 4 }}>
-        <p>{t('photo_uploaded')}</p>
-        <p style={{ fontSize: 12, color: T.textFaint }}>{t('photo_drag_sub')}</p>
-        <button onClick={onReplace} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: T.accentGold, background: 'none', border: 'none', cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.color = T.accentGold} onMouseLeave={e => e.currentTarget.style.color = T.accentGold}>
-          <RotateCcw className="w-3 h-3" /> {t('photo_change')}
-        </button>
-        <button onClick={onRemove} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#f87171', background: 'none', border: 'none', cursor: 'pointer' }}>
-          {t('photo_remove')}
-        </button>
+    <div className="flex items-start gap-5">
+      <button onClick={onAdjust} aria-label={t('photo_adjust')}
+        style={{ width: 120, height: 150, borderRadius: 12, overflow: 'hidden', border: `1px solid ${T.borderStrong}`, padding: 0, cursor: 'pointer', flexShrink: 0 }}>
+        <img src={photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+      </button>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 4 }}>
+        <p style={{ fontSize: 14, color: T.textMuted }}>{t('photo_uploaded')}</p>
+        <button onClick={onAdjust} style={{ ...link, color: T.accentGold }}><Crop className="w-4 h-4" /> {t('photo_adjust')}</button>
+        <button onClick={onReplace} style={{ ...link, color: T.textMuted }}><RotateCcw className="w-4 h-4" /> {t('photo_change')}</button>
+        <button onClick={onRemove} style={{ ...link, color: '#f87171' }}><Trash2 className="w-4 h-4" /> {t('photo_remove')}</button>
       </div>
     </div>
   )
@@ -738,21 +699,34 @@ function Step5({ formData, updateForm, onOpenTemplatePicker }) {
   const fileRef = useRef()
   const selectedStyle = TEMPLATE_STYLES.find(s => s.id === (formData.template || 'lotus'))
 
+  // { image, initialArea, isNew } while the crop dialog is open
+  const [cropping, setCropping] = useState(null)
+
   const handlePhoto = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Photo must be under 5 MB. Please choose a smaller image.')
-      e.target.value = ''
+    e.target.value = ''
+    if (file.size > PHOTO_MAX_BYTES) {
+      alert('Photo must be under 20 MB. Please choose a smaller image.')
       return
     }
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      updateForm({ photo: ev.target.result, photoPosition: { x: 50, y: 20 } })
-      track.photoUploaded()
-    }
-    reader.readAsDataURL(file)
+    preparePhoto(file)
+      .then(image => setCropping({ image, initialArea: null, isNew: true }))
+      .catch(() => alert('This photo could not be opened. Please try a JPG or PNG.'))
   }
+
+  const applyCrop = async ({ pixels, percent }) => {
+    const photo = await cropToImage(cropping.image, pixels)
+    updateForm({ photo, photoOriginal: cropping.image, photoCrop: percent, photoPosition: { x: 50, y: 20 } })
+    if (cropping.isNew) track.photoUploaded()
+    setCropping(null)
+  }
+
+  const adjustPhoto = () => setCropping({
+    image: formData.photoOriginal ?? formData.photo,
+    initialArea: formData.photoOriginal ? formData.photoCrop : null,
+    isNew: false,
+  })
 
   return (
     <div className="space-y-10">
@@ -762,12 +736,11 @@ function Step5({ formData, updateForm, onOpenTemplatePicker }) {
       <div className="space-y-4">
         <SectionTitle>{t('sec_photo')} <span style={{ fontSize: 14, color: T.textFaint, fontWeight: 400 }}>({t('sec_optional')})</span></SectionTitle>
         {formData.photo ? (
-          <PhotoAdjuster
+          <PhotoPanel
             photo={formData.photo}
-            position={formData.photoPosition ?? { x: 50, y: 20 }}
-            onPositionChange={(pos) => updateForm({ photoPosition: pos })}
-            onRemove={() => { track.photoRemoved(); updateForm({ photo: null, photoPosition: { x: 50, y: 20 } }) }}
+            onAdjust={adjustPhoto}
             onReplace={() => fileRef.current?.click()}
+            onRemove={() => { track.photoRemoved(); updateForm({ photo: null, photoOriginal: null, photoCrop: null, photoPosition: { x: 50, y: 20 } }) }}
           />
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
@@ -789,6 +762,12 @@ function Step5({ formData, updateForm, onOpenTemplatePicker }) {
           </div>
         )}
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
+        <AnimatePresence>
+          {cropping && (
+            <PhotoCropModal image={cropping.image} initialArea={cropping.initialArea}
+              onApply={applyCrop} onCancel={() => setCropping(null)} />
+          )}
+        </AnimatePresence>
       </div>
 
       <SloganPicker formData={formData} updateForm={updateForm} />

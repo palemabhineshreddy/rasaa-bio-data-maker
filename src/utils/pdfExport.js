@@ -1,3 +1,5 @@
+import { loadImage, cropCover } from './photo'
+
 function safeFileName(name) {
   return String(name || 'biodata')
     .trim()
@@ -86,7 +88,31 @@ function renderCanvas(html2canvas, element, scale) {
         }
         node = node.parentElement
       }
+      return sharpenPhotos(_doc, clonedElement, scale)
     },
+  }))
+}
+
+// html2canvas shrinks background images to their CSS-pixel box size and then upscales by
+// `scale`, so template photos come out at half resolution. Swap each photo for an <img> that is
+// pre-cropped to the box at full output resolution; html2canvas draws <img> without resampling.
+async function sharpenPhotos(doc, root, scale) {
+  const boxes = [root, ...root.querySelectorAll('*')].filter(n => /^url\(/.test(n.style.backgroundImage))
+  await Promise.all(boxes.map(async (box) => {
+    const src = box.style.backgroundImage.slice(4, -1).replace(/^["']|["']$/g, '')
+    const w = box.clientWidth, h = box.clientHeight
+    if (!w || !h) return
+    const [px = 50, py = 50] = (box.style.backgroundPosition.match(/[\d.]+(?=%)/g) || []).map(Number)
+    try {
+      const img = await loadImage(src, doc)
+      const k = Math.min(scale, 4)
+      const crop = cropCover(img, w, h, px, py, Math.round(w * k), Math.round(h * k), doc)
+      const sharp = await loadImage(crop.toDataURL('image/jpeg', 0.92), doc)
+      sharp.style.cssText = 'display:block;width:100%;height:100%;border-radius:inherit'
+      box.style.backgroundImage = 'none'
+      box.style.overflow = 'hidden'
+      box.appendChild(sharp)
+    } catch { /* keep the background-image version */ }
   }))
 }
 
