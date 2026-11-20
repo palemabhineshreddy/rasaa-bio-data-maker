@@ -1,4 +1,5 @@
 import { useState, useRef, useLayoutEffect, useEffect, useCallback } from 'react'
+import { FormatLinks } from '../components/SeoContent'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, Shield, Download, ChevronRight, ChevronLeft, Heart, Lock, Zap, X, Globe, Moon, Menu, LayoutTemplate, BookOpen } from 'lucide-react'
 import BioTemplate from '../components/BioTemplate'
@@ -416,6 +417,19 @@ const FEATURE_ICONS = [
 ]
 
 /* ── Main landing page ── */
+// SEO landing pages (/<topic>/) pass their heading + intro so the hero shows the page's topic
+const seoPage = typeof window !== 'undefined' ? window.__SEO_PAGE__ : null
+const HERO_FONT = "'Playfair Display', Georgia, serif"
+// Scroll in code: a plain #hash change would hit the app's popstate handler, and sections below the
+// hero mount lazily, so re-aim once they have rendered
+function scrollToGuide(e) {
+  e.preventDefault()
+  const go = () => document.getElementById('guide')?.scrollIntoView({ block: 'start' })
+  go()
+  setTimeout(go, 400)
+}
+const HERO_COLOR = '#0a0a0a'
+
 export default function LandingPageLight({ onStart, onContinue, savedName }) {
   const { t, lang, setLang, LANGUAGES } = useLanguage()
   const { setTheme } = useTheme()
@@ -626,7 +640,14 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
               <span style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', letterSpacing: '0.04em' }}>{t('badge')}</span>
             </motion.div>
 
-            {/* Headline */}
+            {/* Headline — SEO pages (/<topic>/) open with their own topic instead of the homepage headline */}
+            {seoPage?.h1 ? (
+            <motion.h1 custom={1} variants={fadeUp} initial="hidden" animate="show"
+              style={{ fontFamily: HERO_FONT, fontSize: 'clamp(28px, 5vw, 60px)', fontWeight: 700, lineHeight: 1.25,
+                color: HERO_COLOR, marginBottom: 24, letterSpacing: '-0.01em' }}>
+              {seoPage.h1}
+            </motion.h1>
+            ) : (
             <motion.h1 custom={1} variants={fadeUp} initial="hidden" animate="show"
               style={{ fontFamily: "'Playfair Display', Georgia, serif",
                 fontSize: 'clamp(28px, 6vw, 78px)',
@@ -640,12 +661,18 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
                 {t('headline2')}
               </span>
             </motion.h1>
+            )}
 
             {/* Tagline */}
             <motion.p custom={2} variants={fadeUp} initial="hidden" animate="show"
               style={{ fontSize: 'clamp(15px, 2.5vw, 18px)', color: '#6b7280', lineHeight: 1.78, marginBottom: 'clamp(24px, 4vw, 40px)', maxWidth: 500 }}>
-              {t('tagline')}
+              {seoPage?.intro || t('tagline')}
             </motion.p>
+            {seoPage?.h1 && (
+              <a href="#guide" onClick={scrollToGuide} style={{ display: 'inline-block', fontSize: 14, fontWeight: 600, color: HERO_COLOR, textDecoration: 'underline', textUnderlineOffset: 4, margin: '-12px 0 24px' }}>
+                {t('seo_guide_link')}
+              </a>
+            )}
 
             {/* CTAs */}
             <motion.div custom={3} variants={fadeUp} initial="hidden" animate="show"
@@ -1129,6 +1156,7 @@ export default function LandingPageLight({ onStart, onContinue, savedName }) {
             <p style={{ color: '#6b7280', fontSize: 12 }}>{t('footer_tagline')}</p>
             <span style={{ color: '#6b7280', fontSize: 12 }}>© 2026 Bandhan · bandhan.app</span>
           </div>
+          <FormatLinks color="#6b7280" />
         </div>
       </footer>
 

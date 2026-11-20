@@ -411,3 +411,14 @@ export const REGIONAL_PAGES = [
 
 export const ALL_PAGES = [...PAGES, ...REGIONAL_PAGES]
 export const PAGE_BY_SLUG = Object.fromEntries(ALL_PAGES.map((p) => [p.slug, p]))
+
+// Footer "Browse all biodata formats" groups (shared by the app and the static HTML generator)
+const RELIGION_SLUGS = ['hindu', 'muslim', 'sikh', 'christian', 'jain', 'buddhist'].map((r) => `${r}-marriage-biodata-format`)
+const STYLE_SLUGS = ['royal-wedding-biodata-template', 'floral-biodata-template', 'minimal-marriage-biodata-template']
+const LANGUAGE_FORMAT = /^(telugu|tamil|kannada|malayalam|bengali|marathi|gujarati|punjabi)-marriage-biodata-format$/
+export const LINK_GROUPS = [
+  { title: 'Formats', pages: PAGES.filter((p) => !RELIGION_SLUGS.includes(p.slug) && !STYLE_SLUGS.includes(p.slug) && !LANGUAGE_FORMAT.test(p.slug)) },
+  { title: 'By religion', pages: PAGES.filter((p) => RELIGION_SLUGS.includes(p.slug)) },
+  { title: 'By language', pages: [...PAGES.filter((p) => LANGUAGE_FORMAT.test(p.slug)), ...REGIONAL_PAGES] },
+  { title: 'By design', pages: PAGES.filter((p) => STYLE_SLUGS.includes(p.slug)) },
+]
