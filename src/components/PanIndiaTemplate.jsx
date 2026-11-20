@@ -623,15 +623,14 @@ export default function PanIndiaTemplate({ data }) {
 
   const hasPersonal = [fullName, dateOfBirth, age, height, weight, bloodGroup,
     religion, caste, subCaste, motherTongue, gender,
-    education, college, occupation, company, income, workLocation,
-    about, partnerExpectations].some(Boolean) ||
+    education, college, occupation, company, income, workLocation].some(Boolean) ||
     bySection('personal').length > 0 || bySection('career').length > 0 || hasHoroscope
 
   const hasFamily = [fatherName, fatherOccupation, motherName, motherOccupation,
     brothers, sisters, familyType, familyStatus, nativePlace].some(Boolean) ||
     bySection('family').length > 0
 
-  const hasContact = [phone, email, city, state, address].some(Boolean) ||
+  const hasContact = [phone, email, city, state, address, about, partnerExpectations].some(Boolean) ||
     bySection('contact').length > 0
 
   /* Row and Divider close over theme colors */
@@ -651,7 +650,7 @@ export default function PanIndiaTemplate({ data }) {
       <div style={{ display: 'flex', alignItems: 'baseline', padding: '4px 0' }}>
         <span style={{ width: 148, flexShrink: 0, fontSize: 10.5, fontWeight: 700, color: labelColor }}>{label}</span>
         <span style={{ fontSize: 10.5, fontWeight: 700, color: gold, marginRight: 10 }}>:</span>
-        <span style={{ fontSize: 10.5, color: valueColor, fontWeight: 500, flex: 1, lineHeight: 1.5 }}>{value}</span>
+        <span style={{ fontSize: 10.5, color: valueColor, fontWeight: 500, flex: 1, lineHeight: 1.5, whiteSpace: 'pre-line' }}>{value}</span>
       </div>
     )
   }
@@ -686,8 +685,6 @@ export default function PanIndiaTemplate({ data }) {
             caste:               <Row key="caste"       label={t('pdf_community')}  value={[caste, subCaste].filter(Boolean).join(' / ')} />,
             subCaste:            null,
             motherTongue:        <Row key="tongue"      label={t('pdf_tongue')}     value={motherTongue} />,
-            about:               <Row key="about"       label="About Me"            value={about} />,
-            partnerExpectations: <Row key="partnerExp"  label="Partner Expectations" value={partnerExpectations} />,
           }
           const careerRowMap = {
             education:   <Row key="edu"    label={t('pdf_education')}  value={education} />,
@@ -765,6 +762,8 @@ export default function PanIndiaTemplate({ data }) {
               <Divider title={t('pdf_contact')} />
               {getFieldOrder(data, 'contact').map(id => contactRowMap[id] ?? null)}
               {bySection('contact').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+              <Row label={t('pdf_about')} value={about} />
+              <Row label={t('pdf_partner')} value={partnerExpectations} />
             </>
           )
         })()}
