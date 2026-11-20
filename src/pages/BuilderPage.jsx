@@ -18,6 +18,26 @@ import { track } from '../utils/analytics'
 import { DEFAULT_FIELD_ORDER, getSectionOrder, customFieldKey } from '../utils/fieldGroups'
 
 /* ── field helpers ── */
+// Phone keyboards: the right keypad per field, and the keyboard's Next key moves to the following field
+const INPUT_HINTS = {
+  fullName: { autoComplete: 'name' },
+  age: { inputMode: 'numeric' },
+  phone: { inputMode: 'tel', autoComplete: 'tel' },
+  email: { autoComplete: 'email' },
+  city: { autoComplete: 'address-level2' },
+  state: { autoComplete: 'address-level1' },
+  address: { autoComplete: 'street-address' },
+}
+
+function focusNextField(e) {
+  if (e.key !== 'Enter') return
+  e.preventDefault()
+  const fields = [...document.querySelectorAll('input.form-input, select.form-select, textarea.form-input')].filter(el => el.offsetParent)
+  const next = fields[fields.indexOf(e.currentTarget) + 1]
+  if (next) next.focus()
+  else e.currentTarget.blur()
+}
+
 const Field = ({ label, name, formData, updateForm, type = 'text', placeholder, options }) => (
   <div>
     <label className="form-label">{label}</label>
@@ -38,6 +58,9 @@ const Field = ({ label, name, formData, updateForm, type = 'text', placeholder, 
         placeholder={placeholder || label}
         value={formData[name]}
         onChange={e => updateForm({ [name]: e.target.value })}
+        enterKeyHint="next"
+        onKeyDown={focusNextField}
+        {...INPUT_HINTS[name]}
       />
     )}
   </div>
@@ -257,20 +280,28 @@ function useSectionSort(formData, updateForm, section) {
 }
 
 /* Built-in fields and the user's added fields of one section, reorderable by drag or ↑ ↓ */
-function SortableSection({ section, fields, formData, updateForm }) {
+function SortableSection({ section, fields, formData, updateForm, collapseAfter }) {
+  const { t } = useLanguage()
+  const T = useBuilderTheme()
   const { sensors, order, onDragEnd, move } = useSectionSort(formData, updateForm, section)
   const added = getCustomFields(formData).filter(f => f.section === section)
+  // Optional collapse: show the first fields and tuck the rest behind "More details". Opens by itself
+  // when anything further down is already filled in or the user has added an extra field.
+  const [expandedByUser, setExpandedByUser] = useState(false)
+  const hidden = collapseAfter ? order.slice(collapseAfter) : []
+  const expanded = !collapseAfter || expandedByUser || hidden.some(id => id.startsWith('cf:') || formData[id]?.toString().trim())
+  const visible = expanded ? order : order.slice(0, collapseAfter)
   return (
     <>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={order} strategy={verticalListSortingStrategy}>
           <div className="space-y-4">
-            {order.map((id, i) => {
+            {visible.map((id, i) => {
               const field = added.find(f => customFieldKey(f) === id)
               return (
                 <SortableFieldRow key={id} id={id}
                   onMoveUp={i > 0 ? () => move(i, i - 1) : null}
-                  onMoveDown={i < order.length - 1 ? () => move(i, i + 1) : null}>
+                  onMoveDown={i < visible.length - 1 ? () => move(i, i + 1) : null}>
                   {field
                     ? <CustomFieldEditor field={field} index={added.indexOf(field)} formData={formData} updateForm={updateForm} />
                     : fields[id]}
@@ -280,7 +311,14 @@ function SortableSection({ section, fields, formData, updateForm }) {
           </div>
         </SortableContext>
       </DndContext>
-      <DragHint />
+      {!expanded && (
+        <button type="button" onClick={() => setExpandedByUser(true)}
+          style={{ width: '100%', marginTop: 14, padding: '12px 14px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer',
+            background: T.cardBg, color: T.text, border: `1.5px dashed ${T.borderStrong}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <Plus size={16} /> {t('more_details')}
+        </button>
+      )}
+      {expanded && <DragHint />}
     </>
   )
 }
@@ -325,7 +363,8 @@ function Step1({ formData, updateForm }) {
     <div className="space-y-5">
       <StepHeading title={t('b_s1_title')} sub={t('b_s1_sub')} />
 
-      <SortableSection section="personal" fields={personalFields} formData={formData} updateForm={updateForm} />
+      <p style={{ fontSize: 13, color: T.textMuted, margin: '-4px 0 4px', paddingLeft: 13 }}>{t('only_name')}</p>
+      <SortableSection section="personal" fields={personalFields} formData={formData} updateForm={updateForm} collapseAfter={3} />
       <InlineCustomFields section="personal" titleKey="extra_personal_t" formData={formData} updateForm={updateForm} />
 
       {/* Optional sections — togglable */}

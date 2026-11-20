@@ -224,6 +224,12 @@ Horoscope is a full drag-and-drop section (like Personal/Career/Family/Contact) 
 
 ## Builder Drag-and-Drop System
 
+### Step 1 collapse
+Personal Details shows only the first 3 fields of the user's order (`SortableSection collapseAfter={3}`) plus "Only your name is needed" (`only_name`) and a "+ Add more details (optional)" button (`more_details`). It opens by itself when any hidden field has a value or an extra field exists. Added in response to step 1 being the biggest exit point. Note: no field is required — `canNext()` always returns true; `required_field_empty` only records that Continue was pressed with Name/Occupation empty.
+
+### Phone keyboards (`Field`)
+`INPUT_HINTS` gives per-field `inputMode`/`autoComplete` (numeric Age, tel Phone, name, email, address); every input has `enterKeyHint="next"` and Enter moves focus to the next visible field.
+
 ### `SortableFieldRow` component (`src/components/SortableFieldRow.jsx`)
 Wraps each draggable field row. Uses `@dnd-kit/sortable`.
 - Drag handle: `GripVertical` icon from lucide-react.
