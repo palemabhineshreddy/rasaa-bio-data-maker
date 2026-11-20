@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Check, Download, RotateCcw, Crop, Search, Plus, Trash2, MessageCircle, LayoutTemplate, X, Eye } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, Download, RotateCcw, Crop, Pencil, Search, Plus, Trash2, MessageCircle, LayoutTemplate, X, Eye } from 'lucide-react'
 import { useForm } from '@formspree/react'
 import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
@@ -118,6 +118,7 @@ function CustomFieldEditor({ field, index, formData, updateForm }) {
           <label className="form-label">{t('field_name')}</label>
           <input
             name={`customFields.${index}.label`}
+            maxLength={60}
             className="form-input"
             placeholder={t('ph_field_name')}
             value={field.label}
@@ -128,6 +129,7 @@ function CustomFieldEditor({ field, index, formData, updateForm }) {
           <label className="form-label">{t('field_value')}</label>
           <input
             name={`customFields.${index}.value`}
+            maxLength={300}
             className="form-input"
             placeholder={t('ph_field_value')}
             value={field.value}
@@ -161,6 +163,20 @@ function InlineCustomFields({ section, titleKey, formData, updateForm, showHeade
         </div>
       )}
     </div>
+  )
+}
+
+// About / Partner Expectations limit: ~150–180 words, which still fits on one A4 page at XL text
+// size; a single row taller than a page would be cut off in the PDF.
+const LONG_TEXT_MAX = 1000
+
+function CharCount({ value }) {
+  const T = useBuilderTheme()
+  const n = (value || '').length
+  return (
+    <p style={{ fontSize: 11, textAlign: 'right', marginTop: 4, color: n >= LONG_TEXT_MAX ? T.warnText : T.textFaint }}>
+      {n} / {LONG_TEXT_MAX}
+    </p>
   )
 }
 
@@ -314,15 +330,17 @@ function Step1({ formData, updateForm }) {
 
       {/* Optional sections — togglable */}
       <SectionToggle sectionKey="about" label="About Yourself" formData={formData} updateForm={updateForm}>
-        <textarea name="about" className="form-input resize-none" rows={3}
+        <textarea name="about" className="form-input resize-none" rows={3} maxLength={LONG_TEXT_MAX}
           placeholder="Share a little about your personality, values, and interests…"
           value={formData.about} onChange={e => updateForm({ about: e.target.value })} />
+        <CharCount value={formData.about} />
       </SectionToggle>
 
       <SectionToggle sectionKey="partnerExpectations" label="Partner Expectations" formData={formData} updateForm={updateForm}>
-        <textarea name="partnerExpectations" className="form-input resize-none" rows={3}
+        <textarea name="partnerExpectations" className="form-input resize-none" rows={3} maxLength={LONG_TEXT_MAX}
           placeholder="What are you looking for in a life partner?"
           value={formData.partnerExpectations || ''} onChange={e => updateForm({ partnerExpectations: e.target.value })} />
+        <CharCount value={formData.partnerExpectations} />
       </SectionToggle>
 
 
@@ -1145,33 +1163,33 @@ function TextStylePanel({ formData, updateForm, exportRef }) {
   }, [formData, exportRef])
 
   const pill = active => ({
-    flex: 1, padding: '8px 6px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer',
-    background: active ? T.stepActiveBg : T.stepIdleBg,
-    color: active ? T.stepActiveText : T.stepIdleText,
-    border: `1px solid ${active ? T.stepActiveBorder : T.stepIdleBorder}`,
+    flex: 1, padding: '5px 4px', borderRadius: 8, fontSize: 12.5, fontWeight: active ? 700 : 500, cursor: 'pointer',
+    background: active ? T.accentGoldMuted : 'transparent',
+    color: active ? T.text : T.textMuted,
+    border: `1px solid ${active ? T.accentGold : T.border}`,
   })
-  const label = { fontSize: 12, fontWeight: 600, color: T.textMuted }
-  const row = { display: 'flex', gap: 6 }
+  const label = { fontSize: 12, fontWeight: 600, color: T.textMuted, width: 64, flexShrink: 0 }
+  const row = { display: 'flex', alignItems: 'center', gap: 5 }
 
   return (
-    <div style={{ borderRadius: 16, border: `1px solid ${T.borderStrong}`, background: T.cardBg, padding: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <span style={label}>{t('ts_size')}</span>
+    <div style={{ borderRadius: 16, border: `1px solid ${T.borderStrong}`, background: T.cardBg, padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 7 }}>
       <div style={row}>
+        <span style={label}>{t('ts_size')}</span>
         {TEXT_SIZES.map(s => (
           <button key={s} type="button" onClick={() => updateForm({ textSize: s })} style={pill(size === s)} aria-pressed={size === s}>
             {s.toUpperCase()}
           </button>
         ))}
       </div>
-      <span style={label}>{t('ts_letters')}</span>
       <div style={row}>
+        <span style={label}>{t('ts_letters')}</span>
         <button type="button" onClick={() => updateForm({ textCase: 'normal' })} style={pill(!caps)} aria-pressed={!caps}>{t('ts_normal')}</button>
         <button type="button" onClick={() => updateForm({ textCase: 'upper' })} style={pill(caps)} aria-pressed={caps}>{t('ts_caps')}</button>
       </div>
-      <p style={{ fontSize: 12, color: T.textFaint, margin: 0 }}>
-        ⓘ {t('ts_note')} · <strong style={{ color: pages > 1 ? T.text : T.savedFlashColor }}>
-          {pages > 1 ? t('ts_pages').replace('{n}', pages) : t('ts_one_page')}
-        </strong>
+      <p style={{ fontSize: 12, fontWeight: 600, margin: 0, color: pages > 1 ? T.warnText : T.savedFlashColor }}>
+        {pages > 1
+          ? <>{t('ts_pages').replace('{n}', pages)} <span style={{ fontWeight: 400 }}>· {t('ts_note')}</span></>
+          : <>✓ {t('ts_one_page')}</>}
       </p>
     </div>
   )
@@ -1252,14 +1270,17 @@ function PreviewStep({ formData, updateForm, onBack, onEditStep, steps, exportRe
     setSharing(false)
   }
 
+  // Phones: the biodata comes first; actions live in a bar pinned to the bottom of the screen
+  const actionBtn = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', fontSize: 14, fontWeight: 600, borderRadius: 12, cursor: 'pointer' }
+
   return (
-    <div className="space-y-8">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+    <div className="space-y-5">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(20px, 3vw, 26px)', fontWeight: 700, color: T.text, margin: 0 }}>{t('prev_title')}</h2>
-          <p style={{ color: T.textMuted, fontSize: 14, marginTop: 4 }}>{t('prev_sub')}</p>
+          <p className="hidden sm:block" style={{ color: T.textMuted, fontSize: 14, marginTop: 4 }}>{t('prev_sub')}</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <div className="hidden sm:flex" style={{ alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {downloaded && (
             <button
               onClick={handleShare}
@@ -1292,42 +1313,42 @@ function PreviewStep({ formData, updateForm, onBack, onEditStep, steps, exportRe
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }} className="md:grid-cols-6">
-        {steps.map((label, index) => (
-          <button
-            key={index}
-            onClick={() => onEditStep(index)}
-            style={{ borderRadius: 12, border: `1px solid ${T.borderStrong}`, background: T.previewEditBg, padding: '10px 12px', textAlign: 'left', fontSize: 14, color: T.previewEditText, cursor: 'pointer', transition: 'border-color 0.2s' }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = T.stepActiveBorder}
-            onMouseLeave={e => e.currentTarget.style.borderColor = T.borderStrong}
-          >
-            <span style={{ display: 'block', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: T.previewEditLabel, marginBottom: 4 }}>{t('prev_edit_label')}</span>
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {/* Biodata preview — same card view as the live preview panel */}
       <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <div style={{ width: '100%', maxWidth: 420 }} className="space-y-4">
+        <div style={{ width: '100%', maxWidth: 420 }} className="space-y-3">
           <TextStylePanel formData={formData} updateForm={updateForm} exportRef={exportRef} />
           <SidePanelPreview formData={applyEnabledSections(formData)} />
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+      {/* Edit shortcuts */}
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: 420, borderRadius: 16, border: `1px solid ${T.border}`, background: T.cardBg, padding: '12px 14px' }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: T.text, margin: 0 }}>{t('prev_change_q')}</p>
+          <p style={{ fontSize: 12, color: T.textMuted, margin: '2px 0 10px' }}>{t('prev_change_sub')}</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {steps.map((label, index) => (
+              <button key={index} onClick={() => onEditStep(index)}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 999, fontSize: 13, cursor: 'pointer', background: T.previewEditBg, border: `1px solid ${T.borderStrong}`, color: T.previewEditText }}>
+                <Pencil size={12} /> {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="sticky bottom-0 sm:static" style={{ display: 'flex', gap: 10, padding: '12px 0', background: T.stickyBg, zIndex: 20 }}>
         <button onClick={onBack}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', fontSize: 14, fontWeight: 600, borderRadius: 12, cursor: 'pointer', background: T.cardBg, border: `1.5px solid ${T.borderStrong}`, color: T.text }}>
+          style={{ ...actionBtn, background: T.cardBg, border: `1.5px solid ${T.borderStrong}`, color: T.text }}>
           <ChevronLeft size={16} /> {t('prev_edit_details')}
         </button>
         <button onClick={handleDownload} disabled={loading}
-          style={{ display: 'inline-flex', flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 0', fontSize: 14, fontWeight: 600, borderRadius: 12, cursor: 'pointer', background: T.stepActiveBg, border: `1.5px solid ${T.stepActiveBorder}`, color: T.stepActiveText }}>
+          style={{ ...actionBtn, flex: 1, background: T.stepActiveBg, border: `1.5px solid ${T.stepActiveBorder}`, color: T.stepActiveText }}>
           {loading ? t('prev_generating') : <><Download size={18} /> {downloaded ? t('prev_again') : t('prev_download')}</>}
         </button>
         {downloaded && (
-          <button onClick={handleShare} disabled={sharing}
-            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 24px', fontSize: 14, fontWeight: 600, borderRadius: 12, cursor: 'pointer', background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.3)', color: '#16a34a' }}>
-            <MessageCircle size={16} /> {sharing ? t('prev_preparing') : t('prev_whatsapp')}
+          <button onClick={handleShare} disabled={sharing} aria-label={t('prev_whatsapp')}
+            style={{ ...actionBtn, background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.3)', color: '#16a34a' }}>
+            <MessageCircle size={16} /> <span className="hidden sm:inline">{sharing ? t('prev_preparing') : t('prev_whatsapp')}</span>
           </button>
         )}
       </div>
@@ -1519,7 +1540,8 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
       }}>
         <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 clamp(12px, 3vw, 20px)',
           display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)', height: 'clamp(52px, 7vh, 64px)' }}>
-          <button onClick={onBack}
+          {/* Arrow = one step back (Preview → last form step); only step 1 leaves the builder. The logo goes home. */}
+          <button onClick={prev} aria-label={t('b_back')}
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px 8px', borderRadius: 8,
               color: T.backBtnColor, display: 'flex', alignItems: 'center', transition: 'all 0.2s' }}
             onMouseEnter={e => { e.currentTarget.style.color = T.backBtnHoverColor; e.currentTarget.style.background = T.backBtnHoverBg; }}
@@ -1691,14 +1713,14 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                   exit={{ opacity: 0, y: 8, scale: 0.95 }}
                   transition={{ duration: 0.25 }}
                   onClick={dismissPreviewHint}
-                  className="lg:hidden"
+                  className="flex lg:hidden"
                   style={{
                     position: 'fixed', bottom: 82, right: 20, zIndex: 91, maxWidth: 220,
                     background: T.stepActiveBg, color: T.stepActiveText,
                     border: `1.5px solid ${T.stepActiveBorder}`,
                     borderRadius: 14, padding: '10px 14px', fontSize: 13, fontWeight: 600,
                     boxShadow: '0 8px 24px rgba(0,0,0,0.3)', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', gap: 8,
+                    alignItems: 'center', gap: 8,
                   }}
                 >
                   👀 Tap to see your biodata live
@@ -1710,13 +1732,13 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
             </AnimatePresence>
             <button
               onClick={() => { track.mobilePreviewOpened(step); setShowMobilePreview(true); dismissPreviewHint() }}
-              className="lg:hidden"
+              className="flex lg:hidden"
               aria-label="Preview your biodata"
               style={{
                 position: 'fixed', bottom: 20, right: 20, zIndex: 90,
                 width: 54, height: 54, borderRadius: '50%',
                 background: T.stepActiveBg, border: `1.5px solid ${T.stepActiveBorder}`,
-                color: T.stepActiveText, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: T.stepActiveText, alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 8px 24px rgba(0,0,0,0.3)', cursor: 'pointer',
               }}
             >
@@ -1810,6 +1832,9 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
                   aria-label="Close preview">
                   <X size={18} />
                 </button>
+              </div>
+              <div style={{ marginBottom: 14 }}>
+                <TextStylePanel formData={formData} updateForm={updateForm} exportRef={downloadRef} />
               </div>
               <SidePanelPreview formData={previewFormData} />
             </motion.div>
