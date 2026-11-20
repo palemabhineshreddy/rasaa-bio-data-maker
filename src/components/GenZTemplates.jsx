@@ -6,7 +6,8 @@ import { getSectionOrder } from '../utils/fieldGroups'
 
 // ─── Shared row extractor ────────────────────────────────────────────────────
 
-function extractRows(data) {
+// `t` translates row labels, so New Wave biodatas follow the chosen language like the classic ones
+function extractRows(data, t) {
   const {
     fullName, dateOfBirth, age, gender, height, weight, bloodGroup,
     religion, caste, subCaste, motherTongue,
@@ -23,8 +24,8 @@ function extractRows(data) {
   const hasHoroscope = rashi || nakshatra || gotra || (manglik && manglik !== 'No') || bySec('horoscope').length > 0
 
   const customGrouped = bySec('custom').reduce((acc, f) => {
-    const t = f.customTitle?.trim() || 'Additional Details'
-    return { ...acc, [t]: [...(acc[t] || []), f] }
+    const title = f.customTitle?.trim() || t('pdf_additional')
+    return { ...acc, [title]: [...(acc[title] || []), f] }
   }, {})
 
   // Rows of a section in the user's order; added fields ('cf:<id>') sit wherever they were placed
@@ -36,50 +37,50 @@ function extractRows(data) {
 
   const personal = [
     ...ordered('personal', {
-      fullName: ['Name', fullName],
-      gender: ['Gender', gender],
-      dateOfBirth: ['Date of Birth', formatDate(dateOfBirth)],
-      age: ['Age', age ? `${age} Years` : null],
-      height: ['Height', height], weight: ['Weight', weight], bloodGroup: ['Blood Group', bloodGroup],
-      religion: ['Religion', religion],
-      caste: ['Community', [caste, subCaste].filter(Boolean).join(' / ') || null],
+      fullName: [t('pdf_name'), fullName],
+      gender: [t('pdf_gender'), gender],
+      dateOfBirth: [t('pdf_dob'), formatDate(dateOfBirth)],
+      age: [t('pdf_age'), age ? `${age} ${t('pdf_years')}` : null],
+      height: [t('pdf_height'), height], weight: [t('pdf_weight'), weight], bloodGroup: [t('pdf_blood'), bloodGroup],
+      religion: [t('pdf_religion'), religion],
+      caste: [t('pdf_community'), [caste, subCaste].filter(Boolean).join(' / ') || null],
       subCaste: null,
-      motherTongue: ['Mother Tongue', motherTongue],
+      motherTongue: [t('pdf_tongue'), motherTongue],
     }),
-    ['About Me', about, true],
-    ['Partner Expectations', partnerExpectations, true],
+    [t('pdf_about'), about, true],
+    [t('pdf_partner'), partnerExpectations, true],
     ...ordered('career', {
-      education: ['Education', education], college: ['College / University', college],
-      occupation: ['Occupation', occupation], company: ['Organisation', company],
-      income: ['Annual Income', income], workLocation: ['Work Location', workLocation],
+      education: [t('pdf_education'), education], college: [t('pdf_college'), college],
+      occupation: [t('pdf_occupation'), occupation], company: [t('pdf_org'), company],
+      income: [t('pdf_income'), income], workLocation: [t('pdf_work'), workLocation],
     }),
   ].filter(r => r && r[1])
 
   const family = [
     ...ordered('family', {
-      fatherName: ['Father', fatherName && fatherOccupation
+      fatherName: [t('pdf_father'), fatherName && fatherOccupation
         ? `${fatherName} (${fatherOccupation})`
         : (fatherName || fatherOccupation)],
       fatherOccupation: null,
-      motherName: ['Mother', motherName && motherOccupation
+      motherName: [t('pdf_mother'), motherName && motherOccupation
         ? `${motherName} (${motherOccupation})`
         : (motherName || motherOccupation)],
       motherOccupation: null,
-      brothers: ['Brothers', brothers], sisters: ['Sisters', sisters],
-      familyType: ['Family Type', familyType], familyStatus: ['Family Status', familyStatus],
-      nativePlace: ['Native Place', nativePlace],
+      brothers: [t('pdf_brothers'), brothers], sisters: [t('pdf_sisters'), sisters],
+      familyType: [t('pdf_family_type'), familyType], familyStatus: [t('pdf_family_status'), familyStatus],
+      nativePlace: [t('pdf_native'), nativePlace],
     }),
     ...(hasHoroscope ? ordered('horoscope', {
-      rashi: ['Rashi', rashi], nakshatra: ['Nakshatra', nakshatra],
-      gotra: ['Gotra', gotra], manglik: ['Manglik', manglik],
+      rashi: [t('pdf_rashi'), rashi], nakshatra: [t('pdf_nakshatra'), nakshatra],
+      gotra: [t('pdf_gotra'), gotra], manglik: [t('pdf_manglik'), manglik],
     }) : []),
   ].filter(r => r && r[1])
 
   const contact = ordered('contact', {
-    phone: ['Phone', phone], email: ['Email', email, true],
-    city: ['City / State', [city, state].filter(Boolean).join(', ') || null],
+    phone: [t('pdf_phone'), phone], email: [t('pdf_email'), email, true],
+    city: [t('pdf_city_state'), [city, state].filter(Boolean).join(', ') || null],
     state: null,
-    address: ['Address', address],
+    address: [t('pdf_address'), address],
   }).filter(r => r && r[1])
 
   return { personal, family, contact, customGrouped }
@@ -91,7 +92,7 @@ function extractRows(data) {
 export function NoirTemplate({ data }) {
   const { t } = useLanguage()
   const { photo, photoPosition = { x: 50, y: 20 }, occupation, city } = data || {}
-  const { personal, family, contact, customGrouped } = extractRows(data || {})
+  const { personal, family, contact, customGrouped } = extractRows(data || {}, t)
 
   const AMBER  = '#e8a820'
   const BG     = '#0c0c0c'
@@ -185,7 +186,7 @@ export function NoirTemplate({ data }) {
 export function AuroraTemplate({ data }) {
   const { t } = useLanguage()
   const { photo, photoPosition = { x: 50, y: 20 }, occupation, city } = data || {}
-  const { personal, family, contact, customGrouped } = extractRows(data || {})
+  const { personal, family, contact, customGrouped } = extractRows(data || {}, t)
 
   const CYAN  = '#60d0ff'
   const WHITE = 'rgba(255,255,255,0.9)'
@@ -305,7 +306,7 @@ export function AuroraTemplate({ data }) {
 export function EditorialTemplate({ data }) {
   const { t } = useLanguage()
   const { photo, photoPosition = { x: 50, y: 20 }, occupation, city } = data || {}
-  const { personal, family, contact, customGrouped } = extractRows(data || {})
+  const { personal, family, contact, customGrouped } = extractRows(data || {}, t)
 
   const RED   = '#e5193c'
   const NAVY  = '#0f172a'
@@ -348,11 +349,11 @@ export function EditorialTemplate({ data }) {
         alignItems: 'flex-end',
       }}>
         <div>
-          <div style={{ fontSize: 40, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.03em', lineHeight: 1.0 }}>
+          <div style={{ fontSize: 40, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.03em', lineHeight: 1.15 }}>
             {data?.fullName || 'Your Name'}
           </div>
           {subtitle && (
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 8, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600 }}>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 10, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 600 }}>
               {subtitle}
             </div>
           )}
@@ -404,7 +405,7 @@ export function EditorialTemplate({ data }) {
 export function BloomTemplate({ data }) {
   const { t } = useLanguage()
   const { photo, photoPosition = { x: 50, y: 20 }, occupation, city } = data || {}
-  const { personal, family, contact, customGrouped } = extractRows(data || {})
+  const { personal, family, contact, customGrouped } = extractRows(data || {}, t)
 
   const MAGENTA = '#c026d3'
   const INDIGO  = '#1e1b4b'
@@ -495,7 +496,7 @@ export function BloomTemplate({ data }) {
 export function NeoTemplate({ data }) {
   const { t } = useLanguage()
   const { photo, photoPosition = { x: 50, y: 20 }, occupation, city } = data || {}
-  const { personal, family, contact, customGrouped } = extractRows(data || {})
+  const { personal, family, contact, customGrouped } = extractRows(data || {}, t)
 
   const YELLOW = '#ffe033'
   const BLACK  = '#0a0a0a'
@@ -539,11 +540,11 @@ export function NeoTemplate({ data }) {
         borderBottom: `2px solid ${BLACK}`,
       }}>
         <div>
-          <div style={{ fontSize: 44, fontWeight: 900, color: BLACK, letterSpacing: '-0.03em', lineHeight: 1.0 }}>
+          <div style={{ fontSize: 44, fontWeight: 900, color: BLACK, letterSpacing: '-0.03em', lineHeight: 1.15 }}>
             {data?.fullName || 'Your Name'}
           </div>
           {subtitle && (
-            <div style={{ fontSize: 12, color: BLACK, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 8 }}>
+            <div style={{ fontSize: 12, color: BLACK, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 10 }}>
               {subtitle}
             </div>
           )}

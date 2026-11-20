@@ -622,8 +622,8 @@ export default function PanIndiaTemplate({ data }) {
     return f ? <Row key={f.id} label={f.label} value={f.value} /> : null
   })
   const grouped = bySection('custom').reduce((acc, f) => {
-    const t = f.customTitle?.trim() || 'Additional Details'
-    return { ...acc, [t]: [...(acc[t] || []), f] }
+    const title = f.customTitle?.trim() || t('pdf_additional')
+    return { ...acc, [title]: [...(acc[title] || []), f] }
   }, {})
   const hasHoroscope = rashi || nakshatra || gotra ||
     (manglik && manglik !== 'No') || bySection('horoscope').length > 0
@@ -685,7 +685,7 @@ export default function PanIndiaTemplate({ data }) {
             fullName:            <Row key="fullName"    label={t('pdf_name')}       value={fullName} />,
             gender:              <Row key="gender"      label={t('pdf_gender')}     value={gender} />,
             dateOfBirth:         <Row key="dob"         label={t('pdf_dob')}        value={formatDate(dateOfBirth)} />,
-            age:                 <Row key="age"         label={t('pdf_age')}        value={age ? `${age} Years` : null} />,
+            age:                 <Row key="age"         label={t('pdf_age')}        value={age ? `${age} ${t('pdf_years')}` : null} />,
             height:              <Row key="height"      label={t('pdf_height')}     value={height} />,
             weight:              <Row key="weight"      label={t('pdf_weight')}     value={weight} />,
             bloodGroup:          <Row key="blood"       label={t('pdf_blood')}      value={bloodGroup} />,
@@ -735,9 +735,9 @@ export default function PanIndiaTemplate({ data }) {
         {hasFamily && (() => {
           const familyRowMap = {
             fatherName:      <Row key="fName"   label={t('pdf_father')}        value={fatherName} />,
-            fatherOccupation:<Row key="fOcc"    label="Father's Occupation"    value={fatherOccupation} />,
+            fatherOccupation:<Row key="fOcc"    label={t('pdf_father_occ')}    value={fatherOccupation} />,
             motherName:      <Row key="mName"   label={t('pdf_mother')}        value={motherName} />,
-            motherOccupation:<Row key="mOcc"    label="Mother's Occupation"    value={motherOccupation} />,
+            motherOccupation:<Row key="mOcc"    label={t('pdf_mother_occ')}    value={motherOccupation} />,
             brothers:        <Row key="bro"     label={t('pdf_brothers')}      value={brothers} />,
             sisters:         <Row key="sis"     label={t('pdf_sisters')}       value={sisters} />,
             familyType:      <Row key="ftype"   label={t('pdf_family_type')}   value={familyType} />,
@@ -757,8 +757,8 @@ export default function PanIndiaTemplate({ data }) {
           const contactRowMap = {
             phone:   <Row key="phone"    label={t('pdf_phone')}   value={phone} />,
             email:   <Row key="email"    label={t('pdf_email')}   value={email} keepCase />,
-            city:    <Row key="city"     label="City"             value={city} />,
-            state:   <Row key="state"    label="State"            value={state} />,
+            city:    <Row key="city"     label={t('pdf_city')}      value={city} />,
+            state:   <Row key="state"    label={t('pdf_state')}     value={state} />,
             address: <Row key="address"  label={t('pdf_address')} value={address} />,
           }
           return (
