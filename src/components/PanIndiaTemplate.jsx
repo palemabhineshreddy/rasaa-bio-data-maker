@@ -1,6 +1,6 @@
 import { formatDate } from '../utils/formatters'
 import { useLanguage } from '../contexts/LanguageContext'
-import { getFieldOrder } from '../utils/fieldGroups'
+import { getSectionOrder } from '../utils/fieldGroups'
 import GradientStrip from './GradientStrip'
 
 /*
@@ -614,6 +614,12 @@ export default function PanIndiaTemplate({ data }) {
 
   const clean = customFields.filter(f => f.label?.trim() && f.value?.trim())
   const bySection = s => clean.filter(f => f.section === s)
+  // Built-in and added rows of a section, in the order the user arranged them
+  const ordered = (section, rowMap) => getSectionOrder(data, section).map(id => {
+    if (rowMap[id] !== undefined) return rowMap[id]
+    const f = clean.find(c => `cf:${c.id}` === id)
+    return f ? <Row key={f.id} label={f.label} value={f.value} /> : null
+  })
   const grouped = bySection('custom').reduce((acc, f) => {
     const t = f.customTitle?.trim() || 'Additional Details'
     return { ...acc, [t]: [...(acc[t] || []), f] }
@@ -705,12 +711,9 @@ export default function PanIndiaTemplate({ data }) {
               <Divider title={t('pdf_personal')} />
               <div style={{ display: 'grid', gridTemplateColumns: photo ? '1fr 160px' : '1fr', gap: 12, alignItems: 'flex-start' }}>
                 <div>
-                  {getFieldOrder(data, 'personal').map(id => personalRowMap[id] ?? null)}
-                  {bySection('personal').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
-                  {getFieldOrder(data, 'career').map(id => careerRowMap[id] ?? null)}
-                  {bySection('career').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
-                  {getFieldOrder(data, 'horoscope').map(id => horoscopeRowMap[id] ?? null)}
-                  {bySection('horoscope').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+                  {ordered('personal', personalRowMap)}
+                  {ordered('career', careerRowMap)}
+                  {ordered('horoscope', horoscopeRowMap)}
                 </div>
                 {photo && (
                   <div style={{
@@ -742,8 +745,7 @@ export default function PanIndiaTemplate({ data }) {
           return (
             <>
               <Divider title={t('pdf_family')} />
-              {getFieldOrder(data, 'family').map(id => familyRowMap[id] ?? null)}
-              {bySection('family').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+              {ordered('family', familyRowMap)}
             </>
           )
         })()}
@@ -760,8 +762,7 @@ export default function PanIndiaTemplate({ data }) {
           return (
             <>
               <Divider title={t('pdf_contact')} />
-              {getFieldOrder(data, 'contact').map(id => contactRowMap[id] ?? null)}
-              {bySection('contact').map(f => <Row key={f.id} label={f.label} value={f.value} />)}
+              {ordered('contact', contactRowMap)}
               <Row label={t('pdf_about')} value={about} />
               <Row label={t('pdf_partner')} value={partnerExpectations} />
             </>

@@ -165,7 +165,7 @@ Key tokens (selected):
 | `logoIconBg` | `#0a0a0a` | `linear-gradient(135deg, #C8960C, #F0B820)` |
 | `logoIconColor` | `#ffffff` | `#1a0a00` |
 | `logoIconShadow` | `0 3px 12px rgba(0,0,0,0.18)` | `0 3px 12px rgba(200,150,12,0.4)` |
-| `dragHandleColor` | `rgba(0,0,0,0.22)` | `rgba(255,255,255,0.18)` |
+| `dragHandleColor` | `rgba(0,0,0,0.4)` | `rgba(255,255,255,0.38)` |
 | `dragHandleHover` | `rgba(0,0,0,0.55)` | `rgba(168,85,247,0.7)` |
 | `textFaint` | `#9ca3af` | `rgba(255,255,255,0.35)` |
 
@@ -228,19 +228,19 @@ Horoscope is a full drag-and-drop section (like Personal/Career/Family/Contact) 
 Wraps each draggable field row. Uses `@dnd-kit/sortable`.
 - Drag handle: `GripVertical` icon from lucide-react.
 - Handle colour is **themed** via `T.dragHandleColor` / `T.dragHandleHover` from `useBuilderTheme()`.
-  - Light theme: `rgba(0,0,0,0.22)` → `rgba(0,0,0,0.55)` on hover (visible on white backgrounds).
-  - Dark theme: `rgba(255,255,255,0.18)` → `rgba(168,85,247,0.7)` on hover.
+  - Light theme: `rgba(0,0,0,0.4)` → `rgba(0,0,0,0.55)` on hover (visible on white backgrounds).
+  - Dark theme: `rgba(255,255,255,0.38)` → `rgba(168,85,247,0.7)` on hover.
 - **Never hardcode `rgba(255,255,255,...)` for the handle** — it is invisible on the light theme background.
 
 ### `DragHint` component (inline in `BuilderPage.jsx`)
-Faint centred hint text shown below every DnD block in both themes:
-```
-⠿ Hold and drag to reorder fields
-```
-Uses `T.textFaint` for colour (11px, letterSpacing 0.02em). Placed after each `</DndContext>` closing tag in: personal (Step1), horoscope (Step1), career (Step2), family (Step3), contact (Step4).
+Faint centred hint (`t('drag_hint')`, translated) shown below every reorderable section, rendered by `SortableSection`. Uses `T.textFaint` (11px).
+
+### Reordering: `SortableSection` + ↑ ⠿ ↓ rail
+`SortableSection` renders one section's built-in fields **and the user's added fields** as one sortable list. Each `SortableFieldRow` has a rail: ↑ button, drag handle, ↓ button (arrows exist because many users never discovered dragging).
+Added fields are stored in the order as `'cf:<id>'`; `getSectionOrder(formData, section)` in `fieldGroups.js` merges them (new ones at the end, deleted ones dropped). **Both** `PanIndiaTemplate` and `GenZTemplates` (`extractRows`) render rows via `getSectionOrder`, so every template follows the user's order.
 
 ### DnD sections
-`useSectionSort(keys, formData, updateForm)` hook manages field order state. Sections with DnD:
+`useSectionSort(formData, updateForm, section)` returns `{ sensors, order, onDragEnd, move }`. Sections with DnD:
 - Personal fields (Step1)
 - Horoscope fields (Step1, inside SectionToggle)
 - Career fields (Step2)

@@ -14,7 +14,7 @@ import { preparePhoto, cropToImage, PHOTO_MAX_BYTES } from '../utils/photo'
 import PhotoCropModal from '../components/PhotoCropModal'
 import { exportPDF } from '../utils/pdfExport'
 import { track } from '../utils/analytics'
-import { DEFAULT_FIELD_ORDER, getFieldOrder } from '../utils/fieldGroups'
+import { DEFAULT_FIELD_ORDER, getSectionOrder, customFieldKey } from '../utils/fieldGroups'
 
 /* ── field helpers ── */
 const Field = ({ label, name, formData, updateForm, type = 'text', placeholder, options }) => (
@@ -141,7 +141,6 @@ function CustomFieldEditor({ field, index, formData, updateForm }) {
 function InlineCustomFields({ section, titleKey, formData, updateForm, showHeader = true }) {
   const { t } = useLanguage()
   const T = useBuilderTheme()
-  const sectionFields = getCustomFields(formData).filter(field => field.section === section)
 
   return (
     <div className="space-y-3">
@@ -158,19 +157,6 @@ function InlineCustomFields({ section, titleKey, formData, updateForm, showHeade
           >
             <Plus className="h-3 w-3" /> {t('add_field')}
           </button>
-        </div>
-      )}
-      {sectionFields.length > 0 && (
-        <div className="space-y-3">
-          {sectionFields.map((field, index) => (
-            <CustomFieldEditor
-              key={field.id}
-              field={field}
-              index={index}
-              formData={formData}
-              updateForm={updateForm}
-            />
-          ))}
         </div>
       )}
     </div>
@@ -239,26 +225,55 @@ function useSectionSort(formData, updateForm, section) {
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
-  const order = getFieldOrder(formData, section)
+  const order = getSectionOrder(formData, section)
+  const move = (from, to) => updateForm({
+    fieldOrder: {
+      ...(formData.fieldOrder || DEFAULT_FIELD_ORDER),
+      [section]: arrayMove(order, from, to),
+    },
+  })
   const onDragEnd = ({ active, over }) => {
     if (!over || active.id === over.id) return
-    const oldIdx = order.indexOf(active.id)
-    const newIdx = order.indexOf(over.id)
-    updateForm({
-      fieldOrder: {
-        ...(formData.fieldOrder || DEFAULT_FIELD_ORDER),
-        [section]: arrayMove(order, oldIdx, newIdx),
-      },
-    })
+    move(order.indexOf(active.id), order.indexOf(over.id))
   }
-  return { sensors, order, onDragEnd }
+  return { sensors, order, onDragEnd, move }
+}
+
+/* Built-in fields and the user's added fields of one section, reorderable by drag or ↑ ↓ */
+function SortableSection({ section, fields, formData, updateForm }) {
+  const { sensors, order, onDragEnd, move } = useSectionSort(formData, updateForm, section)
+  const added = getCustomFields(formData).filter(f => f.section === section)
+  return (
+    <>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={order} strategy={verticalListSortingStrategy}>
+          <div className="space-y-4">
+            {order.map((id, i) => {
+              const field = added.find(f => customFieldKey(f) === id)
+              return (
+                <SortableFieldRow key={id} id={id}
+                  onMoveUp={i > 0 ? () => move(i, i - 1) : null}
+                  onMoveDown={i < order.length - 1 ? () => move(i, i + 1) : null}>
+                  {field
+                    ? <CustomFieldEditor field={field} index={added.indexOf(field)} formData={formData} updateForm={updateForm} />
+                    : fields[id]}
+                </SortableFieldRow>
+              )
+            })}
+          </div>
+        </SortableContext>
+      </DndContext>
+      <DragHint />
+    </>
+  )
 }
 
 function DragHint() {
+  const { t } = useLanguage()
   const T = useBuilderTheme()
   return (
     <p style={{ fontSize: 11, color: T.textFaint, textAlign: 'center', marginTop: 6, letterSpacing: '0.02em' }}>
-      ⠿ Hold and drag to reorder fields
+      {t('drag_hint')}
     </p>
   )
 }
@@ -267,8 +282,6 @@ function DragHint() {
 function Step1({ formData, updateForm }) {
   const { t } = useLanguage()
   const T = useBuilderTheme()
-  const personal = useSectionSort(formData, updateForm, 'personal')
-  const horoscope = useSectionSort(formData, updateForm, 'horoscope')
 
   const personalFields = {
     fullName:            <Field label={t('f_fullName')}    name="fullName"    formData={formData} updateForm={updateForm} placeholder={t('ph_fullName')} />,
@@ -295,18 +308,8 @@ function Step1({ formData, updateForm }) {
     <div className="space-y-5">
       <StepHeading title={t('b_s1_title')} sub={t('b_s1_sub')} />
 
-      <DndContext sensors={personal.sensors} collisionDetection={closestCenter} onDragEnd={personal.onDragEnd}>
-        <SortableContext items={personal.order} strategy={verticalListSortingStrategy}>
-          <div className="space-y-4">
-            {personal.order.map(id => (
-              <SortableFieldRow key={id} id={id}>
-                {personalFields[id]}
-              </SortableFieldRow>
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-      <DragHint />
+      <SortableSection section="personal" fields={personalFields} formData={formData} updateForm={updateForm} />
+      <InlineCustomFields section="personal" titleKey="extra_personal_t" formData={formData} updateForm={updateForm} />
 
       {/* Optional sections — togglable */}
       <SectionToggle sectionKey="about" label="About Yourself" formData={formData} updateForm={updateForm}>
@@ -323,18 +326,7 @@ function Step1({ formData, updateForm }) {
 
 
       <SectionToggle sectionKey="horoscope" label="Horoscope Details" formData={formData} updateForm={updateForm}>
-        <DndContext sensors={horoscope.sensors} collisionDetection={closestCenter} onDragEnd={horoscope.onDragEnd}>
-          <SortableContext items={horoscope.order} strategy={verticalListSortingStrategy}>
-            <div className="space-y-4">
-              {horoscope.order.map(id => (
-                <SortableFieldRow key={id} id={id}>
-                  {horoscopeFields[id]}
-                </SortableFieldRow>
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
-        <DragHint />
+        <SortableSection section="horoscope" fields={horoscopeFields} formData={formData} updateForm={updateForm} />
         <div style={{ marginTop: 16 }}>
           <InlineCustomFields section="horoscope" titleKey="extra_horoscope_t" formData={formData} updateForm={updateForm} />
         </div>
@@ -346,7 +338,6 @@ function Step1({ formData, updateForm }) {
 /* ── Step 2: Education & Career ── */
 function Step2({ formData, updateForm }) {
   const { t } = useLanguage()
-  const career = useSectionSort(formData, updateForm, 'career')
 
   const careerContent = {
     education:   <Field label={t('f_education')}    name="education"   formData={formData} updateForm={updateForm} placeholder={t('ph_education')} />,
@@ -360,18 +351,7 @@ function Step2({ formData, updateForm }) {
   return (
     <div className="space-y-5">
       <StepHeading title={t('b_s2_title')} sub={t('b_s2_sub')} />
-      <DndContext sensors={career.sensors} collisionDetection={closestCenter} onDragEnd={career.onDragEnd}>
-        <SortableContext items={career.order} strategy={verticalListSortingStrategy}>
-          <div className="space-y-4">
-            {career.order.map(id => (
-              <SortableFieldRow key={id} id={id}>
-                {careerContent[id]}
-              </SortableFieldRow>
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-      <DragHint />
+      <SortableSection section="career" fields={careerContent} formData={formData} updateForm={updateForm} />
       <InlineCustomFields section="career" titleKey="extra_career_t" formData={formData} updateForm={updateForm} />
     </div>
   )
@@ -380,7 +360,6 @@ function Step2({ formData, updateForm }) {
 /* ── Step 3: Family ── */
 function Step3({ formData, updateForm }) {
   const { t } = useLanguage()
-  const family = useSectionSort(formData, updateForm, 'family')
 
   const familyContent = {
     fatherName:      <Field label={t('f_fatherName')}   name="fatherName"      formData={formData} updateForm={updateForm} placeholder={t('ph_fatherName')} />,
@@ -397,18 +376,7 @@ function Step3({ formData, updateForm }) {
   return (
     <div className="space-y-5">
       <StepHeading title={t('b_s3_title')} sub={t('b_s3_sub')} />
-      <DndContext sensors={family.sensors} collisionDetection={closestCenter} onDragEnd={family.onDragEnd}>
-        <SortableContext items={family.order} strategy={verticalListSortingStrategy}>
-          <div className="space-y-4">
-            {family.order.map(id => (
-              <SortableFieldRow key={id} id={id}>
-                {familyContent[id]}
-              </SortableFieldRow>
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-      <DragHint />
+      <SortableSection section="family" fields={familyContent} formData={formData} updateForm={updateForm} />
       <InlineCustomFields section="family" titleKey="extra_family_t" formData={formData} updateForm={updateForm} />
     </div>
   )
@@ -417,7 +385,6 @@ function Step3({ formData, updateForm }) {
 /* ── Step 4: Contact ── */
 function Step4({ formData, updateForm }) {
   const { t } = useLanguage()
-  const contact = useSectionSort(formData, updateForm, 'contact')
 
   const contactContent = {
     phone:   <Field label={t('f_phone')}   name="phone"   formData={formData} updateForm={updateForm} placeholder={t('ph_phone')} />,
@@ -430,18 +397,7 @@ function Step4({ formData, updateForm }) {
   return (
     <div className="space-y-5">
       <StepHeading title="Contact Information" sub="How families can reach you" />
-      <DndContext sensors={contact.sensors} collisionDetection={closestCenter} onDragEnd={contact.onDragEnd}>
-        <SortableContext items={contact.order} strategy={verticalListSortingStrategy}>
-          <div className="space-y-4">
-            {contact.order.map(id => (
-              <SortableFieldRow key={id} id={id}>
-                {contactContent[id]}
-              </SortableFieldRow>
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-      <DragHint />
+      <SortableSection section="contact" fields={contactContent} formData={formData} updateForm={updateForm} />
       <InlineCustomFields section="contact" titleKey="extra_contact_t" formData={formData} updateForm={updateForm} />
     </div>
   )

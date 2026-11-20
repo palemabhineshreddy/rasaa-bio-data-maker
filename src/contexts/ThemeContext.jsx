@@ -72,7 +72,7 @@ const LIGHT = {
   logoIconShadow: '0 3px 12px rgba(0,0,0,0.18)',
   logoIconColor: '#ffffff',
   accentBar: '#0a0a0a',
-  dragHandleColor: 'rgba(0,0,0,0.22)',
+  dragHandleColor: 'rgba(0,0,0,0.4)',
   dragHandleHover: 'rgba(0,0,0,0.55)',
 }
 
@@ -127,6 +127,6 @@ const DARK = {
   logoIconShadow: '0 3px 12px rgba(200,150,12,0.4)',
   logoIconColor: '#1a0a00',
   accentBar: 'linear-gradient(180deg, #F0B820, #C8960C)',
-  dragHandleColor: 'rgba(255,255,255,0.18)',
+  dragHandleColor: 'rgba(255,255,255,0.38)',
   dragHandleHover: 'rgba(168,85,247,0.7)',
 }

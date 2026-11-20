@@ -1,6 +1,7 @@
 import { formatDate } from '../utils/formatters'
 import { useLanguage } from '../contexts/LanguageContext'
 import GradientStrip from './GradientStrip'
+import { getSectionOrder } from '../utils/fieldGroups'
 
 // ─── Shared row extractor ────────────────────────────────────────────────────
 
@@ -25,47 +26,60 @@ function extractRows(data) {
     return { ...acc, [t]: [...(acc[t] || []), f] }
   }, {})
 
+  // Rows of a section in the user's order; added fields ('cf:<id>') sit wherever they were placed
+  const ordered = (section, rows) => getSectionOrder(data, section).map(id => {
+    if (id in rows) return rows[id]
+    const f = clean.find(c => `cf:${c.id}` === id)
+    return f ? [f.label, f.value] : null
+  })
+
   const personal = [
-    ['Name', fullName],
-    ['Date of Birth', formatDate(dateOfBirth)],
-    ['Age', age ? `${age} Years` : null],
-    ['Height', height], ['Weight', weight], ['Blood Group', bloodGroup],
-    ['Religion', religion],
-    ['Community', [caste, subCaste].filter(Boolean).join(' / ') || null],
-    ['Mother Tongue', motherTongue], ['Gender', gender],
-    ...bySec('personal').map(f => [f.label, f.value]),
+    ...ordered('personal', {
+      fullName: ['Name', fullName],
+      gender: ['Gender', gender],
+      dateOfBirth: ['Date of Birth', formatDate(dateOfBirth)],
+      age: ['Age', age ? `${age} Years` : null],
+      height: ['Height', height], weight: ['Weight', weight], bloodGroup: ['Blood Group', bloodGroup],
+      religion: ['Religion', religion],
+      caste: ['Community', [caste, subCaste].filter(Boolean).join(' / ') || null],
+      subCaste: null,
+      motherTongue: ['Mother Tongue', motherTongue],
+    }),
     ['About Me', about],
     ['Partner Expectations', partnerExpectations],
-    ['Education', education], ['College / University', college],
-    ['Occupation', occupation], ['Organisation', company],
-    ['Annual Income', income], ['Work Location', workLocation],
-    ...bySec('career').map(f => [f.label, f.value]),
-  ].filter(([, v]) => v)
+    ...ordered('career', {
+      education: ['Education', education], college: ['College / University', college],
+      occupation: ['Occupation', occupation], company: ['Organisation', company],
+      income: ['Annual Income', income], workLocation: ['Work Location', workLocation],
+    }),
+  ].filter(r => r && r[1])
 
   const family = [
-    ['Father', fatherName && fatherOccupation
-      ? `${fatherName} (${fatherOccupation})`
-      : (fatherName || fatherOccupation)],
-    ['Mother', motherName && motherOccupation
-      ? `${motherName} (${motherOccupation})`
-      : (motherName || motherOccupation)],
-    ['Brothers', brothers], ['Sisters', sisters],
-    ['Family Type', familyType], ['Family Status', familyStatus],
-    ['Native Place', nativePlace],
-    ...bySec('family').map(f => [f.label, f.value]),
-    ...(hasHoroscope ? [
-      ['Rashi', rashi], ['Nakshatra', nakshatra],
-      ['Gotra', gotra], ['Manglik', manglik],
-      ...bySec('horoscope').map(f => [f.label, f.value]),
-    ] : []),
-  ].filter(([, v]) => v)
+    ...ordered('family', {
+      fatherName: ['Father', fatherName && fatherOccupation
+        ? `${fatherName} (${fatherOccupation})`
+        : (fatherName || fatherOccupation)],
+      fatherOccupation: null,
+      motherName: ['Mother', motherName && motherOccupation
+        ? `${motherName} (${motherOccupation})`
+        : (motherName || motherOccupation)],
+      motherOccupation: null,
+      brothers: ['Brothers', brothers], sisters: ['Sisters', sisters],
+      familyType: ['Family Type', familyType], familyStatus: ['Family Status', familyStatus],
+      nativePlace: ['Native Place', nativePlace],
+    }),
+    ...(hasHoroscope ? ordered('horoscope', {
+      rashi: ['Rashi', rashi], nakshatra: ['Nakshatra', nakshatra],
+      gotra: ['Gotra', gotra], manglik: ['Manglik', manglik],
+    }) : []),
+  ].filter(r => r && r[1])
 
-  const contact = [
-    ['Phone', phone], ['Email', email],
-    ['City / State', [city, state].filter(Boolean).join(', ') || null],
-    ['Address', address],
-    ...bySec('contact').map(f => [f.label, f.value]),
-  ].filter(([, v]) => v)
+  const contact = ordered('contact', {
+    phone: ['Phone', phone], email: ['Email', email],
+    city: ['City / State', [city, state].filter(Boolean).join(', ') || null],
+    state: null,
+    address: ['Address', address],
+  }).filter(r => r && r[1])
 
   return { personal, family, contact, customGrouped }
 }

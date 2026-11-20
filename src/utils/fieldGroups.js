@@ -12,3 +12,16 @@ export const DEFAULT_FIELD_ORDER = {
 export function getFieldOrder(formData, section) {
   return formData?.fieldOrder?.[section] ?? DEFAULT_FIELD_ORDER[section]
 }
+
+// Fields the user added appear in the order as 'cf:<id>' so they can sit anywhere in a section.
+export const customFieldKey = f => `cf:${f.id}`
+
+// A section's order including added fields: new ones go at the end, deleted ones drop out.
+export function getSectionOrder(formData, section) {
+  const order = getFieldOrder(formData, section)
+  const added = (formData?.customFields || []).filter(f => f.section === section).map(customFieldKey)
+  return [
+    ...order.filter(id => !id.startsWith('cf:') || added.includes(id)),
+    ...added.filter(id => !order.includes(id)),
+  ]
+}
