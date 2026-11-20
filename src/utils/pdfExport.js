@@ -1,5 +1,10 @@
 import { loadImage, cropCover } from './photo'
 
+const A4_RATIO = 297 / 210
+const MM_PER_CSS_PX = 25.4 / 96
+const MAX_CANVAS_PIXELS = 12_000_000
+const MAX_CANVAS_SIDE = 4096
+
 function safeFileName(name) {
   return String(name || 'biodata')
     .trim()
@@ -25,32 +30,78 @@ async function buildPDF(element, name) {
   if (Math.abs(pageZoom - 1) > 0.01) element.style.zoom = String(1 / pageZoom)
   const zoom = Math.min(4, Math.max(0.25, measureZoom()))
 
-  // Low-memory Android browsers can fail to allocate a 2x canvas; retry at lower scales
-  let canvas, lastErr
+  const pdfW = element.offsetWidth * MM_PER_CSS_PX
+  const pdfH = pdfW * A4_RATIO
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [pdfW, pdfH], compress: true })
+
+  let pages = []
   try {
-    for (const scale of [2, 1.5, 1]) {
-      try { canvas = await renderCanvas(html2canvas, element, scale / zoom); break } catch (e) { lastErr = e }
+    pages = paginate(element)
+    for (const [i, page] of pages.entries()) {
+      // Phones refuse canvases past ~16.7M pixels or 4096px a side; stay well under so even
+      // zoom-compensated renders never fail. Low-memory Android may still fail at 2x, so retry lower.
+      const maxScale = Math.min(MAX_CANVAS_SIDE / page.offsetHeight, Math.sqrt(MAX_CANVAS_PIXELS / (page.offsetWidth * page.offsetHeight)))
+      let canvas, lastErr
+      for (const scale of [2, 1.5, 1]) {
+        try { canvas = await renderCanvas(html2canvas, page, Math.min(scale / zoom, maxScale)); break } catch (e) { lastErr = e }
+      }
+      if (!canvas) throw lastErr
+      if (i > 0) pdf.addPage([pdfW, pdfH], 'portrait')
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfW, pdfH)
     }
   } finally {
+    pages.forEach(p => p.remove())
     element.style.zoom = prevZoom
   }
-  if (!canvas) throw lastErr
-
-  // Size the page from the unzoomed layout width so the PDF is the same at any zoom
-  const MM_PER_CSS_PX = 25.4 / 96
-  const pdfW = element.offsetWidth * MM_PER_CSS_PX
-  const pdfH = pdfW * canvas.height / canvas.width
-
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: [pdfW, pdfH],
-    compress: true,
-  })
-
-  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfW, pdfH)
 
   return { pdf, fileName: `${safeFileName(name)}-biodata.pdf` }
+}
+
+// Split the biodata into A4 pages. Each page is a copy of the template cut to A4 height that shows
+// only the rows that fit; templates mark rows (data-pdf-row), section headings (data-pdf-divider),
+// page-1-only blocks such as the name and photo (data-pdf-first) and a closing line
+// (data-pdf-last). Rows are never split, a heading never ends a page, and a section that
+// continues onto a new page repeats its heading there.
+export function paginate(element) {
+  const pageH = Math.round(element.offsetWidth * A4_RATIO)
+  const hide = el => { el.style.display = 'none' }
+  const pages = []
+  let start = 0
+  for (;;) {
+    const page = element.cloneNode(true)
+    element.parentNode.appendChild(page)
+    page.style.minHeight = ''
+    const root = page.querySelector('.pdf-area') || page
+    Object.assign(root.style, { height: `${pageH}px`, minHeight: `${pageH}px`, overflow: 'hidden' })
+    const blocks = [...page.querySelectorAll('[data-pdf-row], [data-pdf-divider]')]
+
+    if (pages.length > 0) {
+      page.querySelectorAll('[data-pdf-first]').forEach(el => {
+        hide(el)
+        if (getComputedStyle(el.parentElement).display === 'grid') el.parentElement.style.gridTemplateColumns = '1fr'
+      })
+      blocks.slice(0, start).forEach(hide)
+      if (blocks[start]?.hasAttribute('data-pdf-row')) {
+        const heading = blocks.slice(0, start).reverse().find(b => b.hasAttribute('data-pdf-divider'))
+        if (heading) heading.style.display = ''
+      }
+    }
+
+    // Measure in the page's own (possibly zoomed) coordinates
+    const box = root.getBoundingClientRect()
+    const k = box.width / root.offsetWidth || 1
+    const limit = box.top + (pageH - Number(root.dataset.pdfBottom || 40)) * k
+    let end = start
+    while (end < blocks.length && blocks[end].getBoundingClientRect().bottom <= limit) end++
+    while (end > start + 1 && blocks[end - 1].hasAttribute('data-pdf-divider') && blocks[end]?.hasAttribute('data-pdf-row')) end--
+    if (end === start && start < blocks.length) end = start + 1
+    blocks.slice(end).forEach(hide)
+    if (end < blocks.length) page.querySelectorAll('[data-pdf-last]').forEach(hide)
+
+    pages.push(page)
+    if (end >= blocks.length) return pages
+    start = end
+  }
 }
 
 // html2canvas 1.4.1 truncates fractional background sizes when it builds pattern canvases

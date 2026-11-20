@@ -428,7 +428,9 @@ Extracted from `LandingPage.jsx` so both pages share identical previews:
 ## PDF Export
 - `pdfExport.js` uses html2canvas on the element passed via `previewRef` (not a CSS selector)
 - Scale: `2` for high DPI
-- PDF dimensions match the element's exact pixel size — one page, no splitting
+- **A4 pages:** `paginate()` splits the biodata into A4-height pages (rows never split, a heading never ends a page, a continuing section repeats its heading). Templates must mark blocks: `data-pdf-row` (each Label : Value row), `data-pdf-divider` (section headings), `data-pdf-first` (name banner, photo, slogan — page 1 only), `data-pdf-last` (closing line — last page only), and optionally `data-pdf-bottom="<px>"` on `.pdf-area` to reserve footer space (default 40). **Any new template or row component must carry these attributes.**
+- Canvas size is capped (12M px, 4096px a side) so phones never refuse to render a page
+- **Text style (Preview step only):** `formData.textSize` (`xs|s|m|l|xl`, scale in `utils/textStyle.js`) and `formData.textCase` (`normal|upper`) scale/capitalise row label, colon and value in every template's `Row`; email and About/Partner paragraphs pass `keepCase`. The Preview panel shows the page count from `paginate()`.
 - Photo must use `background-image` + `background-position` — `object-fit` on `<img>` is ignored by html2canvas
 - `inset` CSS shorthand not supported by html2canvas — use explicit `top/right/bottom/left`
 - `borderBottom` on inline `<span>` renders inconsistently — use a separate `<div>` for underlines

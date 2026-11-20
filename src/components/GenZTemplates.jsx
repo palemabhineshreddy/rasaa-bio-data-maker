@@ -1,4 +1,5 @@
 import { formatDate } from '../utils/formatters'
+import { textScale, capsStyle } from '../utils/textStyle'
 import { useLanguage } from '../contexts/LanguageContext'
 import GradientStrip from './GradientStrip'
 import { getSectionOrder } from '../utils/fieldGroups'
@@ -45,8 +46,8 @@ function extractRows(data) {
       subCaste: null,
       motherTongue: ['Mother Tongue', motherTongue],
     }),
-    ['About Me', about],
-    ['Partner Expectations', partnerExpectations],
+    ['About Me', about, true],
+    ['Partner Expectations', partnerExpectations, true],
     ...ordered('career', {
       education: ['Education', education], college: ['College / University', college],
       occupation: ['Occupation', occupation], company: ['Organisation', company],
@@ -75,7 +76,7 @@ function extractRows(data) {
   ].filter(r => r && r[1])
 
   const contact = ordered('contact', {
-    phone: ['Phone', phone], email: ['Email', email],
+    phone: ['Phone', phone], email: ['Email', email, true],
     city: ['City / State', [city, state].filter(Boolean).join(', ') || null],
     state: null,
     address: ['Address', address],
@@ -98,22 +99,23 @@ export function NoirTemplate({ data }) {
   const VALUE  = '#d4d4d4'
   const WHITE  = '#f8f8f8'
 
-  function Row({ label, value }) {
+  function Row({ label, value, keepCase }) {
     if (!value) return null
+    const k = textScale(data)
     return (
-      <div style={{ display: 'flex', alignItems: 'baseline', padding: '3.5px 0' }}>
-        <span style={{ width: 145, flexShrink: 0, fontSize: 10.5, fontWeight: 600, color: LABEL, letterSpacing: '0.01em' }}>
+      <div data-pdf-row style={{ display: 'flex', alignItems: 'baseline', padding: `${3.5 * k}px 0` }}>
+        <span style={{ textTransform: capsStyle(data), width: 145 * k, flexShrink: 0, fontSize: 10.5 * k, fontWeight: 600, color: LABEL, letterSpacing: '0.01em' }}>
           {label}
         </span>
-        <span style={{ fontSize: 10.5, fontWeight: 700, color: AMBER, marginRight: 10, flexShrink: 0 }}>:</span>
-        <span style={{ fontSize: 10.5, color: VALUE, fontWeight: 400, flex: 1, lineHeight: 1.55 }}>{value}</span>
+        <span style={{ fontSize: 10.5 * k, fontWeight: 700, color: AMBER, marginRight: 10, flexShrink: 0 }}>:</span>
+        <span style={{ textTransform: capsStyle(data, keepCase), fontSize: 10.5 * k, color: VALUE, fontWeight: 400, flex: 1, lineHeight: 1.55, whiteSpace: 'pre-line' }}>{value}</span>
       </div>
     )
   }
 
   function Section({ titleKey, title }) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0 8px' }}>
+      <div data-pdf-divider style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0 8px' }}>
         <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.22em', color: AMBER, flexShrink: 0 }}>
           {titleKey ? t(titleKey) : title}
         </span>
@@ -131,7 +133,7 @@ export function NoirTemplate({ data }) {
 
       <div style={{ padding: '42px 52px 32px 52px' }}>
         {/* Name block */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
+        <div data-pdf-first style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
           <div>
             <div style={{ fontSize: 38, fontWeight: 800, color: WHITE, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
               {data?.fullName || 'Your Name'}
@@ -156,13 +158,13 @@ export function NoirTemplate({ data }) {
         </div>
 
         <Section titleKey="pdf_personal" />
-        {personal.map(([l, v]) => <Row key={l} label={l} value={v} />)}
+        {personal.map(([l, v, keep]) => <Row key={l} label={l} value={v} keepCase={keep} />)}
 
         <Section titleKey="pdf_family" />
-        {family.map(([l, v]) => <Row key={l} label={l} value={v} />)}
+        {family.map(([l, v, keep]) => <Row key={l} label={l} value={v} keepCase={keep} />)}
 
         <Section titleKey="pdf_contact" />
-        {contact.map(([l, v]) => <Row key={l} label={l} value={v} />)}
+        {contact.map(([l, v, keep]) => <Row key={l} label={l} value={v} keepCase={keep} />)}
 
         {Object.entries(customGrouped).map(([title, rows]) => (
           <div key={title}>
@@ -171,7 +173,7 @@ export function NoirTemplate({ data }) {
           </div>
         ))}
 
-        <div style={{ marginTop: 26, height: 1, background: 'rgba(255,255,255,0.06)' }} />
+        <div data-pdf-last style={{ marginTop: 26, height: 1, background: 'rgba(255,255,255,0.06)' }} />
       </div>
     </div>
   )
@@ -189,20 +191,21 @@ export function AuroraTemplate({ data }) {
   const WHITE = 'rgba(255,255,255,0.9)'
   const LABEL = 'rgba(255,255,255,0.5)'
 
-  function Row({ label, value }) {
+  function Row({ label, value, keepCase }) {
     if (!value) return null
+    const k = textScale(data)
     return (
-      <div style={{ display: 'flex', alignItems: 'baseline', padding: '3.5px 0' }}>
-        <span style={{ width: 145, flexShrink: 0, fontSize: 10.5, fontWeight: 600, color: LABEL }}>{label}</span>
-        <span style={{ fontSize: 10.5, fontWeight: 700, color: CYAN, marginRight: 10, flexShrink: 0 }}>:</span>
-        <span style={{ fontSize: 10.5, color: WHITE, fontWeight: 400, flex: 1, lineHeight: 1.55 }}>{value}</span>
+      <div data-pdf-row style={{ display: 'flex', alignItems: 'baseline', padding: `${3.5 * k}px 0` }}>
+        <span style={{ textTransform: capsStyle(data), width: 145 * k, flexShrink: 0, fontSize: 10.5 * k, fontWeight: 600, color: LABEL }}>{label}</span>
+        <span style={{ fontSize: 10.5 * k, fontWeight: 700, color: CYAN, marginRight: 10, flexShrink: 0 }}>:</span>
+        <span style={{ textTransform: capsStyle(data, keepCase), fontSize: 10.5 * k, color: WHITE, fontWeight: 400, flex: 1, lineHeight: 1.55, whiteSpace: 'pre-line' }}>{value}</span>
       </div>
     )
   }
 
   function Section({ titleKey, title }) {
     return (
-      <div style={{ margin: '18px 0 8px' }}>
+      <div data-pdf-divider style={{ margin: '18px 0 8px' }}>
         <span style={{
           display: 'inline-block',
           fontSize: 9.5, fontWeight: 800,
@@ -249,7 +252,7 @@ export function AuroraTemplate({ data }) {
       }} />
 
       <div style={{ padding: '44px 52px 32px 52px', position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
+        <div data-pdf-first style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
           <div>
             <div style={{ fontSize: 36, fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
               {data?.fullName || 'Your Name'}
@@ -276,13 +279,13 @@ export function AuroraTemplate({ data }) {
         </div>
 
         <Section titleKey="pdf_personal" />
-        {personal.map(([l, v]) => <Row key={l} label={l} value={v} />)}
+        {personal.map(([l, v, keep]) => <Row key={l} label={l} value={v} keepCase={keep} />)}
 
         <Section titleKey="pdf_family" />
-        {family.map(([l, v]) => <Row key={l} label={l} value={v} />)}
+        {family.map(([l, v, keep]) => <Row key={l} label={l} value={v} keepCase={keep} />)}
 
         <Section titleKey="pdf_contact" />
-        {contact.map(([l, v]) => <Row key={l} label={l} value={v} />)}
+        {contact.map(([l, v, keep]) => <Row key={l} label={l} value={v} keepCase={keep} />)}
 
         {Object.entries(customGrouped).map(([title, rows]) => (
           <div key={title}>
@@ -309,20 +312,21 @@ export function EditorialTemplate({ data }) {
   const LABEL = '#9ca3af'
   const VALUE = '#111827'
 
-  function Row({ label, value }) {
+  function Row({ label, value, keepCase }) {
     if (!value) return null
+    const k = textScale(data)
     return (
-      <div style={{ display: 'flex', alignItems: 'baseline', padding: '3.5px 0' }}>
-        <span style={{ width: 145, flexShrink: 0, fontSize: 10.5, fontWeight: 600, color: LABEL }}>{label}</span>
-        <span style={{ fontSize: 10.5, fontWeight: 700, color: RED, marginRight: 10, flexShrink: 0 }}>:</span>
-        <span style={{ fontSize: 10.5, color: VALUE, fontWeight: 500, flex: 1, lineHeight: 1.55 }}>{value}</span>
+      <div data-pdf-row style={{ display: 'flex', alignItems: 'baseline', padding: `${3.5 * k}px 0` }}>
+        <span style={{ textTransform: capsStyle(data), width: 145 * k, flexShrink: 0, fontSize: 10.5 * k, fontWeight: 600, color: LABEL }}>{label}</span>
+        <span style={{ fontSize: 10.5 * k, fontWeight: 700, color: RED, marginRight: 10, flexShrink: 0 }}>:</span>
+        <span style={{ textTransform: capsStyle(data, keepCase), fontSize: 10.5 * k, color: VALUE, fontWeight: 500, flex: 1, lineHeight: 1.55, whiteSpace: 'pre-line' }}>{value}</span>
       </div>
     )
   }
 
   function Section({ titleKey, title }) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '18px 0 7px' }}>
+      <div data-pdf-divider style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '18px 0 7px' }}>
         <div style={{ width: 3, height: 14, background: RED, borderRadius: 2, flexShrink: 0 }} />
         <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.2em', color: NAVY }}>
           {titleKey ? t(titleKey) : title}
@@ -336,7 +340,7 @@ export function EditorialTemplate({ data }) {
   return (
     <div className="pdf-area" style={{ background: '#ffffff', fontFamily: 'Inter, sans-serif', minHeight: 1075 }}>
       {/* Header band */}
-      <div style={{
+      <div data-pdf-first style={{
         background: NAVY,
         padding: '28px 52px 24px',
         display: 'flex',
@@ -373,13 +377,13 @@ export function EditorialTemplate({ data }) {
       {/* Content */}
       <div style={{ padding: '28px 52px 32px' }}>
         <Section titleKey="pdf_personal" />
-        {personal.map(([l, v]) => <Row key={l} label={l} value={v} />)}
+        {personal.map(([l, v, keep]) => <Row key={l} label={l} value={v} keepCase={keep} />)}
 
         <Section titleKey="pdf_family" />
-        {family.map(([l, v]) => <Row key={l} label={l} value={v} />)}
+        {family.map(([l, v, keep]) => <Row key={l} label={l} value={v} keepCase={keep} />)}
 
         <Section titleKey="pdf_contact" />
-        {contact.map(([l, v]) => <Row key={l} label={l} value={v} />)}
+        {contact.map(([l, v, keep]) => <Row key={l} label={l} value={v} keepCase={keep} />)}
 
         {Object.entries(customGrouped).map(([title, rows]) => (
           <div key={title}>
@@ -388,7 +392,7 @@ export function EditorialTemplate({ data }) {
           </div>
         ))}
 
-        <div style={{ marginTop: 26, height: 1, background: '#e5e7eb' }} />
+        <div data-pdf-last style={{ marginTop: 26, height: 1, background: '#e5e7eb' }} />
       </div>
     </div>
   )
@@ -407,20 +411,21 @@ export function BloomTemplate({ data }) {
   const LABEL   = '#9c6e88'
   const VALUE   = '#2d1b3d'
 
-  function Row({ label, value }) {
+  function Row({ label, value, keepCase }) {
     if (!value) return null
+    const k = textScale(data)
     return (
-      <div style={{ display: 'flex', alignItems: 'baseline', padding: '3.5px 0' }}>
-        <span style={{ width: 145, flexShrink: 0, fontSize: 10.5, fontWeight: 600, color: LABEL }}>{label}</span>
-        <span style={{ fontSize: 10.5, fontWeight: 700, color: MAGENTA, marginRight: 10, flexShrink: 0 }}>:</span>
-        <span style={{ fontSize: 10.5, color: VALUE, fontWeight: 500, flex: 1, lineHeight: 1.55 }}>{value}</span>
+      <div data-pdf-row style={{ display: 'flex', alignItems: 'baseline', padding: `${3.5 * k}px 0` }}>
+        <span style={{ textTransform: capsStyle(data), width: 145 * k, flexShrink: 0, fontSize: 10.5 * k, fontWeight: 600, color: LABEL }}>{label}</span>
+        <span style={{ fontSize: 10.5 * k, fontWeight: 700, color: MAGENTA, marginRight: 10, flexShrink: 0 }}>:</span>
+        <span style={{ textTransform: capsStyle(data, keepCase), fontSize: 10.5 * k, color: VALUE, fontWeight: 500, flex: 1, lineHeight: 1.55, whiteSpace: 'pre-line' }}>{value}</span>
       </div>
     )
   }
 
   function Section({ titleKey, title }) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '18px 0 7px' }}>
+      <div data-pdf-divider style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '18px 0 7px' }}>
         <div style={{ width: 6, height: 6, borderRadius: '50%', background: MAGENTA, flexShrink: 0 }} />
         <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.22em', color: MAGENTA }}>
           {titleKey ? t(titleKey) : title}
@@ -438,7 +443,7 @@ export function BloomTemplate({ data }) {
 
       {/* Main content */}
       <div style={{ flex: 1, padding: '42px 48px 32px 36px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
+        <div data-pdf-first style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
           <div>
             <div style={{ fontSize: 32, fontWeight: 800, color: INDIGO, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
               {data?.fullName || 'Your Name'}
@@ -464,13 +469,13 @@ export function BloomTemplate({ data }) {
         </div>
 
         <Section titleKey="pdf_personal" />
-        {personal.map(([l, v]) => <Row key={l} label={l} value={v} />)}
+        {personal.map(([l, v, keep]) => <Row key={l} label={l} value={v} keepCase={keep} />)}
 
         <Section titleKey="pdf_family" />
-        {family.map(([l, v]) => <Row key={l} label={l} value={v} />)}
+        {family.map(([l, v, keep]) => <Row key={l} label={l} value={v} keepCase={keep} />)}
 
         <Section titleKey="pdf_contact" />
-        {contact.map(([l, v]) => <Row key={l} label={l} value={v} />)}
+        {contact.map(([l, v, keep]) => <Row key={l} label={l} value={v} keepCase={keep} />)}
 
         {Object.entries(customGrouped).map(([title, rows]) => (
           <div key={title}>
@@ -497,20 +502,21 @@ export function NeoTemplate({ data }) {
   const LABEL  = '#666666'
   const VALUE  = '#0a0a0a'
 
-  function Row({ label, value }) {
+  function Row({ label, value, keepCase }) {
     if (!value) return null
+    const k = textScale(data)
     return (
-      <div style={{ display: 'flex', alignItems: 'baseline', padding: '3.5px 0' }}>
-        <span style={{ width: 145, flexShrink: 0, fontSize: 10.5, fontWeight: 600, color: LABEL }}>{label}</span>
-        <span style={{ fontSize: 10.5, fontWeight: 800, color: BLACK, marginRight: 10, flexShrink: 0 }}>:</span>
-        <span style={{ fontSize: 10.5, color: VALUE, fontWeight: 500, flex: 1, lineHeight: 1.55 }}>{value}</span>
+      <div data-pdf-row style={{ display: 'flex', alignItems: 'baseline', padding: `${3.5 * k}px 0` }}>
+        <span style={{ textTransform: capsStyle(data), width: 145 * k, flexShrink: 0, fontSize: 10.5 * k, fontWeight: 600, color: LABEL }}>{label}</span>
+        <span style={{ fontSize: 10.5 * k, fontWeight: 800, color: BLACK, marginRight: 10, flexShrink: 0 }}>:</span>
+        <span style={{ textTransform: capsStyle(data, keepCase), fontSize: 10.5 * k, color: VALUE, fontWeight: 500, flex: 1, lineHeight: 1.55, whiteSpace: 'pre-line' }}>{value}</span>
       </div>
     )
   }
 
   function Section({ titleKey, title }) {
     return (
-      <div style={{ margin: '18px 0 7px' }}>
+      <div data-pdf-divider style={{ margin: '18px 0 7px' }}>
         <div style={{ height: 2, background: BLACK, marginBottom: 7 }} />
         <span style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.22em', color: BLACK }}>
           {titleKey ? t(titleKey) : title}
@@ -524,7 +530,7 @@ export function NeoTemplate({ data }) {
   return (
     <div className="pdf-area" style={{ background: '#f5f4f0', fontFamily: 'Inter, sans-serif', border: `2px solid ${BLACK}`, minHeight: 1075 }}>
       {/* Yellow header block */}
-      <div style={{
+      <div data-pdf-first style={{
         background: YELLOW,
         padding: '24px 36px',
         display: 'flex',
@@ -558,13 +564,13 @@ export function NeoTemplate({ data }) {
       {/* Content */}
       <div style={{ padding: '24px 36px 28px' }}>
         <Section titleKey="pdf_personal" />
-        {personal.map(([l, v]) => <Row key={l} label={l} value={v} />)}
+        {personal.map(([l, v, keep]) => <Row key={l} label={l} value={v} keepCase={keep} />)}
 
         <Section titleKey="pdf_family" />
-        {family.map(([l, v]) => <Row key={l} label={l} value={v} />)}
+        {family.map(([l, v, keep]) => <Row key={l} label={l} value={v} keepCase={keep} />)}
 
         <Section titleKey="pdf_contact" />
-        {contact.map(([l, v]) => <Row key={l} label={l} value={v} />)}
+        {contact.map(([l, v, keep]) => <Row key={l} label={l} value={v} keepCase={keep} />)}
 
         {Object.entries(customGrouped).map(([title, rows]) => (
           <div key={title}>
@@ -573,7 +579,7 @@ export function NeoTemplate({ data }) {
           </div>
         ))}
 
-        <div style={{ marginTop: 22, height: 2, background: BLACK }} />
+        <div data-pdf-last style={{ marginTop: 22, height: 2, background: BLACK }} />
       </div>
     </div>
   )

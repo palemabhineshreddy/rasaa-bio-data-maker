@@ -12,7 +12,8 @@ import { useLanguage } from '../contexts/LanguageContext'
 import { useTheme, useBuilderTheme } from '../contexts/ThemeContext'
 import { preparePhoto, cropToImage, PHOTO_MAX_BYTES } from '../utils/photo'
 import PhotoCropModal from '../components/PhotoCropModal'
-import { exportPDF } from '../utils/pdfExport'
+import { exportPDF, paginate } from '../utils/pdfExport'
+import { TEXT_SIZES } from '../utils/textStyle'
 import { track } from '../utils/analytics'
 import { DEFAULT_FIELD_ORDER, getSectionOrder, customFieldKey } from '../utils/fieldGroups'
 
@@ -1124,7 +1125,59 @@ const WA_FALLBACK_TEXT = encodeURIComponent(
   'I just created my marriage biodata on Bandhan. It is free, needs no sign-up and takes 5 minutes! Try it: https://bandhan.app'
 )
 
-function PreviewStep({ formData, onBack, onEditStep, steps, exportRef, feedbackShown, onFeedbackShown }) {
+/* ── Preview: text size + letter case, with the resulting page count ── */
+function TextStylePanel({ formData, updateForm, exportRef }) {
+  const { t } = useLanguage()
+  const T = useBuilderTheme()
+  const [pages, setPages] = useState(1)
+  const size = formData.textSize || 'm'
+  const caps = formData.textCase === 'upper'
+
+  // Count A4 pages the same way the PDF export splits them, once the hidden copy has re-rendered
+  useEffect(() => {
+    const id = setTimeout(() => {
+      if (!exportRef.current) return
+      const split = paginate(exportRef.current)
+      setPages(split.length)
+      split.forEach(p => p.remove())
+    }, 150)
+    return () => clearTimeout(id)
+  }, [formData, exportRef])
+
+  const pill = active => ({
+    flex: 1, padding: '8px 6px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+    background: active ? T.stepActiveBg : T.stepIdleBg,
+    color: active ? T.stepActiveText : T.stepIdleText,
+    border: `1px solid ${active ? T.stepActiveBorder : T.stepIdleBorder}`,
+  })
+  const label = { fontSize: 12, fontWeight: 600, color: T.textMuted }
+  const row = { display: 'flex', gap: 6 }
+
+  return (
+    <div style={{ borderRadius: 16, border: `1px solid ${T.borderStrong}`, background: T.cardBg, padding: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <span style={label}>{t('ts_size')}</span>
+      <div style={row}>
+        {TEXT_SIZES.map(s => (
+          <button key={s} type="button" onClick={() => updateForm({ textSize: s })} style={pill(size === s)} aria-pressed={size === s}>
+            {s.toUpperCase()}
+          </button>
+        ))}
+      </div>
+      <span style={label}>{t('ts_letters')}</span>
+      <div style={row}>
+        <button type="button" onClick={() => updateForm({ textCase: 'normal' })} style={pill(!caps)} aria-pressed={!caps}>{t('ts_normal')}</button>
+        <button type="button" onClick={() => updateForm({ textCase: 'upper' })} style={pill(caps)} aria-pressed={caps}>{t('ts_caps')}</button>
+      </div>
+      <p style={{ fontSize: 12, color: T.textFaint, margin: 0 }}>
+        ⓘ {t('ts_note')} · <strong style={{ color: pages > 1 ? T.text : T.savedFlashColor }}>
+          {pages > 1 ? t('ts_pages').replace('{n}', pages) : t('ts_one_page')}
+        </strong>
+      </p>
+    </div>
+  )
+}
+
+function PreviewStep({ formData, updateForm, onBack, onEditStep, steps, exportRef, feedbackShown, onFeedbackShown }) {
   const { t } = useLanguage()
   const T = useBuilderTheme()
   const [loading, setLoading] = useState(false)
@@ -1256,7 +1309,8 @@ function PreviewStep({ formData, onBack, onEditStep, steps, exportRef, feedbackS
 
       {/* Biodata preview — same card view as the live preview panel */}
       <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <div style={{ width: '100%', maxWidth: 420 }}>
+        <div style={{ width: '100%', maxWidth: 420 }} className="space-y-4">
+          <TextStylePanel formData={formData} updateForm={updateForm} exportRef={exportRef} />
           <SidePanelPreview formData={applyEnabledSections(formData)} />
         </div>
       </div>
@@ -1584,7 +1638,7 @@ export default function BuilderPage({ formData, updateForm, onBack }) {
               exit={{ opacity: 0, x: -24 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             >
-              <PreviewStep formData={formData} onBack={() => setStep(totalSteps - 1)} onEditStep={setStep} steps={STEPS.map(s => s.label)} exportRef={downloadRef} feedbackShown={feedbackShown} onFeedbackShown={() => setFeedbackShown(true)} />
+              <PreviewStep formData={formData} updateForm={updateForm} onBack={() => setStep(totalSteps - 1)} onEditStep={setStep} steps={STEPS.map(s => s.label)} exportRef={downloadRef} feedbackShown={feedbackShown} onFeedbackShown={() => setFeedbackShown(true)} />
             </motion.div>
           </AnimatePresence>
         ) : (

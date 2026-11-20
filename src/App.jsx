@@ -35,6 +35,8 @@ const EMPTY_FORM = {
   photoOriginal: null,
   photoCrop: null,
   photoPosition: { x: 50, y: 20 },
+  textSize: 'm',
+  textCase: 'normal',
   template: 'lotus',
   sloganLanguage: 'auto',
   // User-defined rows

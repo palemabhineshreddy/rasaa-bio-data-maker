@@ -1,4 +1,5 @@
 import { formatDate } from '../utils/formatters'
+import { textScale, capsStyle } from '../utils/textStyle'
 import { useLanguage } from '../contexts/LanguageContext'
 import { getSectionOrder } from '../utils/fieldGroups'
 import GradientStrip from './GradientStrip'
@@ -650,19 +651,20 @@ export default function PanIndiaTemplate({ data }) {
     )
   }
 
-  function Row({ label, value }) {
+  function Row({ label, value, keepCase }) {
     if (!value) return null
+    const k = textScale(data)
     return (
-      <div style={{ display: 'flex', alignItems: 'baseline', padding: '4px 0' }}>
-        <span style={{ width: 148, flexShrink: 0, fontSize: 10.5, fontWeight: 700, color: labelColor }}>{label}</span>
-        <span style={{ fontSize: 10.5, fontWeight: 700, color: gold, marginRight: 10 }}>:</span>
-        <span style={{ fontSize: 10.5, color: valueColor, fontWeight: 500, flex: 1, lineHeight: 1.5, whiteSpace: 'pre-line' }}>{value}</span>
+      <div data-pdf-row style={{ display: 'flex', alignItems: 'baseline', padding: `${4 * k}px 0` }}>
+        <span style={{ textTransform: capsStyle(data), width: 148 * k, flexShrink: 0, fontSize: 10.5 * k, fontWeight: 700, color: labelColor }}>{label}</span>
+        <span style={{ fontSize: 10.5 * k, fontWeight: 700, color: gold, marginRight: 10 }}>:</span>
+        <span style={{ textTransform: capsStyle(data, keepCase), fontSize: 10.5 * k, color: valueColor, fontWeight: 500, flex: 1, lineHeight: 1.5, whiteSpace: 'pre-line' }}>{value}</span>
       </div>
     )
   }
 
   return (
-    <div className="pdf-area" style={{ background: bg, fontFamily: 'Inter, sans-serif', position: 'relative', minHeight: 1075 }}>
+    <div className="pdf-area" data-pdf-bottom="72" style={{ background: bg, fontFamily: 'Inter, sans-serif', position: 'relative', minHeight: 1075 }}>
 
       <Border outer={outer} gold={gold} />
 
@@ -670,7 +672,7 @@ export default function PanIndiaTemplate({ data }) {
       <div style={{ padding: '48px 52px 56px 90px', position: 'relative', zIndex: 1 }}>
 
         {getSlogan(religion, motherTongue, sloganLanguage) && (
-          <header style={{ textAlign: 'center', marginBottom: 16 }}>
+          <header data-pdf-first style={{ textAlign: 'center', marginBottom: 16 }}>
             <div style={{ fontFamily: 'serif', fontSize: 13, color: gold, letterSpacing: '0.14em' }}>
               {getSlogan(religion, motherTongue, sloganLanguage)}
             </div>
@@ -716,7 +718,7 @@ export default function PanIndiaTemplate({ data }) {
                   {ordered('horoscope', horoscopeRowMap)}
                 </div>
                 {photo && (
-                  <div style={{
+                  <div data-pdf-first style={{
                     width: 152, height: 192,
                     backgroundImage: `url(${photo})`,
                     backgroundSize: 'cover',
@@ -754,7 +756,7 @@ export default function PanIndiaTemplate({ data }) {
         {hasContact && (() => {
           const contactRowMap = {
             phone:   <Row key="phone"    label={t('pdf_phone')}   value={phone} />,
-            email:   <Row key="email"    label={t('pdf_email')}   value={email} />,
+            email:   <Row key="email"    label={t('pdf_email')}   value={email} keepCase />,
             city:    <Row key="city"     label="City"             value={city} />,
             state:   <Row key="state"    label="State"            value={state} />,
             address: <Row key="address"  label={t('pdf_address')} value={address} />,
@@ -763,8 +765,8 @@ export default function PanIndiaTemplate({ data }) {
             <>
               <Divider title={t('pdf_contact')} />
               {ordered('contact', contactRowMap)}
-              <Row label={t('pdf_about')} value={about} />
-              <Row label={t('pdf_partner')} value={partnerExpectations} />
+              <Row label={t('pdf_about')} value={about} keepCase />
+              <Row label={t('pdf_partner')} value={partnerExpectations} keepCase />
             </>
           )
         })()}
